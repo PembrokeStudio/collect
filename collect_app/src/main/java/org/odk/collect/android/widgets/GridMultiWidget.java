@@ -17,8 +17,8 @@ package org.odk.collect.android.widgets;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.util.TypedValue;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -387,6 +387,17 @@ public class GridMultiWidget extends QuestionWidget {
 
     }
 
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        gridview.setOnLongClickListener(l);
+    }
+
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+        gridview.cancelLongPress();
+    }
+
     // Custom image adapter. Most of the code is copied from
     // media layout for using a picture.
     private class ImageAdapter extends BaseAdapter {
@@ -421,18 +432,5 @@ public class GridMultiWidget extends QuestionWidget {
                 return convertView;
             }
         }
-    }
-
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-        gridview.setOnLongClickListener(l);
-    }
-
-
-    @Override
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        gridview.cancelLongPress();
     }
 }

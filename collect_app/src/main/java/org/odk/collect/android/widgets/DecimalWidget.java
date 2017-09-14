@@ -35,22 +35,6 @@ import java.util.Locale;
  */
 public class DecimalWidget extends StringWidget {
 
-    private Double getDoubleAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
-        Double d = null;
-        if (dataHolder != null) {
-            Object dataValue = dataHolder.getValue();
-            if (dataValue != null) {
-                if (dataValue instanceof Integer) {
-                    d = (double) (Integer) dataValue;
-                } else {
-                    d = (Double) dataValue;
-                }
-            }
-        }
-        return d;
-    }
-
     public DecimalWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
         super(context, prompt, readOnlyOverride, true);
 
@@ -95,6 +79,21 @@ public class DecimalWidget extends StringWidget {
         setupChangeListener();
     }
 
+    private Double getDoubleAnswerValue() {
+        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        Double d = null;
+        if (dataHolder != null) {
+            Object dataValue = dataHolder.getValue();
+            if (dataValue != null) {
+                if (dataValue instanceof Integer) {
+                    d = (double) (Integer) dataValue;
+                } else {
+                    d = (Double) dataValue;
+                }
+            }
+        }
+        return d;
+    }
 
     @Override
     public IAnswerData getAnswer() {

@@ -294,7 +294,7 @@ public class ItemsetWidget extends QuestionWidget implements
                             ImageView rightArrow = new ImageView(getContext());
                             rightArrow.setImageBitmap(
                                     BitmapFactory.decodeResource(getContext().getResources(),
-                                    R.drawable.expander_ic_right));
+                                            R.drawable.expander_ic_right));
 
                             RelativeLayout.LayoutParams arrowParams =
                                     new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,

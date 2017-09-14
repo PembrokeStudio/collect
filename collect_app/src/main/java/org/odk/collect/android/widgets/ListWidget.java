@@ -16,8 +16,8 @@ package org.odk.collect.android.widgets;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.TypedValue;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;

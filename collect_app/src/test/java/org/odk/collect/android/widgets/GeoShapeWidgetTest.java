@@ -2,11 +2,9 @@ package org.odk.collect.android.widgets;
 
 import android.support.annotation.NonNull;
 
-import org.javarosa.core.model.QuestionDef;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.StringData;
 import org.junit.Before;
-import org.mockito.Mock;
 import org.odk.collect.android.widgets.base.BinaryWidgetTest;
 import org.robolectric.RuntimeEnvironment;
 
@@ -26,9 +24,6 @@ public class GeoShapeWidgetTest extends BinaryWidgetTest<GeoShapeWidget, StringD
 
     private ArrayList<double[]> initialDoubles;
     private ArrayList<double[]> answerDoubles;
-
-    @Mock
-    QuestionDef questionDef;
 
     public GeoShapeWidgetTest() {
         super(GeoShapeWidget.class);
@@ -59,7 +54,6 @@ public class GeoShapeWidgetTest extends BinaryWidgetTest<GeoShapeWidget, StringD
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(formEntryPrompt.getQuestion()).thenReturn(questionDef);
 
         initialDoubles = getRandomDoubleArrayList();
         answerDoubles = getRandomDoubleArrayList();

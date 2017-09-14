@@ -31,16 +31,15 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class OSMWidgetTest extends BinaryWidgetTest<OSMWidget, StringData> {
 
-    private String fileName = null;
-
+    @Mock
+    public File instancePath;
     @Mock
     File mediaFolder;
-
     @Mock
     FormDef formDef;
-
     @Mock
     QuestionDef questionDef;
+    private String fileName = null;
 
     public OSMWidgetTest() {
         super(OSMWidget.class);
@@ -71,6 +70,7 @@ public class OSMWidgetTest extends BinaryWidgetTest<OSMWidget, StringData> {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        when(formController.getInstancePath()).thenReturn(instancePath);
         when(formEntryPrompt.isReadOnly()).thenReturn(false);
 
         when(formController.getMediaFolder()).thenReturn(mediaFolder);

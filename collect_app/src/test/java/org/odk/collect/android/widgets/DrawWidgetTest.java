@@ -55,9 +55,11 @@ public class DrawWidgetTest extends BinaryNameWidgetTest<DrawWidget> {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(formEntryPrompt.isReadOnly()).thenReturn(false);
-
         fileName = RandomString.make();
+    }
+
+    @Override
+    protected void prepareForSetAnswer() {
 
         when(file.exists()).thenReturn(true);
         when(file.getName()).thenReturn(fileName);

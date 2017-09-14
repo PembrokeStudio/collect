@@ -34,22 +34,6 @@ import java.util.Locale;
  */
 public class IntegerWidget extends StringWidget {
 
-    private Integer getIntegerAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
-        Integer d = null;
-        if (dataHolder != null) {
-            Object dataValue = dataHolder.getValue();
-            if (dataValue != null) {
-                if (dataValue instanceof Double) {
-                    d = ((Double) dataValue).intValue();
-                } else {
-                    d = (Integer) dataValue;
-                }
-            }
-        }
-        return d;
-    }
-
     public IntegerWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
         super(context, prompt, readOnlyOverride, true);
 
@@ -84,6 +68,21 @@ public class IntegerWidget extends StringWidget {
         setupChangeListener();
     }
 
+    private Integer getIntegerAnswerValue() {
+        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        Integer d = null;
+        if (dataHolder != null) {
+            Object dataValue = dataHolder.getValue();
+            if (dataValue != null) {
+                if (dataValue instanceof Double) {
+                    d = ((Double) dataValue).intValue();
+                } else {
+                    d = (Integer) dataValue;
+                }
+            }
+        }
+        return d;
+    }
 
     @Override
     public IAnswerData getAnswer() {

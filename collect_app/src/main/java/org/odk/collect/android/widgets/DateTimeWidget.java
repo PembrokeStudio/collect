@@ -22,8 +22,8 @@ import android.widget.LinearLayout;
 import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
-
 import org.joda.time.LocalDateTime;
+
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
  * exist.
@@ -74,7 +74,7 @@ public class DateTimeWidget extends QuestionWidget {
                 dateWidget.setDateToCurrent();
                 dateWidget.setDateLabel();
             }
-            
+
             boolean hideDay = dateWidget.isDayHidden();
             boolean hideMonth = dateWidget.isMonthHidden();
 

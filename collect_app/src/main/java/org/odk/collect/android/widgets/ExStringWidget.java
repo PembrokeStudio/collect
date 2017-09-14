@@ -49,17 +49,17 @@ import timber.log.Timber;
 /**
  * <p>Launch an external app to supply a string value. If the app
  * does not launch, enable the text area for regular data entry.</p>
- *
+ * <p>
  * <p>The default button text is "Launch"
- *
+ * <p>
  * <p>You may override the button text and the error text that is
  * displayed when the app is missing by using jr:itext() values.
- *
+ * <p>
  * <p>To use this widget, define an appearance on the &lt;input/&gt;
  * tag that begins "ex:" and then contains the intent action to lauch.
- *
+ * <p>
  * <p>e.g.,
- *
+ * <p>
  * <pre>
  * &lt;input appearance="ex:change.uw.android.TEXTANSWER" ref="/form/passPhrase" &gt;
  * </pre>
@@ -87,13 +87,12 @@ import timber.log.Timber;
  *
  * @author mitchellsundt@gmail.com
  */
-public class ExStringWidget extends QuestionWidget implements IBinaryWidget {
+public class ExStringWidget extends QuestionWidget implements BinaryWidget {
 
+    protected EditText answer;
     private boolean hasExApp = true;
     private Button launchIntentButton;
     private Drawable textBackground;
-
-    protected EditText answer;
 
     public ExStringWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);

@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import net.bytebuddy.utility.RandomString;
 
 import org.javarosa.core.model.data.StringData;
-import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.odk.collect.android.BuildConfig;
@@ -68,16 +67,19 @@ public class AudioWidgetTest extends BinaryNameWidgetTest<AudioWidget> {
         return uri;
     }
 
-
-    @Before
+    @Override
     public void setUp() throws Exception {
         super.setUp();
+        destinationName = RandomString.make();
+    }
+
+    @Override
+    protected void prepareForSetAnswer() {
         when(formEntryPrompt.isReadOnly()).thenReturn(false);
 
         when(mediaUtil.getPathFromUri(any(Context.class), any(Uri.class), any(String.class)))
                 .thenReturn(String.format("%s.mp3", RandomString.make()));
 
-        destinationName = RandomString.make();
         when(fileUtil.getRandomFilename()).thenReturn(destinationName);
 
         File firstFile = mock(File.class);

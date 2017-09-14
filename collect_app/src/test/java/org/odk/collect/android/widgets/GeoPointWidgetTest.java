@@ -19,13 +19,11 @@ import static org.mockito.Mockito.when;
 
 public class GeoPointWidgetTest extends BinaryWidgetTest<GeoPointWidget, GeoPointData> {
 
-    private Random random = new Random();
-
-    private double[] initialDoubles;
-    private double[] answerDoubles;
-
     @Mock
     QuestionDef questionDef;
+    private Random random = new Random();
+    private double[] initialDoubles;
+    private double[] answerDoubles;
 
     public GeoPointWidgetTest() {
         super(GeoPointWidget.class);

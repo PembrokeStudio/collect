@@ -49,14 +49,10 @@ public abstract class RangeWidget extends QuestionWidget {
     protected BigDecimal actualValue;
 
     protected String[] displayedValuesForNumberPicker;
-
-    private int progress;
     protected int elementCount;
-
-    private SeekBar seekBar;
-
     protected TextView currentValue;
-
+    private int progress;
+    private SeekBar seekBar;
     private LinearLayout view;
 
     private boolean isPickerAppearance;

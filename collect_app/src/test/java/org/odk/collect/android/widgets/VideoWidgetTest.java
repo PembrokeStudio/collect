@@ -1,8 +1,8 @@
 package org.odk.collect.android.widgets;
 
 
-import android.content.Context;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 
 import net.bytebuddy.utility.RandomString;
@@ -21,8 +21,6 @@ import org.robolectric.annotation.Config;
 
 import java.io.File;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -40,6 +38,9 @@ public class VideoWidgetTest extends BinaryNameWidgetTest<VideoWidget> {
 
     @Mock
     FileUtil fileUtil;
+
+    @Mock
+    File file;
 
     private String destinationName = null;
 
@@ -73,20 +74,41 @@ public class VideoWidgetTest extends BinaryNameWidgetTest<VideoWidget> {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        destinationName = RandomString.make();
+    }
+
+    @Override
+    public void settingANewAnswerShouldCallDeleteMediaToRemoveTheOldFile() {
+        prepareForSetAnswer();
+        super.settingANewAnswerShouldCallDeleteMediaToRemoveTheOldFile();
+    }
+
+    @Override
+    public void getAnswerShouldReturnCorrectAnswerAfterBeingSet() {
+        prepareForSetAnswer();
+        super.getAnswerShouldReturnCorrectAnswerAfterBeingSet();
+    }
+
+    @Override
+    public void settingANewAnswerShouldRemoveTheOldAnswer() {
+        prepareForSetAnswer();
+        super.settingANewAnswerShouldRemoveTheOldAnswer();
+    }
+
+    public void prepareForSetAnswer() {
         when(formEntryPrompt.isReadOnly()).thenReturn(false);
 
-        when(mediaUtil.getPathFromUri(any(Context.class), any(Uri.class), any(String.class)))
-                .thenReturn(String.format("%s.mp3", RandomString.make()));
+        when(mediaUtil.getPathFromUri(
+                RuntimeEnvironment.application,
+                uri,
+                MediaStore.Video.Media.DATA)
 
-        destinationName = RandomString.make();
+        ).thenReturn(String.format("%s.mp4", RandomString.make()));
+
         when(fileUtil.getRandomFilename()).thenReturn(destinationName);
+        when(fileUtil.getFileAtPath(String.format("/%s.mp4", destinationName)))
+                .thenReturn(file);
 
-        File firstFile = mock(File.class);
-
-        when(fileUtil.getFileAtPath(String.format("/%s.mp3", destinationName)))
-                .thenReturn(firstFile);
-
-        when(firstFile.exists()).thenReturn(true);
-        when(firstFile.getName()).thenReturn(destinationName);
+        when(file.getName()).thenReturn(destinationName);
     }
 }

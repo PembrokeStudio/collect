@@ -6,21 +6,15 @@ import net.bytebuddy.utility.RandomString;
 
 import org.javarosa.core.model.data.StringData;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.odk.collect.android.BuildConfig;
 import org.odk.collect.android.widgets.base.BinaryNameWidgetTest;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 
 import static org.mockito.Mockito.when;
 
 
-@Config(constants = BuildConfig.class)
-@RunWith(RobolectricTestRunner.class)
 public class AlignedImageWidgetTest extends BinaryNameWidgetTest<AlignedImageWidget> {
 
     @Mock
@@ -55,6 +49,10 @@ public class AlignedImageWidgetTest extends BinaryNameWidgetTest<AlignedImageWid
         super.setUp();
 
         when(formEntryPrompt.getAppearanceHint()).thenReturn("0");
-        when(formEntryPrompt.isReadOnly()).thenReturn(false);
+    }
+
+    @Override
+    protected void prepareForSetAnswer() {
+
     }
 }

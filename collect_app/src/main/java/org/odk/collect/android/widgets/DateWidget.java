@@ -265,6 +265,11 @@ public class DateWidget extends QuestionWidget {
         datePickerDialog.updateDate(year, month - 1, dayOfMonth);
     }
 
+    // Exposed for testing purposes to avoid reflection.
+    public void setDatePickerDialog(DatePickerDialog datePickerDialog) {
+        this.datePickerDialog = datePickerDialog;
+    }
+
     private class CustomDatePickerDialog extends DatePickerDialog {
         private String dialogTitle = getContext().getString(R.string.select_date);
         private int theme;
@@ -290,7 +295,7 @@ public class DateWidget extends QuestionWidget {
          * Workaround for this bug: https://code.google.com/p/android/issues/detail?id=222208
          * In Android 7.0 Nougat, spinner mode for the DatePicker in DatePickerDialog is
          * incorrectly displayed as calendar, even when the theme specifies otherwise.
-         *
+         * <p>
          * Source: https://gist.github.com/jeffdgr8/6bc5f990bf0c13a7334ce385d482af9f
          */
         private void fixSpinner(Context context, int year, int month, int dayOfMonth) {
@@ -365,10 +370,5 @@ public class DateWidget extends QuestionWidget {
             }
             return null;
         }
-    }
-
-    // Exposed for testing purposes to avoid reflection.
-    public void setDatePickerDialog(DatePickerDialog datePickerDialog) {
-        this.datePickerDialog = datePickerDialog;
     }
 }

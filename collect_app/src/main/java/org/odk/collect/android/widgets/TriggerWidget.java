@@ -35,16 +35,10 @@ import org.odk.collect.android.application.Collect;
  */
 public class TriggerWidget extends QuestionWidget {
 
+    private static final String mOK = "OK";
     private CheckBox triggerButton;
     private TextView stringAnswer;
-    private static final String mOK = "OK";
-
     private FormEntryPrompt prompt;
-
-
-    public FormEntryPrompt getPrompt() {
-        return prompt;
-    }
 
 
     public TriggerWidget(Context context, FormEntryPrompt prompt) {
@@ -95,6 +89,9 @@ public class TriggerWidget extends QuestionWidget {
         addAnswerView(triggerButton);
     }
 
+    public FormEntryPrompt getPrompt() {
+        return prompt;
+    }
 
     @Override
     public void clearAnswer() {

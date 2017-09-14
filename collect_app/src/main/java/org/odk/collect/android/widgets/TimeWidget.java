@@ -193,7 +193,7 @@ public class TimeWidget extends QuestionWidget {
          * Workaround for this bug: https://code.google.com/p/android/issues/detail?id=222208
          * In Android 7.0 Nougat, spinner mode for the TimePicker in TimePickerDialog is
          * incorrectly displayed as clock, even when the theme specifies otherwise.
-         *
+         * <p>
          * Source: https://gist.github.com/jeffdgr8/6bc5f990bf0c13a7334ce385d482af9f
          */
         private void fixSpinner(Context context, int hourOfDay, int minute, boolean is24HourView) {

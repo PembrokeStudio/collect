@@ -25,7 +25,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
-
 import org.odk.collect.android.listeners.AudioPlayListener;
 import org.odk.collect.android.utilities.TextUtils;
 

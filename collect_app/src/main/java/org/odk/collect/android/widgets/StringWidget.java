@@ -44,9 +44,8 @@ import timber.log.Timber;
  */
 public class StringWidget extends QuestionWidget {
     private static final String ROWS = "rows";
-
-    boolean readOnly = false;
     protected EditText answer;
+    boolean readOnly = false;
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
         this(context, prompt, readOnlyOverride, true);
@@ -54,7 +53,7 @@ public class StringWidget extends QuestionWidget {
     }
 
     protected StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride,
-            boolean derived) {
+                           boolean derived) {
         super(context, prompt);
         answer = new EditText(context);
         answer.setId(QuestionWidget.newUniqueId());
@@ -128,13 +127,13 @@ public class StringWidget extends QuestionWidget {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
+                                          int after) {
                 oldText = s.toString();
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
-                    int count) {
+                                      int count) {
             }
         });
     }
