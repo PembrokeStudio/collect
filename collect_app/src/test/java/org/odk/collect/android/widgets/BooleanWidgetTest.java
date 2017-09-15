@@ -3,6 +3,7 @@ package org.odk.collect.android.widgets;
 import android.support.annotation.NonNull;
 
 import org.javarosa.core.model.data.BooleanData;
+import org.junit.Test;
 import org.odk.collect.android.widgets.base.WidgetTest;
 import org.robolectric.RuntimeEnvironment;
 
@@ -60,5 +61,20 @@ public class BooleanWidgetTest extends WidgetTest {
 
         assertFalse(widget.isChecked());
         assertFalse((Boolean) widget.getAnswer().getValue());
+    }
+
+    @Test
+    public void changingTheCheckboxShouldChangeTheAnswer() {
+        when(formEntryPrompt.getAnswerValue()).thenReturn(new BooleanData(false));
+
+        BooleanWidget widget = getWidget();
+
+        assertFalse(widget.isChecked());
+        assertFalse((Boolean) widget.getAnswer().getValue());
+
+        widget.isChecked(true);
+
+        assertTrue(widget.isChecked());
+        assertTrue((Boolean) widget.getAnswer().getValue());
     }
 }

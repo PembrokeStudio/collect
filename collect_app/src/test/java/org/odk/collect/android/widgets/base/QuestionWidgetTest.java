@@ -11,6 +11,8 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.widgets.Widget;
 
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -20,6 +22,8 @@ import static org.mockito.Mockito.when;
 
 public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData>
         extends WidgetTest {
+
+    protected Random random = new Random();
 
     private final Class<W> clazz;
     private W widget = null;
@@ -42,7 +46,9 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
     @NonNull
     public abstract A getNextAnswer();
 
-    public abstract A getInitialAnswer();
+    public A getInitialAnswer() {
+        return getNextAnswer();
+    }
 
     public W getWidget() {
         if (widget == null) {

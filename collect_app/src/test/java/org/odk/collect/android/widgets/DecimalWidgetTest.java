@@ -1,18 +1,18 @@
 package org.odk.collect.android.widgets;
 
-import org.javarosa.core.model.IFormElement;
+import android.support.annotation.NonNull;
+
 import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.odk.collect.android.BuildConfig;
-import org.robolectric.RobolectricTestRunner;
+import org.odk.collect.android.widgets.base.QuestionWidgetTest;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Random;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -20,32 +20,54 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
-public class DecimalWidgetTest {
-    @Mock
-    FormEntryPrompt formEntryPrompt;
+public class DecimalWidgetTest extends QuestionWidgetTest<DecimalWidget, DecimalData> {
+
+    private Random random = new Random();
 
     @Mock
     IAnswerData answerData;
 
     @Mock
-    IFormElement element;
+    QuestionDef questionDef;
 
-    @Mock
-    QuestionDef question;
+    public DecimalWidgetTest() {
+        super(DecimalWidget.class);
+    }
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    @NonNull
+    @Override
+    public DecimalWidget createWidget() {
+        return new DecimalWidget(RuntimeEnvironment.application, formEntryPrompt, false);
+    }
 
-        when(formEntryPrompt.getLongText()).thenReturn("A decimal question");
+    @NonNull
+    @Override
+    public DecimalData getNextAnswer() {
+        // Need to keep under 15 digits:
+        double d = random.nextDouble();
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(13); // The Widget internally truncatest this further.
+        nf.setMaximumIntegerDigits(13);
+        nf.setGroupingUsed(false);
 
-        when(formEntryPrompt.getFormElement()).thenReturn(element);
-        when(element.getAdditionalAttribute(null, "playColor")).thenReturn(null);
+        String formattedValue = nf.format(d);
+        return new DecimalData(Double.parseDouble(formattedValue));
+    }
 
-        when(formEntryPrompt.getQuestion()).thenReturn(question);
-        when(question.getAdditionalAttribute(null, "rows")).thenReturn(null);
+    @Override
+    public DecimalData getInitialAnswer() {
+        return getNextAnswer();
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        when(formEntryPrompt.getLongText()).thenReturn("A decimal questionDef");
+        when(formElement.getAdditionalAttribute(null, "playColor")).thenReturn(null);
+
+        when(formEntryPrompt.getQuestion()).thenReturn(questionDef);
+        when(questionDef.getAdditionalAttribute(null, "rows")).thenReturn(null);
     }
 
     @Test
@@ -59,7 +81,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(), is(equalTo(integerString)));
+        assertThat(decimalWidget.getAnswerText(), is(equalTo(integerString)));
     }
 
     @Test
@@ -76,7 +98,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(), is(equalTo(twoDecimalString)));
+        assertThat(decimalWidget.getAnswerText(), is(equalTo(twoDecimalString)));
     }
 
     @Test
@@ -90,7 +112,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(), is(equalTo(negativeIntegerString)));
+        assertThat(decimalWidget.getAnswerText(), is(equalTo(negativeIntegerString)));
     }
 
     @Test
@@ -107,7 +129,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(), is(equalTo(fifteenDigitString)));
+        assertThat(decimalWidget.getAnswerText(), is(equalTo(fifteenDigitString)));
     }
 
     @Test
@@ -124,7 +146,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(),
+        assertThat(decimalWidget.getAnswerText(),
                 is(equalTo(fifteenDigitNegativeString)));
     }
 
@@ -142,7 +164,7 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(),
+        assertThat(decimalWidget.getAnswerText(),
                 is(equalTo(fifteenDigitDecimalString)));
     }
 
@@ -159,6 +181,8 @@ public class DecimalWidgetTest {
         DecimalWidget decimalWidget = new DecimalWidget(RuntimeEnvironment.application,
                 formEntryPrompt, false);
 
-        assertThat(decimalWidget.answer.getText().toString(), is(equalTo(fifteenDigitString)));
+        assertThat(decimalWidget.getAnswerText(), is(equalTo(fifteenDigitString)));
     }
+
+
 }

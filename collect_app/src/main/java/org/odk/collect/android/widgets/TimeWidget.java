@@ -120,7 +120,7 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
                 if (nullAnswer) {
                     setTimeToCurrent();
                 } else {
-                    updateTime(hourOfDay, minuteOfHour);
+                    updateTime(hourOfDay, minuteOfHour, true);
                 }
                 timePickerDialog.show();
             }
@@ -150,7 +150,7 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
             Date date = ((Date) formEntryPrompt.getAnswerValue().getValue());
 
             DateTime dateTime = new DateTime(date);
-            updateTime(dateTime);
+            updateTime(dateTime, true);
         }
     }
 
@@ -167,19 +167,26 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
     }
 
     public void setTimeToCurrent() {
-        updateTime(DateTime.now());
+        updateTime(DateTime.now(), false);
     }
 
     public void updateTime(DateTime dateTime) {
-        updateTime(dateTime.getHourOfDay(), dateTime.getMinuteOfHour());
+        updateTime(dateTime, true);
     }
 
-    public void updateTime(int hourOfDay, int minuteOfHour) {
+    public void updateTime(DateTime dateTime, boolean shouldUpdateLabel) {
+        updateTime(dateTime.getHourOfDay(), dateTime.getMinuteOfHour(), shouldUpdateLabel);
+    }
+
+    public void updateTime(int hourOfDay, int minuteOfHour, boolean shouldUpdateLabel) {
         this.hourOfDay = hourOfDay;
         this.minuteOfHour = minuteOfHour;
 
         timePickerDialog.updateTime(hourOfDay, minuteOfHour);
-        setTimeLabel();
+
+        if (shouldUpdateLabel) {
+            setTimeLabel();
+        }
     }
 
     @Override

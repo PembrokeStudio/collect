@@ -165,7 +165,7 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
                 if (nullAnswer) {
                     setDateToCurrent();
                 } else {
-                    updateDate(year, month, dayOfMonth);
+                    updateDate(year, month, dayOfMonth, true);
                 }
 
                 datePickerDialog.show();
@@ -213,7 +213,7 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
 
             // This is LDT but TimeWidget is just DT, why?:
             LocalDateTime localDateTime = new LocalDateTime(date);
-            updateDate(localDateTime.getYear(), localDateTime.getMonthOfYear(), localDateTime.getDayOfMonth());
+            updateDate(localDateTime.getYear(), localDateTime.getMonthOfYear(), localDateTime.getDayOfMonth(), true);
         }
     }
 
@@ -254,20 +254,26 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
     }
 
     public void setDateToCurrent() {
-        updateDate(DateTime.now());
+        updateDate(DateTime.now(), false);
     }
 
     public void updateDate(DateTime dateTime) {
-        updateDate(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
+        updateDate(dateTime, true);
     }
 
-    public void updateDate(int year, int month, int dayOfMonth) {
+    public void updateDate(DateTime dateTime, boolean shouldUpdateLabel) {
+        updateDate(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), shouldUpdateLabel);
+    }
+
+    public void updateDate(int year, int month, int dayOfMonth, boolean shouldUpdateLabel) {
         this.year = year;
         this.month = month;
         this.dayOfMonth = dayOfMonth;
 
         datePickerDialog.updateDate(year, month - 1, dayOfMonth);
-        setDateLabel();
+        if (shouldUpdateLabel) {
+            setDateLabel();
+        }
     }
 
     // Exposed for testing purposes to avoid reflection.

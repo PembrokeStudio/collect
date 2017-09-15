@@ -29,8 +29,6 @@ public abstract class BinaryWidgetTest<W extends BinaryWidget, A extends IAnswer
 
     @Test
     public void getAnswerShouldReturnCorrectAnswerAfterBeingSet() {
-        when(formEntryPrompt.getAnswerText()).thenReturn(null);
-
         W widget = getWidget();
         assertNull(widget.getAnswer());
 
