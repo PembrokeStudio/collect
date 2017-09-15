@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
  */
 public class BooleanWidgetTest extends WidgetTest {
 
-
     @NonNull
     private BooleanWidget getWidget() {
         return new BooleanWidget(RuntimeEnvironment.application, formEntryPrompt);

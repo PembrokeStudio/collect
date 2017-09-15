@@ -73,6 +73,8 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
         A answer = getInitialAnswer();
         if (answer instanceof StringData) {
             when(formEntryPrompt.getAnswerText()).thenReturn((String) answer.getValue());
+        } else {
+            when(formEntryPrompt.getAnswerValue()).thenReturn(answer);
         }
 
         W widget = getWidget();

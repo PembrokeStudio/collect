@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
@@ -32,6 +33,7 @@ import org.joda.time.LocalDateTime;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
+@SuppressLint("ViewConstructor")
 public class DateTimeWidget extends QuestionWidget {
 
     private DateWidget dateWidget;
@@ -122,6 +124,14 @@ public class DateTimeWidget extends QuestionWidget {
         super.cancelLongPress();
         dateWidget.cancelLongPress();
         timeWidget.cancelLongPress();
+    }
+
+    public DateWidget getDateWidget() {
+        return dateWidget;
+    }
+
+    public TimeWidget getTimeWidget() {
+        return timeWidget;
     }
 
     // Exposed for testing purposes to avoid reflection.
