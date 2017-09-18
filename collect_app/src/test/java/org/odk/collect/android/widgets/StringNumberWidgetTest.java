@@ -15,7 +15,7 @@ public class StringNumberWidgetTest
         extends GeneralStringWidgetTest<StringNumberWidget, StringData> {
 
     public StringNumberWidgetTest() {
-        super(StringNumberWidget.class);
+        super();
     }
 
     @NonNull

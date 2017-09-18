@@ -21,14 +21,10 @@ import static org.mockito.Mockito.when;
 
 @Config(constants = BuildConfig.class)
 @RunWith(RobolectricTestRunner.class)
-public abstract class BinaryNameWidgetTest<W extends FileWidget> extends BinaryWidgetTest<W, StringData> {
+public abstract class FileWidgetTest<W extends FileWidget> extends BinaryWidgetTest<W, StringData> {
 
     @Mock
     public File instancePath;
-
-    public BinaryNameWidgetTest(Class<W> clazz) {
-        super(clazz);
-    }
 
     @NonNull
     @Override

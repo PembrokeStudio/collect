@@ -19,10 +19,6 @@ public class DateWidgetTest extends GeneralDateTimeWidgetTest<DateWidget, DateDa
     @Mock
     QuestionDef questionDef;
 
-    public DateWidgetTest() {
-        super(DateWidget.class);
-    }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();

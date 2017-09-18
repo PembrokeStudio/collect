@@ -30,10 +30,6 @@ public class DecimalWidgetTest extends QuestionWidgetTest<DecimalWidget, Decimal
     @Mock
     QuestionDef questionDef;
 
-    public DecimalWidgetTest() {
-        super(DecimalWidget.class);
-    }
-
     @NonNull
     @Override
     public DecimalWidget createWidget() {
@@ -52,11 +48,6 @@ public class DecimalWidgetTest extends QuestionWidgetTest<DecimalWidget, Decimal
 
         String formattedValue = nf.format(d);
         return new DecimalData(Double.parseDouble(formattedValue));
-    }
-
-    @Override
-    public DecimalData getInitialAnswer() {
-        return getNextAnswer();
     }
 
     @Override

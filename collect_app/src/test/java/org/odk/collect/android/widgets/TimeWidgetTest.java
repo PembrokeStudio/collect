@@ -22,7 +22,7 @@ public class TimeWidgetTest extends GeneralDateTimeWidgetTest<TimeWidget, TimeDa
     QuestionDef questionDef;
 
     public TimeWidgetTest() {
-        super(TimeWidget.class);
+        super();
     }
 
     @NonNull

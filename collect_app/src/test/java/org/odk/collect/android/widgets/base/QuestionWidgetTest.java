@@ -24,8 +24,6 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
         extends WidgetTest {
 
     protected Random random = new Random();
-
-    private final Class<W> clazz;
     private W widget = null;
 
     @Mock
@@ -33,12 +31,6 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
 
     @Mock
     public FormController formController;
-
-    // Needs to be public for JUnit:
-    @SuppressWarnings("WeakerAccess")
-    public QuestionWidgetTest(Class<W> clazz) {
-        this.clazz = clazz;
-    }
 
     @NonNull
     public abstract W createWidget();
@@ -92,12 +84,7 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
 
     @Test
     public void callingClearShouldRemoveTheExistingAnswer() {
-        A answer = getNextAnswer();
-        if (clazz.isAssignableFrom(BinaryNameWidgetTest.class)) {
-            when(formEntryPrompt.getAnswerText()).thenReturn((String) answer.getValue());
-        }
-
-        W widget = getWidget();
+        getAnswerShouldReturnExistingAnswerIfPromptHasExistingAnswer();
         widget.clearAnswer();
 
         assertNull(widget.getAnswer());

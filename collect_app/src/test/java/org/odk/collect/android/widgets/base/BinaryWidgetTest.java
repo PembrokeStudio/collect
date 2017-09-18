@@ -21,10 +21,6 @@ import static org.mockito.Mockito.when;
 public abstract class BinaryWidgetTest<W extends BinaryWidget, A extends IAnswerData>
         extends QuestionWidgetTest<W, A> {
 
-    public BinaryWidgetTest(Class<W> clazz) {
-        super(clazz);
-    }
-
     public abstract Object createBinaryData(A answerData);
 
     @Test

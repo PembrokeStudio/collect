@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -35,6 +36,7 @@ import java.util.List;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
+@SuppressLint("ViewConstructor")
 public class SelectMultiWidget extends SelectWidget {
     protected ArrayList<CheckBox> checkBoxes;
     private boolean checkboxInit = true;
@@ -45,7 +47,10 @@ public class SelectMultiWidget extends SelectWidget {
         checkBoxes = new ArrayList<>();
         ve = new ArrayList<>();
         if (getPrompt().getAnswerValue() != null) {
+            //noinspection unchecked
             ve = (List<Selection>) getPrompt().getAnswerValue().getValue();
+        } else {
+            ve = new ArrayList<>();
         }
 
         createLayout();

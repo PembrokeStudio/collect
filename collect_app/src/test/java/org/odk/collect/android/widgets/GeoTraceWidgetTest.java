@@ -9,7 +9,6 @@ import org.robolectric.RuntimeEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import static org.mockito.Mockito.when;
 
@@ -19,14 +18,8 @@ import static org.mockito.Mockito.when;
 
 public class GeoTraceWidgetTest extends BinaryWidgetTest<GeoTraceWidget, StringData> {
 
-    private Random random = new Random();
-
-    private ArrayList<double[]> initialDoubles;
-    private ArrayList<double[]> answerDoubles;
-
-    public GeoTraceWidgetTest() {
-        super(GeoTraceWidget.class);
-    }
+    private List<double[]> initialDoubles;
+    private List<double[]> answerDoubles;
 
     @Override
     public StringData getInitialAnswer() {

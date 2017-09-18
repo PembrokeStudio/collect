@@ -18,10 +18,6 @@ public abstract class GeneralStringWidgetTest<W extends StringWidget, A extends 
     @Mock
     QuestionDef questionDef;
 
-    public GeneralStringWidgetTest(Class<W> clazz) {
-        super(clazz);
-    }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();

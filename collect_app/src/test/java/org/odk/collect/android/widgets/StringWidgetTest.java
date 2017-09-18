@@ -13,7 +13,7 @@ import org.robolectric.RuntimeEnvironment;
  */
 public class StringWidgetTest extends GeneralStringWidgetTest<StringWidget, StringData> {
     public StringWidgetTest() {
-        super(StringWidget.class);
+        super();
     }
 
     @NonNull

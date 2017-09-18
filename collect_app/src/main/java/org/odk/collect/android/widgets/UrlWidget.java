@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.view.View;
@@ -35,6 +36,7 @@ import org.odk.collect.android.utilities.CustomTabHelper;
  *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
+@SuppressLint("ViewConstructor")
 public class UrlWidget extends QuestionWidget {
 
     private Uri uri;

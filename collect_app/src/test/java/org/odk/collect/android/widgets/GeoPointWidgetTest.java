@@ -9,8 +9,6 @@ import org.mockito.Mock;
 import org.odk.collect.android.widgets.base.BinaryWidgetTest;
 import org.robolectric.RuntimeEnvironment;
 
-import java.util.Random;
-
 import static org.mockito.Mockito.when;
 
 /**
@@ -21,13 +19,9 @@ public class GeoPointWidgetTest extends BinaryWidgetTest<GeoPointWidget, GeoPoin
 
     @Mock
     QuestionDef questionDef;
-    private Random random = new Random();
+
     private double[] initialDoubles;
     private double[] answerDoubles;
-
-    public GeoPointWidgetTest() {
-        super(GeoPointWidget.class);
-    }
 
     @Override
     public GeoPointData getInitialAnswer() {

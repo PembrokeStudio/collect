@@ -12,7 +12,7 @@ import org.robolectric.RuntimeEnvironment;
 public class IntegerWidgetTest extends GeneralStringWidgetTest<IntegerWidget, IntegerData> {
 
     public IntegerWidgetTest() {
-        super(IntegerWidget.class);
+        super();
     }
 
     @NonNull

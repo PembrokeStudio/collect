@@ -7,15 +7,11 @@ import android.support.annotation.NonNull;
 import net.bytebuddy.utility.RandomString;
 
 import org.javarosa.core.model.data.StringData;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.odk.collect.android.BuildConfig;
 import org.odk.collect.android.utilities.FileUtil;
 import org.odk.collect.android.utilities.MediaUtil;
-import org.odk.collect.android.widgets.base.BinaryNameWidgetTest;
-import org.robolectric.RobolectricTestRunner;
+import org.odk.collect.android.widgets.base.FileWidgetTest;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import java.io.File;
 
@@ -26,9 +22,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author James Knight
  */
-@Config(constants = BuildConfig.class)
-@RunWith(RobolectricTestRunner.class)
-public class AudioWidgetTest extends BinaryNameWidgetTest<AudioWidget> {
+public class AudioWidgetTest extends FileWidgetTest<AudioWidget> {
 
     @Mock
     Uri uri;
@@ -40,10 +34,6 @@ public class AudioWidgetTest extends BinaryNameWidgetTest<AudioWidget> {
     FileUtil fileUtil;
 
     private String destinationName = null;
-
-    public AudioWidgetTest() {
-        super(AudioWidget.class);
-    }
 
     @NonNull
     @Override

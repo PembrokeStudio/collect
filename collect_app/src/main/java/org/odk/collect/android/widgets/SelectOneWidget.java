@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -29,6 +30,7 @@ import org.odk.collect.android.listeners.AudioPlayListener;
 import org.odk.collect.android.utilities.TextUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SelectOneWidgets handles select-one fields using radio buttons.
@@ -36,9 +38,10 @@ import java.util.ArrayList;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
+@SuppressLint("ViewConstructor")
 public class SelectOneWidget extends SelectWidget implements OnCheckedChangeListener, AudioPlayListener {
 
-    protected ArrayList<RadioButton> buttons;
+    protected List<RadioButton> buttons;
     protected String selectedValue;
 
     public SelectOneWidget(Context context, FormEntryPrompt prompt) {
@@ -143,5 +146,9 @@ public class SelectOneWidget extends SelectWidget implements OnCheckedChangeList
             }
             addAnswerView(answerLayout);
         }
+    }
+
+    public List<RadioButton> getButtons() {
+        return buttons;
     }
 }

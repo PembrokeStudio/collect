@@ -13,10 +13,6 @@ public abstract class GeneralDateTimeWidgetTest<W extends Widget, A extends IAns
 
     private DateTime lastDate = null;
 
-    public GeneralDateTimeWidgetTest(Class<W> clazz) {
-        super(clazz);
-    }
-
     protected DateTime getNextDateTime() {
         if (lastDate == null) {
             lastDate = DateTime.now()
