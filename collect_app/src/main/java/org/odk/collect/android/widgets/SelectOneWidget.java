@@ -39,7 +39,9 @@ import java.util.List;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 @SuppressLint("ViewConstructor")
-public class SelectOneWidget extends SelectWidget implements OnCheckedChangeListener, AudioPlayListener {
+public class SelectOneWidget
+        extends SelectWidget
+        implements OnCheckedChangeListener, AudioPlayListener, MultiChoiceWidget {
 
     protected List<RadioButton> buttons;
     protected String selectedValue;
@@ -151,4 +153,22 @@ public class SelectOneWidget extends SelectWidget implements OnCheckedChangeList
     public List<RadioButton> getButtons() {
         return buttons;
     }
+
+    @Override
+    public int getChoiceCount() {
+        return buttons.size();
+    }
+
+    @Override
+    public void setChoiceSelected(int choiceIndex, boolean isSelected) {
+        for (RadioButton button : buttons) {
+            button.setChecked(false);
+        }
+
+        RadioButton button = buttons.get(choiceIndex);
+        button.setChecked(isSelected);
+
+        onCheckedChanged(button, isSelected);
+    }
+
 }

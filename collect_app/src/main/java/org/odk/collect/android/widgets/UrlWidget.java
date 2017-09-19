@@ -97,11 +97,9 @@ public class UrlWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         String s = stringAnswer.getText().toString();
-        if (s.equals("")) {
-            return null;
-        } else {
-            return new StringData(s);
-        }
+        return !s.isEmpty()
+                ? new StringData(s)
+                : null;
     }
 
     @Override

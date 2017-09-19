@@ -1,13 +1,14 @@
-package org.odk.collect.android.widgets;
+package org.odk.collect.android.widgets.base;
 
 import android.support.annotation.NonNull;
+
+import com.google.common.collect.ImmutableList;
 
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.junit.Test;
-import org.odk.collect.android.widgets.base.GeneralSelectMultiWidgetTest;
-import org.robolectric.RuntimeEnvironment;
+import org.odk.collect.android.widgets.MultiChoiceWidget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +20,24 @@ import static org.junit.Assert.assertTrue;
  * @author James Knight
  */
 
-public class GridMultiWidgetTest extends GeneralSelectMultiWidgetTest<GridMultiWidget> {
+public abstract class GeneralSelectMultiWidgetTest<W extends MultiChoiceWidget>
+        extends SelectWidgetTest<W, SelectMultiData> {
 
     @NonNull
     @Override
-    public GridMultiWidget createWidget() {
-        return new GridMultiWidget(RuntimeEnvironment.application, formEntryPrompt, 1);
+    public SelectMultiData getNextAnswer() {
+        List<SelectChoice> selectChoices = getSelectChoices();
+
+        int selectedIndex = Math.abs(random.nextInt()) % selectChoices.size();
+        SelectChoice selectChoice = selectChoices.get(selectedIndex);
+
+        Selection selection = new Selection(selectChoice);
+        return new SelectMultiData(ImmutableList.of(selection));
     }
 
     @Test
     public void getAnswerShouldReflectWhichSelectionsWereMade() {
-        GridMultiWidget widget = getWidget();
+        W widget = getWidget();
         assertNull(widget.getAnswer());
 
         List<SelectChoice> selectChoices = getSelectChoices();
@@ -37,9 +45,9 @@ public class GridMultiWidgetTest extends GeneralSelectMultiWidgetTest<GridMultiW
 
         boolean atLeastOneSelected = false;
 
-        for (int i = 0; i < widget.selected.length; i++) {
+        for (int i = 0; i < widget.getChoiceCount(); i++) {
             boolean shouldBeSelected = random.nextBoolean();
-            widget.selected[i] = shouldBeSelected;
+            widget.setChoiceSelected(i, shouldBeSelected);
 
             atLeastOneSelected = atLeastOneSelected || shouldBeSelected;
 
@@ -52,9 +60,9 @@ public class GridMultiWidgetTest extends GeneralSelectMultiWidgetTest<GridMultiW
         // Make sure at least one item is selected, so we're not just retesting the
         // null answer case:
         if (!atLeastOneSelected) {
-            int randomIndex = (Math.abs(random.nextInt()) % widget.selected.length);
+            int randomIndex = (Math.abs(random.nextInt()) % widget.getChoiceCount());
+            widget.setChoiceSelected(randomIndex, true);
 
-            widget.selected[randomIndex] = true;
             SelectChoice selectChoice = selectChoices.get(randomIndex);
             selectedValues.add(selectChoice.getValue());
         }

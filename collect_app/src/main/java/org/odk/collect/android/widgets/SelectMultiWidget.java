@@ -37,7 +37,7 @@ import java.util.List;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 @SuppressLint("ViewConstructor")
-public class SelectMultiWidget extends SelectWidget {
+public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget {
     protected ArrayList<CheckBox> checkBoxes;
     private boolean checkboxInit = true;
     private List<Selection> ve;
@@ -147,4 +147,15 @@ public class SelectMultiWidget extends SelectWidget {
         }
         checkboxInit = false;
     }
+
+    @Override
+    public int getChoiceCount() {
+        return checkBoxes.size();
+    }
+
+    @Override
+    public void setChoiceSelected(int choiceIndex, boolean isSelected) {
+        checkBoxes.get(choiceIndex).setChecked(isSelected);
+    }
+
 }

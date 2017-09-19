@@ -1,14 +1,13 @@
 package org.odk.collect.android.widgets.base;
 
 import android.support.annotation.NonNull;
-import android.widget.RadioButton;
 
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.junit.Test;
-import org.odk.collect.android.widgets.SelectOneWidget;
+import org.odk.collect.android.widgets.MultiChoiceWidget;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertNull;
  * @author James Knight
  */
 
-public abstract class GeneralSelectOneWidgetTest<W extends SelectOneWidget>
+public abstract class GeneralSelectOneWidgetTest<W extends MultiChoiceWidget>
         extends SelectWidgetTest<W, SelectOneData> {
 
     @NonNull
@@ -35,16 +34,14 @@ public abstract class GeneralSelectOneWidgetTest<W extends SelectOneWidget>
     }
 
     @Test
-    public void getAnswerShouldReflectTheCurrentlyCheckedCheckbox() {
+    public void getAnswerShouldReflectTheCurrentlySelectedChoice() {
         W widget = getWidget();
         assertNull(widget.getAnswer());
 
         List<SelectChoice> selectChoices = getSelectChoices();
-        List<RadioButton> buttons = widget.getButtons();
 
-        for (int i = 0; i < buttons.size(); i++) {
-            RadioButton button = buttons.get(i);
-            button.setChecked(true);
+        for (int i = 0; i < widget.getChoiceCount(); i++) {
+            widget.setChoiceSelected(i, true);
 
             SelectChoice selectChoice = selectChoices.get(i);
             IAnswerData answer = widget.getAnswer();

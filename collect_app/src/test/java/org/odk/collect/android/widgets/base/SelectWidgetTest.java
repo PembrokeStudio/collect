@@ -4,7 +4,7 @@ import net.bytebuddy.utility.RandomString;
 
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
-import org.odk.collect.android.widgets.SelectWidget;
+import org.odk.collect.android.widgets.Widget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author James Knight
  */
-public abstract class SelectWidgetTest<W extends SelectWidget, A extends IAnswerData>
+public abstract class SelectWidgetTest<W extends Widget, A extends IAnswerData>
         extends QuestionWidgetTest<W, A> {
 
     private List<SelectChoice> selectChoices;
