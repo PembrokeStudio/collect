@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +30,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.javarosa.core.model.RangeQuestion;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.FormEntryActivity;
@@ -40,7 +42,7 @@ import java.math.BigDecimal;
 import timber.log.Timber;
 
 @SuppressWarnings("BigDecimalMethodWithoutRoundingCalled")
-public abstract class RangeWidget extends QuestionWidget {
+public abstract class RangeWidget extends QuestionWidget implements SeekBar.OnSeekBarChangeListener {
 
     private static final String VERTICAL_APPEARANCE = "vertical";
     private static final String NO_TICKS_APPEARANCE = "no-ticks";
@@ -53,7 +55,10 @@ public abstract class RangeWidget extends QuestionWidget {
 
     protected String[] displayedValuesForNumberPicker;
     protected int elementCount;
+
+    @Nullable
     protected TextView currentValue;
+
     private int progress;
     private SeekBar seekBar;
     private LinearLayout view;
@@ -79,6 +84,11 @@ public abstract class RangeWidget extends QuestionWidget {
         }
 
         addAnswerView(view);
+    }
+
+    @Override
+    public IAnswerData getAnswer() {
+        return null;
     }
 
     @Override
@@ -162,27 +172,8 @@ public abstract class RangeWidget extends QuestionWidget {
     private void setUpSeekBar() {
         seekBar.setMax(elementCount);
         seekBar.setProgress(progress);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                suppressFlingGesture = false;
-            }
+        seekBar.setOnSeekBarChangeListener(this);
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                suppressFlingGesture = true;
-            }
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (rangeStart.compareTo(rangeEnd) == -1) {
-                    actualValue = rangeStart.add(new BigDecimal(progress).multiply(rangeStep));
-                } else {
-                    actualValue = rangeStart.subtract(new BigDecimal(progress).multiply(rangeStep));
-                }
-                setUpActualValueLabel();
-            }
-        });
         seekBar.setOnTouchListener(new SeekBar.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -320,4 +311,33 @@ public abstract class RangeWidget extends QuestionWidget {
     protected abstract void setUpActualValueLabel();
 
     protected abstract void setUpDisplayedValuesForNumberPicker();
+
+    public SeekBar getSeekBar() {
+        return seekBar;
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        suppressFlingGesture = false;
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        suppressFlingGesture = true;
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (rangeStart.compareTo(rangeEnd) == -1) {
+            actualValue = rangeStart.add(new BigDecimal(progress).multiply(rangeStep));
+        } else {
+            actualValue = rangeStart.subtract(new BigDecimal(progress).multiply(rangeStep));
+        }
+
+        setUpActualValueLabel();
+    }
+
+    public int getElementCount() {
+        return elementCount;
+    }
 }
