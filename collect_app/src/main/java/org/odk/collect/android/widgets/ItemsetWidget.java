@@ -88,7 +88,7 @@ public class ItemsetWidget extends QuestionWidget implements
                             FormEntryPrompt prompt,
                             boolean readOnlyOverride,
                             boolean autoAdvanceToNext,
-                            @NonNull XPathParseTool xPathParseTool,
+                            @NonNull XPathParseTool parseTool,
                             @NonNull ItemsetDbAdapter adapter,
                             @NonNull FileUtil fileUtil) {
 
@@ -208,7 +208,7 @@ public class ItemsetWidget extends QuestionWidget implements
         for (int i = 0; i < arguments.size(); i++) {
             XPathExpression xpr;
             try {
-                xpr = xPathParseTool.parseXPath(arguments.get(i));
+                xpr = parseTool.parseXPath(arguments.get(i));
 
             } catch (XPathSyntaxException e) {
                 Timber.e(e);
@@ -255,7 +255,8 @@ public class ItemsetWidget extends QuestionWidget implements
                     c.move(-1);
                     int index = 0;
                     while (c.moveToNext()) {
-                        String label, val;
+                        String label;
+                        String val;
 
                         // try to get the value associated with the label:lang
                         // string if that doen't exist, then just use label

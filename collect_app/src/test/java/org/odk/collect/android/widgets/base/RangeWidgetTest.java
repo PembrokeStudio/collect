@@ -19,10 +19,10 @@ import static org.mockito.Mockito.when;
  */
 
 public abstract class RangeWidgetTest<W extends RangeWidget, A extends IAnswerData> extends QuestionWidgetTest<W, A> {
-    
-    private BigDecimal rangeStart = new BigDecimal(1);
-    private BigDecimal rangeEnd = new BigDecimal(10);
-    private BigDecimal rangeStep = new BigDecimal(1);
+
+    private BigDecimal rangeStart = BigDecimal.ONE;
+    private BigDecimal rangeEnd = BigDecimal.TEN;
+    private BigDecimal rangeStep = BigDecimal.ONE;
     
     @Mock
     private RangeQuestion rangeQuestion;
