@@ -38,12 +38,7 @@ public class AudioWidgetTest extends FileWidgetTest<AudioWidget> {
     @NonNull
     @Override
     public AudioWidget createWidget() {
-        AudioWidget audioWidget = new AudioWidget(RuntimeEnvironment.application, formEntryPrompt);
-
-        audioWidget.setMediaUtil(mediaUtil);
-        audioWidget.setFileUtil(fileUtil);
-
-        return audioWidget;
+        return new AudioWidget(RuntimeEnvironment.application, formEntryPrompt, fileUtil, mediaUtil);
     }
 
     @NonNull
