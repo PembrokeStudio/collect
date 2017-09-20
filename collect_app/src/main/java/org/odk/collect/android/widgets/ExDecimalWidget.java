@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -37,28 +38,13 @@ import java.util.Locale;
 /**
  * Launch an external app to supply a decimal value. If the app
  * does not launch, enable the text area for regular data entry.
- *
+ * <p>
  * See {@link org.odk.collect.android.widgets.ExStringWidget} for usage.
  *
  * @author mitchellsundt@gmail.com
  */
+@SuppressLint("ViewConstructor")
 public class ExDecimalWidget extends ExStringWidget {
-
-    private Double getDoubleAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
-        Double d = null;
-        if (dataHolder != null) {
-            Object dataValue = dataHolder.getValue();
-            if (dataValue != null) {
-                if (dataValue instanceof Integer) {
-                    d = (double) (Integer) dataValue;
-                } else {
-                    d = (Double) dataValue;
-                }
-            }
-        }
-        return d;
-    }
 
     public ExDecimalWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
@@ -89,6 +75,21 @@ public class ExDecimalWidget extends ExStringWidget {
         }
     }
 
+    private Double getDoubleAnswerValue() {
+        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        Double d = null;
+        if (dataHolder != null) {
+            Object dataValue = dataHolder.getValue();
+            if (dataValue != null) {
+                if (dataValue instanceof Integer) {
+                    d = (double) (Integer) dataValue;
+                } else {
+                    d = (Double) dataValue;
+                }
+            }
+        }
+        return d;
+    }
 
     @Override
     protected void fireActivity(Intent i) throws ActivityNotFoundException {
