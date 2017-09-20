@@ -2,11 +2,7 @@ package org.odk.collect.android.widgets.base;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.odk.collect.android.BuildConfig;
 import org.odk.collect.android.widgets.BinaryWidget;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,8 +12,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author James Knight
  */
-@Config(constants = BuildConfig.class)
-@RunWith(RobolectricTestRunner.class)
 public abstract class BinaryWidgetTest<W extends BinaryWidget, A extends IAnswerData>
         extends QuestionWidgetTest<W, A> {
 
