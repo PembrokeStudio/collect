@@ -82,10 +82,10 @@ public class StringWidget extends QuestionWidget {
         String height = prompt.getQuestion().getAdditionalAttribute(null, ROWS);
         if (height != null && height.length() != 0) {
             try {
-                int rows = Integer.parseInt(height);
+                int rows = Integer.valueOf(height);
                 answerText.setMinLines(rows);
-                answerText.setGravity(
-                        Gravity.TOP); // to write test starting at the top of the edit area
+                answerText.setGravity(Gravity.TOP); // to write test starting at the top of the edit area
+
             } catch (Exception e) {
                 Timber.e("Unable to process the rows setting for the answerText field: %s", e.toString());
             }
