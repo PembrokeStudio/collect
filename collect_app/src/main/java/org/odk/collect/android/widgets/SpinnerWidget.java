@@ -39,6 +39,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,18 +51,31 @@ import java.util.List;
  */
 @SuppressLint("ViewConstructor")
 public class SpinnerWidget extends QuestionWidget implements MultiChoiceWidget {
-    List<SelectChoice> items;
-    Spinner spinner;
-    String[] choices;
 
-    public SpinnerWidget(Context context, FormEntryPrompt prompt) {
+    @NonNull
+    private final List<SelectChoice> items;
+
+    @NonNull
+    private final Spinner spinner;
+
+    public SpinnerWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
                 prompt.getAppearanceHint());
+
         if (xpathFuncExpr != null) {
-            items = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+
+            ArrayList<SelectChoice> selectChoices = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+            if (selectChoices != null) {
+                items = selectChoices;
+            } else {
+                items = new ArrayList<>();
+            }
+
         } else {
             items = prompt.getSelectChoices();
         }
@@ -69,7 +83,7 @@ public class SpinnerWidget extends QuestionWidget implements MultiChoiceWidget {
         View view = inflate(context, R.layout.spinner_layout, null);
 
         spinner = (Spinner) view.findViewById(R.id.spinner);
-        choices = new String[items.size() + 1];
+        String[] choices = new String[items.size() + 1];
         for (int i = 0; i < items.size(); i++) {
             choices[i] = prompt.getSelectChoiceText(items.get(i));
         }
@@ -78,7 +92,7 @@ public class SpinnerWidget extends QuestionWidget implements MultiChoiceWidget {
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
                 new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
-                        TypedValue.COMPLEX_UNIT_DIP, questionFontsize);
+                        TypedValue.COMPLEX_UNIT_DIP, getQuestionFontSize());
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());
@@ -109,11 +123,11 @@ public class SpinnerWidget extends QuestionWidget implements MultiChoiceWidget {
                 if (position == items.size()) {
                     Collect.getInstance().getActivityLogger().logInstanceAction(this,
                             "onCheckedChanged.clearValue",
-                            "", formEntryPrompt.getIndex());
+                            "", getIndex());
                 } else {
                     Collect.getInstance().getActivityLogger().logInstanceAction(this,
                             "onCheckedChanged",
-                            items.get(position).getValue(), formEntryPrompt.getIndex());
+                            items.get(position).getValue(), getIndex());
                 }
             }
 

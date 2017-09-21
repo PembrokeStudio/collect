@@ -22,6 +22,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -73,7 +74,8 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
 
     private boolean nullAnswer;
 
-    public DateWidget(Context context, FormEntryPrompt prompt) {
+    public DateWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
 
         setGravity(Gravity.START);
@@ -87,7 +89,7 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
     }
 
     private void readAppearance() {
-        String appearance = formEntryPrompt.getQuestion().getAppearanceAttr();
+        String appearance = getQuestion().getAppearanceAttr();
         if ("month-year".equals(appearance)) {
             hideDay = true;
         } else if ("year".equals(appearance)) {
@@ -158,7 +160,7 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
 
     private void createDateButton() {
         dateButton = getSimpleButton(getContext().getString(R.string.select_date));
-        dateButton.setEnabled(!formEntryPrompt.isReadOnly());
+        dateButton.setEnabled(!isReadOnly());
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,7 +186,7 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
     public void setDateLabel() {
         nullAnswer = false;
         dateTextView.setText(DateTimeUtils.getDateTimeBasedOnUserLocale(
-                (Date) getAnswer().getValue(), formEntryPrompt.getQuestion().getAppearanceAttr(), false));
+                (Date) getAnswer().getValue(), getQuestion().getAppearanceAttr(), false));
     }
 
     private int getTheme() {
@@ -205,11 +207,11 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
         datePickerDialog = new CustomDatePickerDialog(getContext(), getTheme(), this, 1971, 1, 1); // placeholder date that is valid
         datePickerDialog.setCanceledOnTouchOutside(false);
 
-        if (formEntryPrompt.getAnswerValue() == null) {
+        if (getPromptAnswer() == null) {
             clearAnswer();
 
         } else {
-            Date date = (Date) formEntryPrompt.getAnswerValue().getValue();
+            Date date = (Date) getPromptAnswer().getValue();
 
             // This is LDT but TimeWidget is just DT, why?:
             LocalDateTime localDateTime = new LocalDateTime(date);

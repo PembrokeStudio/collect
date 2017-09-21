@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +45,9 @@ public class SelectOneAutoAdvanceWidget extends SelectOneWidget implements OnChe
     @Nullable
     private AdvanceToNextListener listener;
 
-    public SelectOneAutoAdvanceWidget(Context context, FormEntryPrompt prompt) {
+    public SelectOneAutoAdvanceWidget(@NonNull Context context,
+                                      @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         if (context instanceof AdvanceToNextListener) {
@@ -64,24 +67,24 @@ public class SelectOneAutoAdvanceWidget extends SelectOneWidget implements OnChe
         LayoutInflater inflater = LayoutInflater.from(getContext());
         Bitmap b = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.expander_ic_right);
 
-        if (items != null) {
-            for (int i = 0; i < items.size(); i++) {
-                @SuppressLint("InflateParams")
-                RelativeLayout thisParentLayout = (RelativeLayout) inflater.inflate(R.layout.quick_select_layout, null);
 
-                RadioButton radioButton = createRadioButton(i);
-                radioButton.setOnClickListener(this);
+        for (int i = 0; i < getItems().size(); i++) {
+            @SuppressLint("InflateParams")
+            RelativeLayout thisParentLayout = (RelativeLayout) inflater.inflate(R.layout.quick_select_layout, null);
 
-                ImageView rightArrow = (ImageView) thisParentLayout.getChildAt(1);
-                rightArrow.setImageBitmap(b);
+            RadioButton radioButton = createRadioButton(i);
+            radioButton.setOnClickListener(this);
 
-                buttons.add(radioButton);
+            ImageView rightArrow = (ImageView) thisParentLayout.getChildAt(1);
+            rightArrow.setImageBitmap(b);
 
-                LinearLayout questionLayout = (LinearLayout) thisParentLayout.getChildAt(0);
-                questionLayout.addView(createMediaLayout(i, radioButton));
-                answerLayout.addView(thisParentLayout);
-            }
-            addAnswerView(answerLayout);
+            getButtons().add(radioButton);
+
+            LinearLayout questionLayout = (LinearLayout) thisParentLayout.getChildAt(0);
+            questionLayout.addView(createMediaLayout(i, radioButton));
+            getAnswerLayout().addView(thisParentLayout);
         }
+
+        addAnswerView(getAnswerLayout());
     }
 }

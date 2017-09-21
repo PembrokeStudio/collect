@@ -18,6 +18,7 @@ package org.odk.collect.android.widgets;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -44,14 +45,19 @@ import java.util.List;
 import java.util.Locale;
 
 public abstract class SelectWidget extends QuestionWidget {
-    protected List<SelectChoice> items;
-    protected ArrayList<MediaLayout> playList;
-    protected LinearLayout answerLayout;
-    protected EditText searchStr;
-    private int playcounter = 0;
 
-    public SelectWidget(Context context, FormEntryPrompt prompt) {
+    @NonNull
+    private List<SelectChoice> items;
+    private ArrayList<MediaLayout> playList;
+    private LinearLayout answerLayout;
+    private EditText searchString;
+
+    private int playCounter = 0;
+
+    public SelectWidget(@NonNull Context context,
+                        @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
+
         answerLayout = new LinearLayout(context);
         answerLayout.setOrientation(LinearLayout.VERTICAL);
         playList = new ArrayList<>();
@@ -60,20 +66,36 @@ public abstract class SelectWidget extends QuestionWidget {
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
                 prompt.getAppearanceHint());
         if (xpathFuncExpr != null) {
-            items = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+            List<SelectChoice> selectChoices = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+            if (selectChoices != null) {
+                items = selectChoices;
+            } else {
+                items = new ArrayList<>();
+            }
+
         } else {
             items = prompt.getSelectChoices();
         }
     }
 
-    @Override
-    public IAnswerData getAnswer() {
-        return null;
+    @NonNull
+    public List<SelectChoice> getItems() {
+        return items;
+    }
+
+    public LinearLayout getAnswerLayout() {
+        return answerLayout;
+    }
+
+    public EditText getSearchString() {
+        return searchString;
     }
 
     @Override
-    public void clearAnswer() {
-    }
+    public abstract IAnswerData getAnswer();
+
+    @Override
+    public abstract void clearAnswer();
 
     @Override
     public void setFocus(Context context) {
@@ -97,7 +119,7 @@ public abstract class SelectWidget extends QuestionWidget {
     public void playAllPromptText() {
         // set up to play the items when the
         // question text is finished
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 resetQuestionTextColor();
@@ -113,8 +135,8 @@ public abstract class SelectWidget extends QuestionWidget {
     private void playNextSelectItem() {
         if (isShown()) {
             // if there's more, set up to play the next item
-            if (playcounter < playList.size()) {
-                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            if (playCounter < playList.size()) {
+                getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         resetQuestionTextColor();
@@ -123,13 +145,13 @@ public abstract class SelectWidget extends QuestionWidget {
                     }
                 });
                 // play the current item
-                playList.get(playcounter).playAudio();
-                playcounter++;
+                playList.get(playCounter).playAudio();
+                playCounter++;
 
             } else {
-                playcounter = 0;
-                player.setOnCompletionListener(null);
-                player.reset();
+                playCounter = 0;
+                getMediaPlayer().setOnCompletionListener(null);
+                getMediaPlayer().reset();
             }
         }
     }
@@ -148,13 +170,12 @@ public abstract class SelectWidget extends QuestionWidget {
         String videoURI = getPrompt().getSpecialFormSelectChoiceText(items.get(index), "video");
         String bigImageURI = getPrompt().getSpecialFormSelectChoiceText(items.get(index), "big-image");
 
-        MediaLayout mediaLayout = new MediaLayout(getContext(), player);
+        MediaLayout mediaLayout = new MediaLayout(getContext(), getMediaPlayer());
         mediaLayout.setAVT(getPrompt().getIndex(), "." + Integer.toString(index), textView, audioURI,
                 imageURI, videoURI, bigImageURI);
 
         mediaLayout.setAudioListener(this);
-        mediaLayout.setPlayTextColor(playColor);
-        mediaLayout.setPlayTextBackgroundColor(playBackgroundColor);
+        mediaLayout.setPlayTextColor(getPlayColor());
         playList.add(mediaLayout);
 
         if (index != items.size() - 1) {
@@ -186,7 +207,7 @@ public abstract class SelectWidget extends QuestionWidget {
     }
 
     private void setupChangeListener() {
-        searchStr.addTextChangedListener(new TextWatcher() {
+        searchString.addTextChangedListener(new TextWatcher() {
             private String oldText = "";
 
             @Override
@@ -208,15 +229,15 @@ public abstract class SelectWidget extends QuestionWidget {
     }
 
     protected void setUpSearchBox() {
-        searchStr = new EditText(getContext());
-        searchStr.setId(QuestionWidget.newUniqueId());
-        searchStr.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        searchString = new EditText(getContext());
+        searchString.setId(newUniqueId());
+        searchString.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);
-        searchStr.setLayoutParams(params);
+        searchString.setLayoutParams(params);
         setupChangeListener();
-        addAnswerView(searchStr);
+        addAnswerView(searchString);
 
         doSearch("");
     }
@@ -231,7 +252,7 @@ public abstract class SelectWidget extends QuestionWidget {
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        params.addRule(RelativeLayout.BELOW, searchStr.getId());
+        params.addRule(RelativeLayout.BELOW, searchString.getId());
         params.setMargins(10, 0, 10, 0);
         addView(answerLayout, params);
     }

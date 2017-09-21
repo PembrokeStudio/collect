@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
@@ -22,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -39,6 +41,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.activities.DrawActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.MediaUtils;
 
@@ -51,6 +54,7 @@ import timber.log.Timber;
  *
  * @author BehrAtherton@gmail.com
  */
+@SuppressLint("ViewConstructor")
 public class SignatureWidget extends QuestionWidget implements FileWidget {
 
     private Button signButton;
@@ -62,14 +66,21 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
 
     private TextView errorTextView;
 
-    public SignatureWidget(Context context, FormEntryPrompt prompt) {
+    public SignatureWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
-        instanceFolder =
-                Collect.getInstance().getFormController().getInstancePath().getParent();
+        FormController formController = Collect.getInstance().getFormController();
+        if (formController == null) {
+            Timber.w("Can't instantiate Widget with a null FormController.");
+            return;
+        }
+
+        instanceFolder = formController.getInstancePath().getParent();
 
         errorTextView = new TextView(context);
-        errorTextView.setId(QuestionWidget.newUniqueId());
+        errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         signButton = getSimpleButton(getContext().getString(R.string.sign_button));
@@ -80,7 +91,7 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
                 Collect.getInstance()
                         .getActivityLogger()
                         .logInstanceAction(this, "signButton", "click",
-                                formEntryPrompt.getIndex());
+                                getIndex());
                 launchSignatureActivity();
             }
         });
@@ -103,7 +114,7 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has signed
         if (binaryName != null) {
             imageView = new ImageView(getContext());
-            imageView.setId(QuestionWidget.newUniqueId());
+            imageView.setId(newUniqueId());
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
@@ -126,7 +137,7 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
                 @Override
                 public void onClick(View v) {
                     Collect.getInstance().getActivityLogger().logInstanceAction(this, "viewImage",
-                            "click", formEntryPrompt.getIndex());
+                            "click", getIndex());
                     launchSignatureActivity();
                 }
             });
@@ -150,14 +161,16 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
                 Uri.fromFile(new File(Collect.TMPFILE_PATH)));
 
         try {
-            Collect.getInstance().getFormController().setIndexWaitingForData(formEntryPrompt.getIndex());
+            waitForData();
             ((Activity) getContext()).startActivityForResult(i,
                     FormEntryActivity.SIGNATURE_CAPTURE);
+
         } catch (ActivityNotFoundException e) {
+
             Toast.makeText(getContext(),
                     getContext().getString(R.string.activity_not_found, "signature capture"),
                     Toast.LENGTH_SHORT).show();
-            Collect.getInstance().getFormController().setIndexWaitingForData(null);
+            cancelWaitingForData();
         }
     }
 
@@ -228,7 +241,7 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -237,17 +250,6 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager =
                 (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController().getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

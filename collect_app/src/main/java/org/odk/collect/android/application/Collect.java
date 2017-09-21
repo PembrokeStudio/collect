@@ -77,8 +77,6 @@ public class Collect extends Application {
     public static final String TMPFILE_PATH = CACHE_PATH + File.separator + "tmp.jpg";
     public static final String TMPDRAWFILE_PATH = CACHE_PATH + File.separator + "tmpDraw.jpg";
     public static final String LOG_PATH = ODK_ROOT + File.separator + "log";
-    public static final String DEFAULT_FONTSIZE = "21";
-    public static final int DEFAULT_FONTSIZE_INT = 21;
     public static final String OFFLINE_LAYERS = ODK_ROOT + File.separator + "layers";
     public static final String SETTINGS = ODK_ROOT + File.separator + "settings";
     public static String defaultSysLanguage;
@@ -97,24 +95,6 @@ public class Collect extends Application {
 
     public static Collect getInstance() {
         return singleton;
-    }
-
-    public static int getQuestionFontsize() {
-        // For testing:
-        Collect instance = Collect.getInstance();
-        if (instance == null) {
-            return Collect.DEFAULT_FONTSIZE_INT;
-        }
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(instance);
-        if (settings == null) {
-            return Collect.DEFAULT_FONTSIZE_INT;
-        }
-
-        String questionFont = settings.getString(PreferenceKeys.KEY_FONT_SIZE,
-                Collect.DEFAULT_FONTSIZE);
-
-        return Integer.parseInt(questionFont);
     }
 
     /**
@@ -177,6 +157,10 @@ public class Collect extends Application {
     @Nullable
     public FormController getFormController() {
         return formController;
+    }
+
+    public SharedPreferences getDefaultSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     public void setFormController(@Nullable FormController controller) {

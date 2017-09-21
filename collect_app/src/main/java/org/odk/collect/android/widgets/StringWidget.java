@@ -46,25 +46,23 @@ import timber.log.Timber;
  */
 @SuppressLint("ViewConstructor")
 public class StringWidget extends QuestionWidget {
+
     private static final String ROWS = "rows";
+
     private EditText answerText;
+    private boolean readOnly = false;
 
-    boolean readOnly = false;
+    protected StringWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           boolean readOnlyOverride) {
 
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        this(context, prompt, readOnlyOverride, true);
-        setupChangeListener();
-    }
-
-    protected StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride,
-                           boolean derived) {
         super(context, prompt);
 
         answerText = new EditText(context);
-        answerText.setId(QuestionWidget.newUniqueId());
+        answerText.setId(newUniqueId());
         readOnly = prompt.isReadOnly() || readOnlyOverride;
 
-        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
 
@@ -115,6 +113,7 @@ public class StringWidget extends QuestionWidget {
         }
 
         addAnswerView(answerText);
+        setupChangeListener();
     }
 
     protected void setupChangeListener() {

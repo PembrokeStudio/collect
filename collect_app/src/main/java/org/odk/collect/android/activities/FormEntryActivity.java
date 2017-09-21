@@ -108,7 +108,6 @@ import org.odk.collect.android.utilities.MediaUtils;
 import org.odk.collect.android.utilities.TimerLogger;
 import org.odk.collect.android.utilities.ToastUtils;
 import org.odk.collect.android.views.ODKView;
-import org.odk.collect.android.widgets.BinaryWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.RangeWidget;
 import org.odk.collect.android.widgets.StringWidget;
@@ -240,7 +239,6 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
     private ImageButton nextButton;
     private ImageButton backButton;
 
-    private String stepMessage = "";
     private Toolbar toolbar;
 
     enum AnimationType {
@@ -857,7 +855,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
     private QuestionWidget getWidgetWaitingForBinaryData() {
         QuestionWidget questionWidget = null;
         for (QuestionWidget qw :  ((ODKView) currentView).getWidgets()) {
-            if (qw instanceof BinaryWidget && ((BinaryWidget) qw).isWaitingForBinaryData()) {
+            if (qw.isWaitingForData()) {
                 questionWidget = qw;
             }
         }
@@ -1163,6 +1161,11 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
         FormController formController = Collect.getInstance()
                 .getFormController();
 
+        if (formController == null) {
+            Timber.w("Can't create ODKView with a null FormController.");
+            return null;
+        }
+
         setTitle(formController.getFormTitle());
 
         formController.getTimerLogger().logTimerEvent(TimerLogger.EventTypes.FEC,
@@ -1303,16 +1306,18 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             case FormEntryController.EVENT_QUESTION:
             case FormEntryController.EVENT_GROUP:
             case FormEntryController.EVENT_REPEAT:
-                ODKView odkv = null;
+                ODKView odkv;
+
                 // should only be a group here if the event_group is a field-list
                 try {
+                    FormEntryCaption[] groups = formController.getGroupsForCurrentIndex();
                     FormEntryPrompt[] prompts = formController.getQuestionPrompts();
-                    FormEntryCaption[] groups = formController
-                            .getGroupsForCurrentIndex();
-                    odkv = new ODKView(this, prompts, groups, advancingPage);
+
+                    odkv = new ODKView(this, formController, advancingPage);
                     Timber.i("Created view for group %s %s",
                             (groups.length > 0 ? groups[groups.length - 1].getLongText() : "[top]"),
                             (prompts.length > 0 ? prompts[0].getQuestionText() : "[no question]"));
+
                 } catch (RuntimeException e) {
                     Timber.e(e);
                     // this is badness to avoid a crash.
@@ -2726,7 +2731,6 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
 
     @Override
     public void onProgressStep(String stepMessage) {
-        this.stepMessage = stepMessage;
         if (progressDialog != null) {
             progressDialog.setMessage(getString(R.string.please_wait) + "\n\n" + stepMessage);
         }

@@ -83,11 +83,16 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
     private String instanceFolder;
     private Uri nexus7Uri;
 
-    public VideoWidget(Context context, FormEntryPrompt prompt) {
+    public VideoWidget(@NonNull Context context,
+                       @NonNull FormEntryPrompt prompt) {
         this(context, prompt, new FileUtil(), new MediaUtil());
     }
 
-    public VideoWidget(Context context, FormEntryPrompt prompt, @NonNull FileUtil fileUtil, @NonNull MediaUtil mediaUtil) {
+    public VideoWidget(@NonNull Context context,
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FileUtil fileUtil,
+                       @NonNull MediaUtil mediaUtil) {
+
         super(context, prompt);
 
         this.fileUtil = fileUtil;
@@ -108,10 +113,9 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
             public void onClick(View v) {
                 Collect.getInstance()
                         .getActivityLogger()
-                        .logInstanceAction(VideoWidget.this, "captureButton",
-                                "click", formEntryPrompt.getIndex());
-                Intent i = new Intent(
-                        android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+                        .logInstanceAction(VideoWidget.this, "captureButton", "click", getIndex());
+
+                Intent i = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
                 // Need to have this ugly code to account for
                 // a bug in the Nexus 7 on 4.3 not returning the mediaUri in the data
@@ -119,9 +123,11 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 // Have it saving to an intermediate location instead of final destination
                 // to allow the current location to catch issues with the intermediate file
                 Timber.i("The build of this device is %s", MODEL);
+
                 if (NEXUS7.equals(MODEL) && Build.VERSION.SDK_INT == 18) {
                     nexus7Uri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
                     i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, nexus7Uri);
+
                 } else {
                     i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                             Video.Media.EXTERNAL_CONTENT_URI.toString());
@@ -139,7 +145,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 }
                 try {
                     formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                            .setIndexWaitingForData(getIndex());
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.VIDEO_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -163,7 +169,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 Collect.getInstance()
                         .getActivityLogger()
                         .logInstanceAction(VideoWidget.this, "chooseButton",
-                                "click", formEntryPrompt.getIndex());
+                                "click", getIndex());
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("video/*");
                 // Intent i =
@@ -171,7 +177,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 // android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
                 try {
                     formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                            .setIndexWaitingForData(getIndex());
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.VIDEO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
@@ -194,7 +200,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 Collect.getInstance()
                         .getActivityLogger()
                         .logInstanceAction(VideoWidget.this, "playButton",
-                                "click", formEntryPrompt.getIndex());
+                                "click", getIndex());
                 Intent i = new Intent("android.intent.action.VIEW");
                 File f = new File(instanceFolder + File.separator
                         + binaryName);
@@ -227,7 +233,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         addAnswerView(answerLayout);
 
         // and hide the capture and choose button if read-only
-        if (formEntryPrompt.isReadOnly()) {
+        if (isReadOnly()) {
             captureButton.setVisibility(View.GONE);
             chooseButton.setVisibility(View.GONE);
         }
@@ -354,7 +360,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         }
 
         binaryName = newVideo.getName();
-        cancelWaitingForBinaryData();
+        cancelWaitingForData();
 
         // Need to have this ugly code to account for
         // a bug in the Nexus 7 on 4.3 not returning the mediaUri in the data
@@ -383,25 +389,6 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
     }
 
     @Override

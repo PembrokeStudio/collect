@@ -72,7 +72,7 @@ public class ItemsetWidget extends QuestionWidget implements
     private ArrayList<RadioButton> buttons;
     private String answer = null;
 
-    // Hashmap linking label:value
+    // HashMap linking label:value
     private HashMap<String, String> answers;
     private AdvanceToNextListener autoAdvanceToNextListener;
 
@@ -286,10 +286,10 @@ public class ItemsetWidget extends QuestionWidget implements
 
                         rb.setOnCheckedChangeListener(this);
                         rb.setOnClickListener(this);
-                        rb.setTextSize(answerFontsize);
+                        rb.setTextSize(getAnswerFontSize());
                         rb.setText(label);
                         rb.setTag(index);
-                        rb.setId(QuestionWidget.newUniqueId());
+                        rb.setId(newUniqueId());
 
                         buttons.add(rb);
 

@@ -17,6 +17,7 @@ package org.odk.collect.android.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -44,7 +45,9 @@ public class UrlWidget extends QuestionWidget {
     private TextView stringAnswer;
     private CustomTabHelper customTabHelper;
 
-    public UrlWidget(Context context, FormEntryPrompt prompt) {
+    public UrlWidget(@NonNull Context context,
+                     @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         openUrlButton = getSimpleButton(context.getString(R.string.open_url));
@@ -55,7 +58,7 @@ public class UrlWidget extends QuestionWidget {
                 Collect.getInstance()
                         .getActivityLogger()
                         .logInstanceAction(this, "openUrl", "click",
-                                formEntryPrompt.getIndex());
+                                getIndex());
 
                 if (!isUrlEmpty(stringAnswer)) {
                     customTabHelper.bindCustomTabsService(getContext(), null);

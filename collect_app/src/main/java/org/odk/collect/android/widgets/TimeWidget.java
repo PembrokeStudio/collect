@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -51,6 +52,7 @@ import timber.log.Timber;
  */
 @SuppressLint("ViewConstructor")
 public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTimeSetListener {
+
     private TimePickerDialog timePickerDialog;
 
     private Button timeButton;
@@ -61,7 +63,9 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
 
     private boolean nullAnswer;
 
-    public TimeWidget(Context context, final FormEntryPrompt prompt) {
+    public TimeWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         setGravity(Gravity.START);
@@ -113,7 +117,7 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
 
     private void createTimeButton() {
         timeButton = getSimpleButton(getContext().getString(R.string.select_time));
-        timeButton.setEnabled(!formEntryPrompt.isReadOnly());
+        timeButton.setEnabled(!getPrompt().isReadOnly());
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,10 +148,10 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
         timePickerDialog = new CustomTimePickerDialog(getContext(), this, 0, 0);
         timePickerDialog.setCanceledOnTouchOutside(false);
 
-        if (formEntryPrompt.getAnswerValue() == null) {
+        if (getPrompt().getAnswerValue() == null) {
             clearAnswer();
         } else {
-            Date date = ((Date) formEntryPrompt.getAnswerValue().getValue());
+            Date date = ((Date) getPrompt().getAnswerValue().getValue());
 
             DateTime dateTime = new DateTime(date);
             updateTime(dateTime, true);

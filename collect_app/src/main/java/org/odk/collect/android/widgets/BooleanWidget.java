@@ -16,7 +16,9 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.widget.CheckBox;
 
@@ -26,12 +28,14 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
 
+@SuppressLint("ViewConstructor")
 public class BooleanWidget extends QuestionWidget {
 
     private CheckBox booleanButton;
     private FormEntryPrompt prompt;
 
-    public BooleanWidget(Context context, FormEntryPrompt prompt) {
+    public BooleanWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
         this.prompt = prompt;
 
@@ -74,9 +78,9 @@ public class BooleanWidget extends QuestionWidget {
 
     private void setupBooleanButton() {
         booleanButton = new CheckBox(getContext());
-        booleanButton.setId(QuestionWidget.newUniqueId());
+        booleanButton.setId(newUniqueId());
         booleanButton.setText(getContext().getString(R.string.trigger));
-        booleanButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        booleanButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         booleanButton.setEnabled(!prompt.isReadOnly());
         addAnswerView(booleanButton);
     }

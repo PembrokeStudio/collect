@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
@@ -39,7 +40,9 @@ public class DateTimeWidget extends QuestionWidget {
     private DateWidget dateWidget;
     private TimeWidget timeWidget;
 
-    public DateTimeWidget(Context context, FormEntryPrompt prompt) {
+    public DateTimeWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         setGravity(Gravity.START);
@@ -47,10 +50,10 @@ public class DateTimeWidget extends QuestionWidget {
         dateWidget = new DateWidget(context, prompt);
         timeWidget = new TimeWidget(context, prompt);
 
-        dateWidget.questionMediaLayout.getView_Text().setVisibility(GONE);
+        dateWidget.getQuestionMediaLayout().getView_Text().setVisibility(GONE);
         dateWidget.getHelpTextView().setVisibility(GONE);
 
-        timeWidget.questionMediaLayout.getView_Text().setVisibility(GONE);
+        timeWidget.getQuestionMediaLayout().getView_Text().setVisibility(GONE);
         timeWidget.getHelpTextView().setVisibility(GONE);
 
         LinearLayout linearLayout = new LinearLayout(getContext());

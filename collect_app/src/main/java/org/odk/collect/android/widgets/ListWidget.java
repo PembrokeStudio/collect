@@ -17,6 +17,7 @@ package org.odk.collect.android.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -71,7 +72,10 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
     ArrayList<RadioButton> buttons;
     View center;
 
-    public ListWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
+    public ListWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt,
+                      boolean displayLabel) {
+
         super(context, prompt);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
@@ -96,7 +100,7 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
             for (int i = 0; i < items.size(); i++) {
                 RadioButton r = new RadioButton(getContext());
 
-                r.setId(QuestionWidget.newUniqueId());
+                r.setId(newUniqueId());
                 r.setTag(i);
                 r.setEnabled(!prompt.isReadOnly());
                 r.setFocusable(!prompt.isReadOnly());
@@ -120,7 +124,7 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
                 ImageView imageView = null;
                 TextView missingImage = null;
 
-                final int labelId = QuestionWidget.newUniqueId();
+                final int labelId = newUniqueId();
 
                 // Now set up the image view
                 String errorMsg = null;
@@ -181,7 +185,7 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
                 label.setText(prompt.getSelectChoiceText(items.get(i)));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
                 label.setGravity(Gravity.CENTER_HORIZONTAL);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
@@ -295,7 +299,7 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
             }
         }
         Collect.getInstance().getActivityLogger().logInstanceAction(this, "onCheckedChanged",
-                items.get((Integer) buttonView.getTag()).getValue(), formEntryPrompt.getIndex());
+                items.get((Integer) buttonView.getTag()).getValue(), getIndex());
     }
 
 
@@ -320,7 +324,7 @@ public class ListWidget extends QuestionWidget implements MultiChoiceWidget, OnC
         center = new View(getContext());
         RelativeLayout.LayoutParams centerParams = new RelativeLayout.LayoutParams(0, 0);
         centerParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        center.setId(QuestionWidget.newUniqueId());
+        center.setId(newUniqueId());
         addView(center, centerParams);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
