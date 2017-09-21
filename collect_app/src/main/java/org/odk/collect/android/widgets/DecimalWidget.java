@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Selection;
@@ -38,13 +39,16 @@ import java.util.Locale;
 @SuppressLint("ViewConstructor")
 public class DecimalWidget extends StringWidget {
 
-    public DecimalWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        super(context, prompt, readOnlyOverride, true);
+    public DecimalWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt,
+                         boolean readOnlyOverride) {
+
+        super(context, prompt, readOnlyOverride);
 
         // formatting
         EditText answerText = getAnswerTextField();
 
-        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         answerText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         // needed to make long readonly text scroll
@@ -85,10 +89,13 @@ public class DecimalWidget extends StringWidget {
     }
 
     private Double getDoubleAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        IAnswerData dataHolder = getPromptAnswer();
         Double d = null;
+
         if (dataHolder != null) {
+
             Object dataValue = dataHolder.getValue();
+
             if (dataValue != null) {
                 if (dataValue instanceof Integer) {
                     d = (double) (Integer) dataValue;
@@ -97,6 +104,7 @@ public class DecimalWidget extends StringWidget {
                 }
             }
         }
+
         return d;
     }
 

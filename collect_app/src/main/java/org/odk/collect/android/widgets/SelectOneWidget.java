@@ -16,12 +16,15 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
@@ -43,10 +46,11 @@ public class SelectOneWidget
         extends SelectWidget
         implements OnCheckedChangeListener, AudioPlayListener, MultiChoiceWidget {
 
-    protected List<RadioButton> buttons;
-    protected String selectedValue;
+    private final List<RadioButton> buttons;
+    private String selectedValue;
 
-    public SelectOneWidget(Context context, FormEntryPrompt prompt) {
+    public SelectOneWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
         buttons = new ArrayList<>();
 
@@ -71,7 +75,7 @@ public class SelectOneWidget
     @Override
     public IAnswerData getAnswer() {
         int i = getCheckedId();
-        return i == -1 ? null : new SelectOneData(new Selection(items.get(i)));
+        return i == -1 ? null : new SelectOneData(new Selection(getItems().get(i)));
     }
 
     public int getCheckedId() {
@@ -112,7 +116,7 @@ public class SelectOneWidget
     }
 
     protected RadioButton createRadioButton(int index) {
-        String choiceName = getPrompt().getSelectChoiceText(items.get(index));
+        String choiceName = getPrompt().getSelectChoiceText(getItems().get(index));
         CharSequence choiceDisplayName;
         if (choiceName != null) {
             choiceDisplayName = TextUtils.textToHtml(choiceName);
@@ -121,15 +125,15 @@ public class SelectOneWidget
         }
 
         RadioButton radioButton = new RadioButton(getContext());
-        radioButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        radioButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         radioButton.setText(choiceDisplayName);
         radioButton.setMovementMethod(LinkMovementMethod.getInstance());
         radioButton.setTag(index);
-        radioButton.setId(QuestionWidget.newUniqueId());
+        radioButton.setId(newUniqueId());
         radioButton.setEnabled(!getPrompt().isReadOnly());
         radioButton.setFocusable(!getPrompt().isReadOnly());
 
-        if (items.get(index).getValue().equals(selectedValue)) {
+        if (getItems().get(index).getValue().equals(selectedValue)) {
             radioButton.setChecked(true);
         }
 
@@ -139,15 +143,18 @@ public class SelectOneWidget
     }
 
     protected void createLayout() {
-        if (items != null) {
-            for (int i = 0; i < items.size(); i++) {
-                RadioButton radioButton = createRadioButton(i);
-                buttons.add(radioButton);
+        List<SelectChoice> items = getItems();
 
-                answerLayout.addView(createMediaLayout(i, radioButton));
-            }
-            addAnswerView(answerLayout);
+        LinearLayout answerLayout = getAnswerLayout();
+
+        for (int i = 0; i < items.size(); i++) {
+            RadioButton radioButton = createRadioButton(i);
+            buttons.add(radioButton);
+
+            answerLayout.addView(createMediaLayout(i, radioButton));
         }
+
+        addAnswerView(answerLayout);
     }
 
     public List<RadioButton> getButtons() {
@@ -170,5 +177,4 @@ public class SelectOneWidget
 
         onCheckedChanged(button, isSelected);
     }
-
 }

@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -41,17 +42,16 @@ public class TriggerWidget extends QuestionWidget {
 
     private CheckBox triggerButton;
     private TextView stringAnswer;
-    private FormEntryPrompt prompt;
 
+    public TriggerWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt) {
 
-    public TriggerWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        this.prompt = prompt;
 
         triggerButton = new CheckBox(getContext());
-        triggerButton.setId(QuestionWidget.newUniqueId());
+        triggerButton.setId(newUniqueId());
         triggerButton.setText(getContext().getString(R.string.trigger));
-        triggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        triggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         // mActionButton.setPadding(20, 20, 20, 20);
         triggerButton.setEnabled(!prompt.isReadOnly());
 
@@ -62,19 +62,19 @@ public class TriggerWidget extends QuestionWidget {
                     stringAnswer.setText(OK_TEXT);
                     Collect.getInstance().getActivityLogger().logInstanceAction(TriggerWidget.this,
                             "triggerButton",
-                            "OK", TriggerWidget.this.prompt.getIndex());
+                            "OK", getPrompt().getIndex());
                 } else {
                     stringAnswer.setText(null);
                     Collect.getInstance().getActivityLogger().logInstanceAction(TriggerWidget.this,
                             "triggerButton",
-                            "null", TriggerWidget.this.prompt.getIndex());
+                            "null", getPrompt().getIndex());
                 }
             }
         });
 
         stringAnswer = new TextView(getContext());
-        stringAnswer.setId(QuestionWidget.newUniqueId());
-        stringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        stringAnswer.setId(newUniqueId());
+        stringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         stringAnswer.setGravity(Gravity.CENTER);
 
         String s = prompt.getAnswerText();
@@ -90,10 +90,6 @@ public class TriggerWidget extends QuestionWidget {
 
         // finish complex layout
         addAnswerView(triggerButton);
-    }
-
-    public FormEntryPrompt getPrompt() {
-        return prompt;
     }
 
     @Override

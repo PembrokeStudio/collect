@@ -18,6 +18,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
@@ -28,7 +29,8 @@ import java.math.BigDecimal;
 @SuppressLint("ViewConstructor")
 public class RangeDecimalWidget extends RangeWidget {
 
-    public RangeDecimalWidget(Context context, FormEntryPrompt prompt) {
+    public RangeDecimalWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
     }
 

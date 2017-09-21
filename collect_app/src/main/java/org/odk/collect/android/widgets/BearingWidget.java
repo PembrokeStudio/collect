@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -40,10 +41,13 @@ import org.odk.collect.android.logic.FormController;
  */
 @SuppressLint("ViewConstructor")
 public class BearingWidget extends QuestionWidget implements BinaryWidget {
+
     private Button getBearingButton;
     private TextView answerDisplay;
 
-    public BearingWidget(Context context, FormEntryPrompt prompt) {
+    public BearingWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         getBearingButton = getSimpleButton(getContext().getString(R.string.get_bearing));
@@ -67,14 +71,14 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
             public void onClick(View v) {
                 Collect.getInstance()
                         .getActivityLogger()
-                        .logInstanceAction(this, "recordBearing", "click",
-                                formEntryPrompt.getIndex());
+                        .logInstanceAction(this, "recordBearing", "click", getIndex());
+
                 Intent i;
                 i = new Intent(getContext(), BearingActivity.class);
 
                 FormController formController = Collect.getInstance().getFormController();
                 if (formController != null) {
-                    formController.setIndexWaitingForData(formEntryPrompt.getIndex());
+                    formController.setIndexWaitingForData(getIndex());
                 }
 
                 ((Activity) getContext()).startActivityForResult(i,
@@ -83,9 +87,11 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
         });
 
         LinearLayout answerLayout = new LinearLayout(getContext());
+
         answerLayout.setOrientation(LinearLayout.VERTICAL);
         answerLayout.addView(getBearingButton);
         answerLayout.addView(answerDisplay);
+
         addAnswerView(answerLayout);
     }
 
@@ -117,26 +123,7 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
     @Override
     public void setBinaryData(Object answer) {
         answerDisplay.setText((String) answer);
-        cancelWaitingForBinaryData();
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override

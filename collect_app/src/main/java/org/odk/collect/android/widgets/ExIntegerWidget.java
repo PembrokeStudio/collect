@@ -14,10 +14,12 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
@@ -39,9 +41,12 @@ import java.util.Locale;
  *
  * @author mitchellsundt@gmail.com
  */
+@SuppressLint("ViewConstructor")
 public class ExIntegerWidget extends ExStringWidget {
 
-    public ExIntegerWidget(Context context, FormEntryPrompt prompt) {
+    public ExIntegerWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         answer.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
@@ -62,7 +67,7 @@ public class ExIntegerWidget extends ExStringWidget {
     }
 
     private Integer getIntegerAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        IAnswerData dataHolder = getPromptAnswer();
         Integer d = null;
         if (dataHolder != null) {
             Object dataValue = dataHolder.getValue();
@@ -81,7 +86,7 @@ public class ExIntegerWidget extends ExStringWidget {
     protected void fireActivity(Intent i) throws ActivityNotFoundException {
         i.putExtra("value", getIntegerAnswerValue());
         Collect.getInstance().getActivityLogger().logInstanceAction(this, "launchIntent",
-                i.getAction(), formEntryPrompt.getIndex());
+                i.getAction(), getIndex());
         ((Activity) getContext()).startActivityForResult(i,
                 FormEntryActivity.EX_INT_CAPTURE);
     }
@@ -90,7 +95,7 @@ public class ExIntegerWidget extends ExStringWidget {
     @Override
     public IAnswerData getAnswer() {
         String s = answer.getText().toString();
-        if (s == null || s.equals("")) {
+        if (s.equals("")) {
             return null;
         } else {
             try {
@@ -103,13 +108,13 @@ public class ExIntegerWidget extends ExStringWidget {
 
 
     /**
-     * Allows answer to be set externally in {@Link FormEntryActivity}.
+     * Allows answer to be set externally in {@link FormEntryActivity}.
      */
     @Override
     public void setBinaryData(Object answer) {
         IntegerData integerData = ExternalAppsUtils.asIntegerData(answer);
         this.answer.setText(integerData == null ? null : integerData.getValue().toString());
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
 }

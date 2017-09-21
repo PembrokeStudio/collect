@@ -17,6 +17,7 @@ package org.odk.collect.android.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -60,7 +61,9 @@ public class LabelWidget extends QuestionWidget {
     List<SelectChoice> items;
     View center;
 
-    public LabelWidget(Context context, FormEntryPrompt prompt) {
+    public LabelWidget(@NonNull Context context,
+                       @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
@@ -90,7 +93,7 @@ public class LabelWidget extends QuestionWidget {
                 ImageView imageView = null;
                 TextView missingImage = null;
 
-                final int labelId = QuestionWidget.newUniqueId();
+                final int labelId = newUniqueId();
 
                 // Now set up the image view
                 String errorMsg = null;
@@ -153,7 +156,7 @@ public class LabelWidget extends QuestionWidget {
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
                 label.setText(prompt.getSelectChoiceText(items.get(i)));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
                 label.setGravity(Gravity.CENTER_HORIZONTAL);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
@@ -226,7 +229,7 @@ public class LabelWidget extends QuestionWidget {
         center = new View(getContext());
         RelativeLayout.LayoutParams centerParams = new RelativeLayout.LayoutParams(0, 0);
         centerParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        center.setId(QuestionWidget.newUniqueId());
+        center.setId(newUniqueId());
         addView(center, centerParams);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(

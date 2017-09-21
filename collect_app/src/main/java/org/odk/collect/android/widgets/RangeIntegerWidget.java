@@ -18,6 +18,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
@@ -26,7 +27,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 @SuppressLint("ViewConstructor")
 public class RangeIntegerWidget extends RangeWidget {
 
-    public RangeIntegerWidget(Context context, FormEntryPrompt prompt) {
+    public RangeIntegerWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
     }
 

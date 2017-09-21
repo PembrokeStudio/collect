@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.views;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
@@ -23,15 +24,16 @@ import android.widget.TextView;
 
 import org.odk.collect.android.logic.HierarchyElement;
 import org.odk.collect.android.utilities.TextUtils;
-import org.odk.collect.android.widgets.QuestionWidget;
+import org.odk.collect.android.utilities.ViewUtil;
 
+@SuppressLint("ViewConstructor")
 public class HierarchyElementView extends RelativeLayout {
 
     private TextView primaryTextView;
     private TextView secondaryTextView;
     private ImageView icon;
 
-
+    @SuppressWarnings("deprecation")
     public HierarchyElementView(Context context, HierarchyElement it) {
         super(context);
 
@@ -39,7 +41,7 @@ public class HierarchyElementView extends RelativeLayout {
 
         icon = new ImageView(context);
         icon.setImageDrawable(it.getIcon());
-        icon.setId(QuestionWidget.newUniqueId());
+        icon.setId(ViewUtil.generateViewId());
         icon.setPadding(0, 0, dipToPx(4), 0);
 
         addView(icon, new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -48,7 +50,7 @@ public class HierarchyElementView extends RelativeLayout {
         primaryTextView = new TextView(context);
         primaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         setPrimaryText(it.getPrimaryText());
-        primaryTextView.setId(QuestionWidget.newUniqueId());
+        primaryTextView.setId(ViewUtil.generateViewId());
         primaryTextView.setGravity(Gravity.CENTER_VERTICAL);
         LayoutParams l =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,

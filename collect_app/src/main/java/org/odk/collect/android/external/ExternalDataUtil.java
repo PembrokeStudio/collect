@@ -18,6 +18,8 @@
 
 package org.odk.collect.android.external;
 
+import android.support.annotation.Nullable;
+
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -32,6 +34,7 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.exception.ExternalDataException;
 import org.odk.collect.android.exception.InvalidSyntaxException;
 import org.odk.collect.android.external.handler.ExternalDataHandlerSearch;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +46,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import timber.log.Timber;
 
 /**
  * Author: Meletis Margaritis
@@ -59,7 +64,14 @@ public final class ExternalDataUtil {
     private static final String FALLBACK_COLUMN_SEPARATOR = " ";
     public static final String JR_IMAGES_PREFIX = "jr://images/";
 
-    public static String toSafeColumnName(String columnName, Map<String, String> cache) {
+    public static String toSafeColumnName(String columnName) {
+        // SCTO-567 - begin all column names with "c_" to avoid possible conflicts with
+        // reserved keywords; also, escape any potentially-illegal characters
+        return "c_" + columnName.trim().replaceAll("[^A-Za-z0-9_]", "_").toLowerCase(
+                Locale.ENGLISH);
+    }
+
+    static String toSafeColumnName(String columnName, Map<String, String> cache) {
         String cachedName = cache.get(columnName);
         if (cachedName == null) {
             String safeColumnName = toSafeColumnName(columnName);
@@ -70,16 +82,9 @@ public final class ExternalDataUtil {
         }
     }
 
-    public static String toSafeColumnName(String columnName) {
-        // SCTO-567 - begin all column names with "c_" to avoid possible conflicts with
-        // reserved keywords; also, escape any potentially-illegal characters
-        return "c_" + columnName.trim().replaceAll("[^A-Za-z0-9_]", "_").toLowerCase(
-                Locale.ENGLISH);
-    }
-
-    public static List<String> findMatchingColumnsAfterSafeningNames(String[] columnNames) {
+    static List<String> findMatchingColumnsAfterSafeningNames(String[] columnNames) {
         // key is the safe, value is the unsafe
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (String columnName : columnNames) {
             if (columnName.trim().length() > 0) {
                 String safeColumn = toSafeColumnName(columnName);
@@ -137,11 +142,12 @@ public final class ExternalDataUtil {
         }
     }
 
+    @Nullable
     public static ArrayList<SelectChoice> populateExternalChoices(FormEntryPrompt formEntryPrompt,
             XPathFuncExpr xpathfuncexpr) {
         try {
             List<SelectChoice> selectChoices = formEntryPrompt.getSelectChoices();
-            ArrayList<SelectChoice> returnedChoices = new ArrayList<SelectChoice>();
+            ArrayList<SelectChoice> returnedChoices = new ArrayList<>();
             for (SelectChoice selectChoice : selectChoices) {
                 String value = selectChoice.getValue();
                 if (isAnInteger(value)) {
@@ -161,8 +167,16 @@ public final class ExternalDataUtil {
 
                     ExternalDataManager externalDataManager =
                             Collect.getInstance().getExternalDataManager();
+
+                    FormController formController = Collect.getInstance().getFormController();
+                    if (formController == null) {
+                        Timber.w("Can't populate External Choices with a null FormController.");
+                        return null;
+                    }
+
                     FormInstance formInstance =
-                            Collect.getInstance().getFormController().getFormDef().getInstance();
+                            formController.getFormDef().getInstance();
+
                     EvaluationContext baseEvaluationContext = new EvaluationContext(formInstance);
                     EvaluationContext evaluationContext = new EvaluationContext(
                             baseEvaluationContext, formEntryPrompt.getIndex().getReference());
@@ -206,7 +220,7 @@ public final class ExternalDataUtil {
             String displayColumns) {
         valueColumn = valueColumn.trim();
 
-        LinkedHashMap<String, String> columns = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> columns = new LinkedHashMap<>();
 
         columns.put(toSafeColumnName(valueColumn), valueColumn);
 
@@ -225,7 +239,7 @@ public final class ExternalDataUtil {
     }
 
     public static List<String> createListOfColumns(String columnString) {
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
 
         List<String> commaSplitParts = splitTrimmed(columnString, COLUMN_SEPARATOR,
                 FALLBACK_COLUMN_SEPARATOR);
@@ -237,8 +251,8 @@ public final class ExternalDataUtil {
         return values;
     }
 
-    protected static List<String> splitTrimmed(String displayColumns, String separator,
-            String fallbackSeparator) {
+    private static List<String> splitTrimmed(String displayColumns, String separator,
+                                             String fallbackSeparator) {
         List<String> commaSplitParts = splitTrimmed(displayColumns, separator);
 
         // SCTO-584: Fall back to a space-separated list
@@ -248,8 +262,8 @@ public final class ExternalDataUtil {
         return commaSplitParts;
     }
 
-    protected static List<String> splitTrimmed(String text, String separator) {
-        List<String> parts = new ArrayList<String>();
+    private static List<String> splitTrimmed(String text, String separator) {
+        List<String> parts = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(text, separator);
         while (st.hasMoreTokens()) {
             String token = st.nextToken().trim();
@@ -260,7 +274,7 @@ public final class ExternalDataUtil {
         return parts;
     }
 
-    public static boolean containsAnyData(String[] row) {
+    static boolean containsAnyData(String[] row) {
         if (row == null || row.length == 0) {
             return false;
         }
@@ -272,7 +286,7 @@ public final class ExternalDataUtil {
         return false;
     }
 
-    public static String[] fillUpNullValues(String[] row, String[] headerRow) {
+    static String[] fillUpNullValues(String[] row, String[] headerRow) {
         String[] fullRow = new String[headerRow.length];
 
         for (int i = 0; i < fullRow.length; i++) {
@@ -294,7 +308,8 @@ public final class ExternalDataUtil {
         return value == null ? "" : value;
     }
 
-    public static boolean isAnInteger(String value) {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    static boolean isAnInteger(String value) {
         if (value == null) {
             return false;
         }

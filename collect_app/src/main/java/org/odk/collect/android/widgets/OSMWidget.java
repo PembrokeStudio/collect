@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -59,7 +60,9 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
     private String formFileName;
     private String osmFileName;
 
-    public OSMWidget(Context context, FormEntryPrompt prompt) {
+    public OSMWidget(@NonNull Context context,
+                     @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         FormController formController = Collect.getInstance().getFormController();
@@ -82,7 +85,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
         formId = formController.getFormDef().getID();
 
         errorTextView = new TextView(context);
-        errorTextView.setId(QuestionWidget.newUniqueId());
+        errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.invalid_osm_data);
 
         // Determine the tags required
@@ -93,7 +96,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
 
         // Setup Launch OpenMapKit Button
         launchOpenMapKitButton = new Button(getContext());
-        launchOpenMapKitButton.setId(QuestionWidget.newUniqueId());
+        launchOpenMapKitButton.setId(newUniqueId());
 
         // Button Styling
         if (osmFileName != null) {
@@ -107,7 +110,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
         } else {
             launchOpenMapKitButton.setText(getContext().getString(R.string.capture_osm));
         }
-        launchOpenMapKitButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        launchOpenMapKitButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         launchOpenMapKitButton.setPadding(20, 20, 20, 20);
         launchOpenMapKitButton.setEnabled(!prompt.isReadOnly());
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
@@ -121,14 +124,14 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
                 launchOpenMapKitButton.setBackgroundColor(OSM_BLUE);
                 Collect.getInstance().getActivityLogger().logInstanceAction(this,
                         "launchOpenMapKitButton",
-                        "click", formEntryPrompt.getIndex());
+                        "click", getIndex());
                 errorTextView.setVisibility(View.GONE);
                 launchOpenMapKit();
             }
         });
 
         osmFileNameHeaderTextView = new TextView(context);
-        osmFileNameHeaderTextView.setId(QuestionWidget.newUniqueId());
+        osmFileNameHeaderTextView.setId(newUniqueId());
         osmFileNameHeaderTextView.setTextSize(20);
         osmFileNameHeaderTextView.setTypeface(null, Typeface.BOLD);
         osmFileNameHeaderTextView.setPadding(10, 0, 0, 10);
@@ -136,7 +139,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
 
         // text view showing the resulting OSM file name
         osmFileNameTextView = new TextView(context);
-        osmFileNameTextView.setId(QuestionWidget.newUniqueId());
+        osmFileNameTextView.setId(newUniqueId());
         osmFileNameTextView.setTextSize(18);
         osmFileNameTextView.setTypeface(null, Typeface.ITALIC);
         if (osmFileName != null) {
@@ -205,7 +208,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
                 }
 
                 formController.setIndexWaitingForData(
-                        formEntryPrompt.getIndex());
+                        getIndex());
                 // launch
                 ((Activity) ctx).startActivityForResult(launchIntent,
                         FormEntryActivity.OSM_CAPTURE);
@@ -236,25 +239,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
         osmFileNameHeaderTextView.setVisibility(View.VISIBLE);
         osmFileNameTextView.setVisibility(View.VISIBLE);
 
-        cancelWaitingForBinaryData();
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
+        cancelWaitingForData();
     }
 
     @Override

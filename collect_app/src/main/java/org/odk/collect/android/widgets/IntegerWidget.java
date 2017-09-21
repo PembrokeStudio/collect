@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Selection;
@@ -37,11 +38,14 @@ import java.util.Locale;
 @SuppressLint("ViewConstructor")
 public class IntegerWidget extends StringWidget {
 
-    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        super(context, prompt, readOnlyOverride, true);
+    public IntegerWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt,
+                         boolean readOnlyOverride) {
+
+        super(context, prompt, readOnlyOverride);
 
         EditText answerText = getAnswerTextField();
-        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         answerText.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
         // needed to make long readonly text scroll
@@ -73,7 +77,7 @@ public class IntegerWidget extends StringWidget {
     }
 
     private Integer getIntegerAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        IAnswerData dataHolder = getPromptAnswer();
         Integer d = null;
         if (dataHolder != null) {
             Object dataValue = dataHolder.getValue();

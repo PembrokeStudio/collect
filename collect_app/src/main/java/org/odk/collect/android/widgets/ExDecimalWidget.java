@@ -14,10 +14,12 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Selection;
@@ -29,9 +31,12 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalAppsUtils;
+import org.odk.collect.android.logic.FormController;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import timber.log.Timber;
 
 
 /**
@@ -42,9 +47,12 @@ import java.util.Locale;
  *
  * @author mitchellsundt@gmail.com
  */
+@SuppressLint("ViewConstructor")
 public class ExDecimalWidget extends ExStringWidget {
 
-    public ExDecimalWidget(Context context, FormEntryPrompt prompt) {
+    public ExDecimalWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         answer.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -74,7 +82,7 @@ public class ExDecimalWidget extends ExStringWidget {
     }
 
     private Double getDoubleAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        IAnswerData dataHolder = getPrompt().getAnswerValue();
         Double d = null;
         if (dataHolder != null) {
             Object dataValue = dataHolder.getValue();
@@ -93,7 +101,7 @@ public class ExDecimalWidget extends ExStringWidget {
     protected void fireActivity(Intent i) throws ActivityNotFoundException {
         i.putExtra("value", getDoubleAnswerValue());
         Collect.getInstance().getActivityLogger().logInstanceAction(this, "launchIntent",
-                i.getAction(), formEntryPrompt.getIndex());
+                i.getAction(), getPrompt().getIndex());
         ((Activity) getContext()).startActivityForResult(i,
                 FormEntryActivity.EX_DECIMAL_CAPTURE);
     }
@@ -102,8 +110,9 @@ public class ExDecimalWidget extends ExStringWidget {
     @Override
     public IAnswerData getAnswer() {
         String s = answer.getText().toString();
-        if (s == null || s.equals("")) {
+        if (s.equals("")) {
             return null;
+
         } else {
             try {
                 return new DecimalData(Double.valueOf(s).doubleValue());
@@ -115,13 +124,21 @@ public class ExDecimalWidget extends ExStringWidget {
 
 
     /**
-     * Allows answer to be set externally in {@Link FormEntryActivity}.
+     * Allows answer to be set externally in {@link FormEntryActivity}.
      */
     @Override
     public void setBinaryData(Object answer) {
         DecimalData decimalData = ExternalAppsUtils.asDecimalData(answer);
         this.answer.setText(decimalData == null ? null : decimalData.getValue().toString());
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+
+
+        FormController formController = Collect.getInstance().getFormController();
+        if (formController == null) {
+            Timber.w("Can't set Binary Data if FormController is null.");
+            return;
+        }
+
+        formController.setIndexWaitingForData(null);
     }
 
 }

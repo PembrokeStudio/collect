@@ -16,8 +16,11 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import org.javarosa.form.api.FormEntryPrompt;
@@ -25,16 +28,20 @@ import org.odk.collect.android.listeners.AudioPlayListener;
 
 import java.util.List;
 
+@SuppressLint("ViewConstructor")
 public class SelectMultipleAutocompleteWidget extends SelectMultiWidget implements CompoundButton.OnCheckedChangeListener, AudioPlayListener {
-    public SelectMultipleAutocompleteWidget(Context context, FormEntryPrompt prompt) {
+
+    public SelectMultipleAutocompleteWidget(@NonNull Context context,
+                                            @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
     }
 
     @Override
     protected void addButtonsToLayout(List<Integer> tagList) {
+        List<CheckBox> checkBoxes = getCheckBoxes();
         for (int i = 0; i < checkBoxes.size(); i++) {
             if (tagList == null || tagList.contains(i)) {
-                answerLayout.addView(checkBoxes.get(i));
+                getAnswerLayout().addView(checkBoxes.get(i));
             }
         }
     }
@@ -42,17 +49,15 @@ public class SelectMultipleAutocompleteWidget extends SelectMultiWidget implemen
     @Override
     public void setFocus(Context context) {
         // Put focus on text input field and display soft keyboard if appropriate.
-        searchStr.requestFocus();
+        getSearchString().requestFocus();
         InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(searchStr, 0);
+        inputManager.showSoftInput(getSearchString(), 0);
     }
 
     @Override
     protected void createLayout() {
-        if (items != null) {
-            for (int i = 0; i < items.size(); i++) {
-                checkBoxes.add(createCheckBox(i));
-            }
+        for (int i = 0; i < getItems().size(); i++) {
+            getCheckBoxes().add(createCheckBox(i));
         }
 
         setUpSearchBox();

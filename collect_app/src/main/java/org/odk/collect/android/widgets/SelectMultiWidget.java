@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.widget.CheckBox;
@@ -38,19 +39,24 @@ import java.util.List;
  */
 @SuppressLint("ViewConstructor")
 public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget {
-    protected ArrayList<CheckBox> checkBoxes;
-    private boolean checkboxInit = true;
-    private List<Selection> ve;
 
-    public SelectMultiWidget(Context context, FormEntryPrompt prompt) {
+    private final List<CheckBox> checkBoxes;
+    private final List<Selection> selections;
+
+    private boolean checkboxInit = true;
+
+    public SelectMultiWidget(@NonNull Context context,
+                             @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
+
         checkBoxes = new ArrayList<>();
-        ve = new ArrayList<>();
+
         if (getPrompt().getAnswerValue() != null) {
             //noinspection unchecked
-            ve = (List<Selection>) getPrompt().getAnswerValue().getValue();
+            selections = (List<Selection>) getPrompt().getAnswerValue().getValue();
         } else {
-            ve = new ArrayList<>();
+            selections = new ArrayList<>();
         }
 
         createLayout();
@@ -71,7 +77,7 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         for (int i = 0; i < checkBoxes.size(); ++i) {
             CheckBox c = checkBoxes.get(i);
             if (c.isChecked()) {
-                vc.add(new Selection(items.get(i)));
+                vc.add(new Selection(getItems().get(i)));
             }
         }
 
@@ -93,8 +99,12 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         }
     }
 
+    protected List<CheckBox> getCheckBoxes() {
+        return checkBoxes;
+    }
+
     protected CheckBox createCheckBox(int index) {
-        String choiceName = getPrompt().getSelectChoiceText(items.get(index));
+        String choiceName = getPrompt().getSelectChoiceText(getItems().get(index));
         CharSequence choiceDisplayName;
         if (choiceName != null) {
             choiceDisplayName = TextUtils.textToHtml(choiceName);
@@ -104,16 +114,16 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         // no checkbox group so id by answer + offset
         CheckBox checkBox = new CheckBox(getContext());
         checkBox.setTag(index);
-        checkBox.setId(QuestionWidget.newUniqueId());
+        checkBox.setId(newUniqueId());
         checkBox.setText(choiceDisplayName);
         checkBox.setMovementMethod(LinkMovementMethod.getInstance());
-        checkBox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        checkBox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         checkBox.setFocusable(!getPrompt().isReadOnly());
         checkBox.setEnabled(!getPrompt().isReadOnly());
 
-        for (int vi = 0; vi < ve.size(); vi++) {
+        for (int vi = 0; vi < selections.size(); vi++) {
             // match based on value, not key
-            if (items.get(index).getValue().equals(ve.get(vi).getValue())) {
+            if (getItems().get(index).getValue().equals(selections.get(vi).getValue())) {
                 checkBox.setChecked(true);
                 break;
             }
@@ -123,7 +133,7 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!checkboxInit && formEntryPrompt.isReadOnly()) {
+                if (!checkboxInit && isReadOnly()) {
                     if (buttonView.isChecked()) {
                         buttonView.setChecked(false);
                     } else {
@@ -137,14 +147,13 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
     }
 
     protected void createLayout() {
-        if (items != null) {
-            for (int i = 0; i < items.size(); i++) {
-                CheckBox checkBox = createCheckBox(i);
-                checkBoxes.add(checkBox);
-                answerLayout.addView(createMediaLayout(i, checkBox));
-            }
-            addAnswerView(answerLayout);
+        for (int i = 0; i < getItems().size(); i++) {
+            CheckBox checkBox = createCheckBox(i);
+            checkBoxes.add(checkBox);
+            getAnswerLayout().addView(createMediaLayout(i, checkBox));
         }
+
+        addAnswerView(getAnswerLayout());
         checkboxInit = false;
     }
 

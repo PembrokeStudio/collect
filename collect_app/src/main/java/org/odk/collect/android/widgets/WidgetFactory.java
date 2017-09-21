@@ -15,6 +15,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.javarosa.core.model.Constants;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -37,8 +38,9 @@ public class WidgetFactory {
      * @param context          Android context
      * @param readOnlyOverride a flag to be ORed with JR readonly attribute.
      */
-    public static QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context,
-                                                        boolean readOnlyOverride) {
+    public QuestionWidget createWidgetFromPrompt(@NonNull FormEntryPrompt fep,
+                                                 @NonNull Context context,
+                                                 boolean readOnlyOverride) {
 
         // get appearance hint and clean it up so it is lower case and never null...
         String appearance = fep.getAppearanceHint();

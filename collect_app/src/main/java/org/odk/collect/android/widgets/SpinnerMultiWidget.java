@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -51,37 +52,46 @@ import java.util.List;
 @SuppressLint("ViewConstructor")
 public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWidget {
 
-    List<SelectChoice> items;
+    private final List<SelectChoice> items;
 
     // The possible select answers
-    CharSequence[] answerItems;
+    private final CharSequence[] answerItems;
 
     // The button to push to display the answers to choose from
-    Button button;
+    private final Button button;
 
     // Defines which answers are selected
-    boolean[] selections;
+    private final boolean[] selections;
 
     // The alert box that contains the answer selection view
-    AlertDialog.Builder alertBuilder;
+    private final AlertDialog.Builder alertBuilder;
 
     // Displays the current selections below the button
-    TextView selectionText;
+    private final TextView selectionText;
 
     @SuppressWarnings("unchecked")
-    public SpinnerMultiWidget(final Context context, FormEntryPrompt prompt) {
+    public SpinnerMultiWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt) {
+
         super(context, prompt);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
                 prompt.getAppearanceHint());
+
         if (xpathFuncExpr != null) {
-            items = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+
+            List<SelectChoice> selectChoices = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
+            if (selectChoices != null) {
+                items = selectChoices;
+
+            } else {
+                items = new ArrayList<>();
+            }
+
         } else {
             items = prompt.getSelectChoices();
         }
-
-        formEntryPrompt = prompt;
 
         selections = new boolean[items.size()];
         answerItems = new CharSequence[items.size()];
@@ -98,7 +108,7 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                alertBuilder.setTitle(formEntryPrompt.getQuestionText()).setPositiveButton(R.string.ok,
+                alertBuilder.setTitle(getPrompt().getQuestionText()).setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 List<String> selectedValues = new ArrayList<>();
@@ -109,7 +119,7 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
                                     }
                                 }
 
-                                selectionText.setText(String.format(context.getString(R.string.selected_answer),
+                                selectionText.setText(String.format(getContext().getString(R.string.selected_answer),
                                         TextUtils.join(", ", selectedValues)));
                                 selectionText.setVisibility(View.VISIBLE);
                             }
@@ -180,7 +190,6 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
         } else {
             return new SelectMultiData(vc);
         }
-
     }
 
     @Override

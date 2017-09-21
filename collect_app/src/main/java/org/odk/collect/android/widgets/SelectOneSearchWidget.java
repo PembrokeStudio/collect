@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -34,15 +35,17 @@ import java.util.List;
  */
 @SuppressLint("ViewConstructor")
 public class SelectOneSearchWidget extends SelectOneWidget implements OnCheckedChangeListener, AudioPlayListener {
-    public SelectOneSearchWidget(Context context, FormEntryPrompt prompt) {
+
+    public SelectOneSearchWidget(@NonNull Context context,
+                                 @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
     }
 
     @Override
     protected void addButtonsToLayout(List<Integer> tagList) {
-        for (int i = 0; i < buttons.size(); i++) {
+        for (int i = 0; i < getButtons().size(); i++) {
             if (tagList == null || tagList.contains(i)) {
-                answerLayout.addView(buttons.get(i));
+                getAnswerLayout().addView(getButtons().get(i));
             }
         }
     }
@@ -50,17 +53,15 @@ public class SelectOneSearchWidget extends SelectOneWidget implements OnCheckedC
     @Override
     public void setFocus(Context context) {
         // Put focus on text input field and display soft keyboard if appropriate.
-        searchStr.requestFocus();
+        getSearchString().requestFocus();
         InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.showSoftInput(searchStr, 0);
+        inputManager.showSoftInput(getSearchString(), 0);
     }
 
     @Override
     protected void createLayout() {
-        if (items != null) {
-            for (int i = 0; i < items.size(); i++) {
-                buttons.add(createRadioButton(i));
-            }
+        for (int i = 0; i < getItems().size(); i++) {
+            getButtons().add(createRadioButton(i));
         }
 
         setUpSearchBox();

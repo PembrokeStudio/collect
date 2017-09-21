@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.Selection;
 import android.text.method.DigitsKeyListener;
@@ -34,12 +35,15 @@ import org.javarosa.form.api.FormEntryPrompt;
 @SuppressLint("ViewConstructor")
 public class StringNumberWidget extends StringWidget {
 
-    public StringNumberWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        super(context, prompt, readOnlyOverride, true);
+    public StringNumberWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt,
+                              boolean readOnlyOverride) {
+
+        super(context, prompt, readOnlyOverride);
 
         EditText answerTextField = getAnswerTextField();
 
-        answerTextField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerTextField.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         answerTextField.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 
         // needed to make long readonly text scroll
