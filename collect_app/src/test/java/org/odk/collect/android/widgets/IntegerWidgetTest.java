@@ -18,7 +18,7 @@ public class IntegerWidgetTest extends GeneralStringWidgetTest<IntegerWidget, In
     @NonNull
     @Override
     public IntegerWidget createWidget() {
-        return new IntegerWidget(RuntimeEnvironment.application, formEntryPrompt, false);
+        return new IntegerWidget(RuntimeEnvironment.application, formEntryPrompt, formController, false);
     }
 
     @NonNull

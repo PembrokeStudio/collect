@@ -84,25 +84,21 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
     private Uri nexus7Uri;
 
     public VideoWidget(@NonNull Context context,
-                       @NonNull FormEntryPrompt prompt) {
-        this(context, prompt, new FileUtil(), new MediaUtil());
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController) {
+        this(context, prompt, formController, new FileUtil(), new MediaUtil());
     }
 
     public VideoWidget(@NonNull Context context,
                        @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController,
                        @NonNull FileUtil fileUtil,
                        @NonNull MediaUtil mediaUtil) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         this.fileUtil = fileUtil;
         this.mediaUtil = mediaUtil;
-
-        final FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.e("Started AudioWidget with null FormController.");
-            return;
-        }
 
         instanceFolder = formController.getInstancePath().getParent();
 
@@ -143,19 +139,20 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 if (highResolution) {
                     i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 }
+
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.VIDEO_CAPTURE);
+
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "capture video"), Toast.LENGTH_SHORT)
                             .show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -170,24 +167,27 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                         .getActivityLogger()
                         .logInstanceAction(VideoWidget.this, "chooseButton",
                                 "click", getIndex());
+
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("video/*");
+
                 // Intent i =
                 // new Intent(Intent.ACTION_PICK,
                 // android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.VIDEO_CHOOSER);
+
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose video "), Toast.LENGTH_SHORT)
                             .show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }

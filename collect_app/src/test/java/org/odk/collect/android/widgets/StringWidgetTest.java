@@ -19,7 +19,7 @@ public class StringWidgetTest extends GeneralStringWidgetTest<StringWidget, Stri
     @NonNull
     @Override
     public StringWidget createWidget() {
-        return new StringWidget(RuntimeEnvironment.application, formEntryPrompt, false);
+        return new StringWidget(RuntimeEnvironment.application, formEntryPrompt, formController, false);
     }
 
     @NonNull

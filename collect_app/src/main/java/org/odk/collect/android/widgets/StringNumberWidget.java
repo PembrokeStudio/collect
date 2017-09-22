@@ -26,6 +26,7 @@ import android.widget.EditText;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * Widget that restricts values to integers.
@@ -37,9 +38,10 @@ public class StringNumberWidget extends StringWidget {
 
     public StringNumberWidget(@NonNull Context context,
                               @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController,
                               boolean readOnlyOverride) {
 
-        super(context, prompt, readOnlyOverride);
+        super(context, prompt, formController, readOnlyOverride);
 
         EditText answerTextField = getAnswerTextField();
 

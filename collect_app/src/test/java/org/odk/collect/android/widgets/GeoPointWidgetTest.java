@@ -31,7 +31,7 @@ public class GeoPointWidgetTest extends BinaryWidgetTest<GeoPointWidget, GeoPoin
     @NonNull
     @Override
     public GeoPointWidget createWidget() {
-        return new GeoPointWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new GeoPointWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @Override

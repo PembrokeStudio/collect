@@ -38,6 +38,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.views.MediaLayout;
 
 import java.util.ArrayList;
@@ -55,8 +56,10 @@ public abstract class SelectWidget extends QuestionWidget {
     private int playCounter = 0;
 
     public SelectWidget(@NonNull Context context,
-                        @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                        @NonNull FormEntryPrompt prompt,
+                        @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         answerLayout = new LinearLayout(context);
         answerLayout.setOrientation(LinearLayout.VERTICAL);

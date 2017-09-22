@@ -84,8 +84,10 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
     private String instanceFolder;
 
     public AlignedImageWidget(@NonNull Context context,
-                              @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         String appearance = prompt.getAppearanceHint();
         String alignments = appearance.substring(appearance.indexOf(':') + 1);
@@ -105,12 +107,6 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         }
 
         final Collect collect = Collect.getInstance();
-        final FormController formController = collect.getFormController();
-
-        if (formController == null) {
-            Timber.w("Can't instantiate Widget with null FormController.");
-            return;
-        }
 
         File instancePath = formController.getInstancePath();
         instanceFolder = instancePath.getParent();

@@ -25,6 +25,7 @@ import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.LocalDateTime;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
@@ -41,14 +42,15 @@ public class DateTimeWidget extends QuestionWidget {
     private TimeWidget timeWidget;
 
     public DateTimeWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         setGravity(Gravity.START);
 
-        dateWidget = new DateWidget(context, prompt);
-        timeWidget = new TimeWidget(context, prompt);
+        dateWidget = new DateWidget(context, prompt, formController);
+        timeWidget = new TimeWidget(context, prompt, formController);
 
         dateWidget.getQuestionMediaLayout().getView_Text().setVisibility(GONE);
         dateWidget.getHelpTextView().setVisibility(GONE);

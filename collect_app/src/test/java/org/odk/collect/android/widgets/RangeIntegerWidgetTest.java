@@ -19,7 +19,7 @@ public class RangeIntegerWidgetTest extends RangeWidgetTest<RangeIntegerWidget, 
     @NonNull
     @Override
     public RangeIntegerWidget createWidget() {
-        return new RangeIntegerWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new RangeIntegerWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

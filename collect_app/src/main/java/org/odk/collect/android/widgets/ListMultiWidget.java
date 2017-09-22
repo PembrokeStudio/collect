@@ -45,6 +45,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -78,9 +79,10 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
     @SuppressWarnings("unchecked")
     public ListMultiWidget(@NonNull Context context,
                            @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController,
                            boolean displayLabel) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(

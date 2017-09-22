@@ -18,7 +18,7 @@ public class BooleanWidgetTest extends WidgetTest {
 
     @NonNull
     private BooleanWidget getWidget() {
-        return new BooleanWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new BooleanWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     // BooleanWidgets always return a non-null answer, so we need to handle these tests manually:

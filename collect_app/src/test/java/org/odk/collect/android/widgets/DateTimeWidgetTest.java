@@ -30,7 +30,7 @@ public class DateTimeWidgetTest extends GeneralDateTimeWidgetTest<DateTimeWidget
     @NonNull
     @Override
     public DateTimeWidget createWidget() {
-        return new DateTimeWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new DateTimeWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

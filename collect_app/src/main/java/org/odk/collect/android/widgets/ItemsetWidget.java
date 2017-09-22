@@ -40,7 +40,6 @@ import org.javarosa.xpath.XPathNodeset;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.database.ItemsetDbAdapter;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.logic.FormController;
@@ -76,23 +75,35 @@ public class ItemsetWidget extends QuestionWidget implements
     private HashMap<String, String> answers;
     private AdvanceToNextListener autoAdvanceToNextListener;
 
-    protected ItemsetWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride,
+    protected ItemsetWidget(@NonNull Context context,
+                            @NonNull FormEntryPrompt prompt,
+                            @NonNull FormController formController,
+                            boolean readOnlyOverride,
                             boolean autoAdvanceToNext) {
 
-        this(context, prompt, readOnlyOverride, autoAdvanceToNext,
-                new XPathParseTool(), new ItemsetDbAdapter(), new FileUtil());
+        this(
+                context,
+                prompt,
+                formController,
+                readOnlyOverride,
+                autoAdvanceToNext,
+                new XPathParseTool(),
+                new ItemsetDbAdapter(),
+                new FileUtil()
+        );
     }
 
     @SuppressLint("StringFormatMatches")
-    protected ItemsetWidget(Context context,
-                            FormEntryPrompt prompt,
+    protected ItemsetWidget(@NonNull Context context,
+                            @NonNull FormEntryPrompt prompt,
+                            @NonNull FormController formController,
                             boolean readOnlyOverride,
                             boolean autoAdvanceToNext,
                             @NonNull XPathParseTool parseTool,
                             @NonNull ItemsetDbAdapter adapter,
                             @NonNull FileUtil fileUtil) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         readOnly = prompt.isReadOnly() || readOnlyOverride;
         answers = new HashMap<>();
@@ -196,12 +207,6 @@ public class ItemsetWidget extends QuestionWidget implements
 
         boolean nullArgs = false; // can't have any null arguments
         selectionArgs[0] = listName; // first argument is always listname
-
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't instantiate ItemsetWidget with a null FormController.");
-            return;
-        }
 
         // loop through the arguments, evaluate any expressions
         // and build the query string for the DB

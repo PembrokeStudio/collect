@@ -74,15 +74,10 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
     private TextView errorTextView;
 
     public ImageWebViewWidget(@NonNull Context context,
-                              @NonNull FormEntryPrompt prompt) {
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
 
-        super(context, prompt);
-
-        final FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't instantiate Widget with a null FormController.");
-            return;
-        }
+        super(context, prompt, formController);
 
         instanceFolder = formController.getInstancePath().getParent();
 
@@ -118,8 +113,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(new File(Collect.TMPFILE_PATH)));
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -128,8 +122,8 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                             getContext().getString(R.string.activity_not_found,
                                     "image capture"), Toast.LENGTH_SHORT)
                             .show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -149,17 +143,17 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                 i.setType("image/*");
 
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
+
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose image"), Toast.LENGTH_SHORT).show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }

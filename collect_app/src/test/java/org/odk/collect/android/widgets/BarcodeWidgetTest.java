@@ -20,7 +20,7 @@ public class BarcodeWidgetTest extends BinaryWidgetTest<BarcodeWidget, StringDat
     @NonNull
     @Override
     public BarcodeWidget createWidget() {
-        return new BarcodeWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new BarcodeWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @Override

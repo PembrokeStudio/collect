@@ -19,7 +19,7 @@ public class BearingWidgetTest extends BinaryWidgetTest<BearingWidget, StringDat
     @NonNull
     @Override
     public BearingWidget createWidget() {
-        return new BearingWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new BearingWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @Override

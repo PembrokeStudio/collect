@@ -19,7 +19,7 @@ public class RangeDecimalWidgetTest extends RangeWidgetTest<RangeDecimalWidget, 
     @NonNull
     @Override
     public RangeDecimalWidget createWidget() {
-        return new RangeDecimalWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new RangeDecimalWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

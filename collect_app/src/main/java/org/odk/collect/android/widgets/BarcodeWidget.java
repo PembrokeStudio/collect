@@ -32,6 +32,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.ScannerWithFlashlightActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -45,9 +46,10 @@ public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
     private TextView stringAnswer;
 
     public BarcodeWidget(@NonNull Context context,
-                         @NonNull FormEntryPrompt prompt) {
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         getBarcodeButton = getSimpleButton(getContext().getString(R.string.get_barcode));
         getBarcodeButton.setEnabled(!prompt.isReadOnly());

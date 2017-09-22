@@ -27,6 +27,7 @@ import android.widget.EditText;
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -41,9 +42,10 @@ public class DecimalWidget extends StringWidget {
 
     public DecimalWidget(@NonNull Context context,
                          @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController,
                          boolean readOnlyOverride) {
 
-        super(context, prompt, readOnlyOverride);
+        super(context, prompt, formController, readOnlyOverride);
 
         // formatting
         EditText answerText = getAnswerTextField();

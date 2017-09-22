@@ -21,7 +21,7 @@ public class StringNumberWidgetTest
     @NonNull
     @Override
     public StringNumberWidget createWidget() {
-        return new StringNumberWidget(RuntimeEnvironment.application, formEntryPrompt, false);
+        return new StringNumberWidget(RuntimeEnvironment.application, formEntryPrompt, formController, false);
     }
 
     @NonNull

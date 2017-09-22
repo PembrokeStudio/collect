@@ -74,15 +74,10 @@ public class ImageWidget extends QuestionWidget implements FileWidget {
 
     public ImageWidget(@NonNull Context context,
                        @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController,
                        final boolean selfie) {
 
-        super(context, prompt);
-
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't instantiate Widget with a null FormController.");
-            return;
-        }
+        super(context, prompt, formController);
 
         instanceFolder = formController.getInstancePath().getParent();
 

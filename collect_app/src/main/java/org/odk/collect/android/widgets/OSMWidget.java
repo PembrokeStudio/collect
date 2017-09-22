@@ -61,15 +61,10 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
     private String osmFileName;
 
     public OSMWidget(@NonNull Context context,
-                     @NonNull FormEntryPrompt prompt) {
+                     @NonNull FormEntryPrompt prompt,
+                     @NonNull FormController formController) {
 
-        super(context, prompt);
-
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("OSMWidget started with null FormController");
-            return;
-        }
+        super(context, prompt, formController);
 
         /*
          * NH: I'm trying to find the form xml file name, but this is neither

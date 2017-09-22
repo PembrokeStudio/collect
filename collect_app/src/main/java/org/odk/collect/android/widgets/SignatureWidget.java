@@ -67,15 +67,10 @@ public class SignatureWidget extends QuestionWidget implements FileWidget {
     private TextView errorTextView;
 
     public SignatureWidget(@NonNull Context context,
-                           @NonNull FormEntryPrompt prompt) {
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
 
-        super(context, prompt);
-
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't instantiate Widget with a null FormController.");
-            return;
-        }
+        super(context, prompt, formController);
 
         instanceFolder = formController.getInstancePath().getParent();
 

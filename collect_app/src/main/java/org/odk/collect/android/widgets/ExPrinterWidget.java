@@ -30,6 +30,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 
 /**
@@ -121,9 +122,10 @@ public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
     private Button launchIntentButton;
 
     public ExPrinterWidget(@NonNull Context context,
-                           @NonNull FormEntryPrompt prompt) {
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         String appearance = prompt.getAppearanceHint();
         String[] attrs = appearance.split(":");

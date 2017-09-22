@@ -54,9 +54,10 @@ public class GeoShapeWidget extends QuestionWidget implements BinaryWidget {
     private TextView answerDisplay;
 
     public GeoShapeWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
         // assemble the widget...
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);

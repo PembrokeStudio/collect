@@ -71,6 +71,9 @@ public abstract class QuestionWidget
     private final FormEntryPrompt prompt;
 
     @NonNull
+    private final FormController formController;
+
+    @NonNull
     private final MediaLayout questionMediaLayout;
 
     @NonNull
@@ -87,17 +90,20 @@ public abstract class QuestionWidget
     //region Constructors
 
     public QuestionWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        this(context, prompt, new FontUtil());
+        this(context, prompt, formController, new FontUtil());
     }
 
     public QuestionWidget(@NonNull Context context,
                           @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController,
                           @NonNull FontUtil fontUtil) {
         super(context);
 
         this.prompt = prompt;
+        this.formController = formController;
 
         this.questionFontSize = fontUtil.getQuestionFontSize();
 
@@ -114,12 +120,6 @@ public abstract class QuestionWidget
 
     @Override
     public void waitForData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't wait for data if FormController is null.");
-            return;
-        }
-
         formController.setIndexWaitingForData(getIndex());
     }
 
@@ -151,6 +151,11 @@ public abstract class QuestionWidget
     }
 
     @NonNull
+    public FormController getFormController() {
+        return formController;
+    }
+
+    @NonNull
     public TextView getHelpTextView() {
         return helpTextView;
     }
@@ -176,20 +181,11 @@ public abstract class QuestionWidget
 
     @Override
     public boolean isWaitingForData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && getIndex().equals(formController.getIndexWaitingForData());
+        return getIndex().equals(formController.getIndexWaitingForData());
     }
 
     @Override
     public void cancelWaitingForData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't cancel waiting if FormController is null.");
-            return;
-        }
-
         formController.setIndexWaitingForData(null);
     }
 

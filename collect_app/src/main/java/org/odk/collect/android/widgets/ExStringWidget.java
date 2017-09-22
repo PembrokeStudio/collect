@@ -99,9 +99,10 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
     private Drawable textBackground;
 
     public ExStringWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);

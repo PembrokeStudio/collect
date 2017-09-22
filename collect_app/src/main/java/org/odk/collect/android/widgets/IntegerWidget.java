@@ -27,6 +27,7 @@ import android.widget.EditText;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.Locale;
 
@@ -40,9 +41,10 @@ public class IntegerWidget extends StringWidget {
 
     public IntegerWidget(@NonNull Context context,
                          @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController,
                          boolean readOnlyOverride) {
 
-        super(context, prompt, readOnlyOverride);
+        super(context, prompt, formController, readOnlyOverride);
 
         EditText answerText = getAnswerTextField();
         answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());

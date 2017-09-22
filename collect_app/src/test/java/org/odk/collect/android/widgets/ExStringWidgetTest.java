@@ -19,7 +19,7 @@ public class ExStringWidgetTest extends GeneralExStringWidgetTest<ExStringWidget
     @NonNull
     @Override
     public ExStringWidget createWidget() {
-        return new ExStringWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new ExStringWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

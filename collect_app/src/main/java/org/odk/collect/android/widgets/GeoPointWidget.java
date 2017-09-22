@@ -74,9 +74,10 @@ public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
     private String stringAnswer;
 
     public GeoPointWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         // Determine the activity threshold to use
         String acc = prompt.getQuestion().getAdditionalAttribute(null, ACCURACY_THRESHOLD);

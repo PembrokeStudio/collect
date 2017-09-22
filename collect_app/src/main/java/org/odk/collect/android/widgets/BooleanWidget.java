@@ -27,6 +27,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 @SuppressLint("ViewConstructor")
 public class BooleanWidget extends QuestionWidget {
@@ -35,8 +36,11 @@ public class BooleanWidget extends QuestionWidget {
     private FormEntryPrompt prompt;
 
     public BooleanWidget(@NonNull Context context,
-                         @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController) {
+
+        super(context, prompt, formController);
+
         this.prompt = prompt;
 
         setupBooleanButton();

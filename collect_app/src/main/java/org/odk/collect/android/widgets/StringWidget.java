@@ -35,6 +35,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 import timber.log.Timber;
 
@@ -54,9 +55,10 @@ public class StringWidget extends QuestionWidget {
 
     protected StringWidget(@NonNull Context context,
                            @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController,
                            boolean readOnlyOverride) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         answerText = new EditText(context);
         answerText.setId(newUniqueId());

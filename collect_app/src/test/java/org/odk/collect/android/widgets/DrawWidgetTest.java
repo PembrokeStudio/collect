@@ -34,7 +34,7 @@ public class DrawWidgetTest extends FileWidgetTest<DrawWidget> {
     @NonNull
     @Override
     public DrawWidget createWidget() {
-        return new DrawWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new DrawWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

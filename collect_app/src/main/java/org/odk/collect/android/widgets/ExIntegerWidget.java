@@ -30,6 +30,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalAppsUtils;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.Locale;
 
@@ -45,9 +46,10 @@ import java.util.Locale;
 public class ExIntegerWidget extends ExStringWidget {
 
     public ExIntegerWidget(@NonNull Context context,
-                           @NonNull FormEntryPrompt prompt) {
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         answer.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
 

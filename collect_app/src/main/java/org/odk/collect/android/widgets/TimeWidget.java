@@ -38,6 +38,7 @@ import org.javarosa.core.model.data.TimeData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import org.odk.collect.android.R;
+import org.odk.collect.android.logic.FormController;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -64,9 +65,10 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
     private boolean nullAnswer;
 
     public TimeWidget(@NonNull Context context,
-                      @NonNull FormEntryPrompt prompt) {
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         setGravity(Gravity.START);
 

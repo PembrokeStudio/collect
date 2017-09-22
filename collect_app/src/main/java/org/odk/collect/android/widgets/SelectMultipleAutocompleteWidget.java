@@ -25,6 +25,7 @@ import android.widget.CompoundButton;
 
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AudioPlayListener;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.List;
 
@@ -32,8 +33,10 @@ import java.util.List;
 public class SelectMultipleAutocompleteWidget extends SelectMultiWidget implements CompoundButton.OnCheckedChangeListener, AudioPlayListener {
 
     public SelectMultipleAutocompleteWidget(@NonNull Context context,
-                                            @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                                            @NonNull FormEntryPrompt prompt,
+                                            @NonNull FormController formController) {
+
+        super(context, prompt, formController);
     }
 
     @Override

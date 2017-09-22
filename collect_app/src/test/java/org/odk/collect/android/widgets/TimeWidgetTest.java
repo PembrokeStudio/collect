@@ -28,7 +28,7 @@ public class TimeWidgetTest extends GeneralDateTimeWidgetTest<TimeWidget, TimeDa
     @NonNull
     @Override
     public TimeWidget createWidget() {
-        return new TimeWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new TimeWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

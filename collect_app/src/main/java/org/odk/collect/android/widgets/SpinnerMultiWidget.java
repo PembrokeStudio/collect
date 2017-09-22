@@ -34,6 +34,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
 import org.odk.collect.android.external.ExternalDataUtil;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +72,10 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
 
     @SuppressWarnings("unchecked")
     public SpinnerMultiWidget(@NonNull Context context,
-                              @NonNull FormEntryPrompt prompt) {
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
