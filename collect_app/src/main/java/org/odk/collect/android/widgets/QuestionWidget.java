@@ -54,6 +54,8 @@ import org.odk.collect.android.views.MediaLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
 import timber.log.Timber;
 
 public abstract class QuestionWidget
@@ -82,6 +84,8 @@ public abstract class QuestionWidget
     @NonNull
     private final TextView helpTextView;
 
+    private IAnswerData answer;
+
     private final int questionFontSize;
 
     private int playColor = DEFAULT_PLAY_COLOR;
@@ -101,6 +105,7 @@ public abstract class QuestionWidget
                           @NonNull FormController formController,
                           @NonNull FontUtil fontUtil) {
         super(context);
+        setAnswer(prompt.getAnswerValue());
 
         this.prompt = prompt;
         this.formController = formController;
@@ -177,6 +182,21 @@ public abstract class QuestionWidget
 
     public boolean isReadOnly() {
         return getPrompt().isReadOnly();
+    }
+
+    @Override
+    public final IAnswerData getAnswer() {
+        return answer;
+    }
+
+    @Override
+    public void clearAnswer() {
+        this.answer = null;
+    }
+
+    @OverridingMethodsMustInvokeSuper
+    public void setAnswer(IAnswerData answer) {
+        this.answer = answer;
     }
 
     @Override
