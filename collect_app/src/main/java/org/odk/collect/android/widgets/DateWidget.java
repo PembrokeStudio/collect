@@ -40,6 +40,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.odk.collect.android.R;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.DateTimeUtils;
 
 import java.lang.reflect.Constructor;
@@ -75,8 +76,10 @@ public class DateWidget extends QuestionWidget implements DatePickerDialog.OnDat
     private boolean nullAnswer;
 
     public DateWidget(@NonNull Context context,
-                      @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         setGravity(Gravity.START);
 

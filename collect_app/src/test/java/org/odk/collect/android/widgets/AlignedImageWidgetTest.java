@@ -25,7 +25,7 @@ public class AlignedImageWidgetTest extends FileWidgetTest<AlignedImageWidget> {
     @NonNull
     @Override
     public AlignedImageWidget createWidget() {
-        return new AlignedImageWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new AlignedImageWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

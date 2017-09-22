@@ -46,9 +46,10 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
     private TextView answerDisplay;
 
     public BearingWidget(@NonNull Context context,
-                         @NonNull FormEntryPrompt prompt) {
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         getBearingButton = getSimpleButton(getContext().getString(R.string.get_bearing));
         getBearingButton.setEnabled(!prompt.isReadOnly());

@@ -29,7 +29,7 @@ public class GeoTraceWidgetTest extends BinaryWidgetTest<GeoTraceWidget, StringD
     @NonNull
     @Override
     public GeoTraceWidget createWidget() {
-        return new GeoTraceWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new GeoTraceWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @Override

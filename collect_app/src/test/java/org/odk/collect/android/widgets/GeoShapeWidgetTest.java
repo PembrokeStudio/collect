@@ -30,7 +30,7 @@ public class GeoShapeWidgetTest extends BinaryWidgetTest<GeoShapeWidget, StringD
     @NonNull
     @Override
     public GeoShapeWidget createWidget() {
-        return new GeoShapeWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new GeoShapeWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @Override

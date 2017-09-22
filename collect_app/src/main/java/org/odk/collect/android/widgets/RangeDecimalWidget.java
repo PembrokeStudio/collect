@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 
 import java.math.BigDecimal;
 
@@ -30,8 +31,10 @@ import java.math.BigDecimal;
 public class RangeDecimalWidget extends RangeWidget {
 
     public RangeDecimalWidget(@NonNull Context context,
-                              @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
+
+        super(context, prompt, formController);
     }
 
     @Override

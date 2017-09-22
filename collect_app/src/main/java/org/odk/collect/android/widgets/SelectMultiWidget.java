@@ -26,6 +26,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.TextUtils;
 
 import java.util.ArrayList;
@@ -46,9 +47,10 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
     private boolean checkboxInit = true;
 
     public SelectMultiWidget(@NonNull Context context,
-                             @NonNull FormEntryPrompt prompt) {
+                             @NonNull FormEntryPrompt prompt,
+                             @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         checkBoxes = new ArrayList<>();
 

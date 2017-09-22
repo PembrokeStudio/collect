@@ -16,7 +16,7 @@ public class UrlWidgetTest extends QuestionWidgetTest<UrlWidget, StringData> {
     @NonNull
     @Override
     public UrlWidget createWidget() {
-        return new UrlWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new UrlWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

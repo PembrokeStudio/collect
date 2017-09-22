@@ -49,6 +49,7 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.AudioButton.AudioHandler;
 import org.odk.collect.android.views.ExpandedHeightGridView;
@@ -106,10 +107,12 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
 
     public GridWidget(@NonNull Context context,
                       @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController,
                       int numColumns,
                       final boolean quickAdvance) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
+
         if (context instanceof AdvanceToNextListener) {
             listener = (AdvanceToNextListener) context;
         }

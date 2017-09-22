@@ -73,14 +73,10 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
     private TextView errorTextView;
 
     public AnnotateWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Cannot instantiate a widget with a null FormController.");
-            return;
-        }
+        super(context, prompt, formController);
 
         instanceFolder = formController.getInstancePath().getParent();
 
@@ -97,9 +93,11 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                         .getActivityLogger()
                         .logInstanceAction(this, "captureButton", "click",
                                 getIndex());
+
                 errorTextView.setVisibility(View.GONE);
                 Intent i = new Intent(
                         android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
                 // We give the camera an absolute filename/path where to put the
                 // picture because of bug:
                 // http://code.google.com/p/android/issues/detail?id=1480
@@ -112,24 +110,20 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                 // FormEntyActivity will also need to be updated.
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(new File(Collect.TMPFILE_PATH)));
-                FormController formController = Collect.getInstance().getFormController();
-                if (formController == null) {
-                    Timber.w("Cannot instantiate a widget with a null FormController.");
-                    return;
-                }
-
 
                 try {
-                    formController.setIndexWaitingForData(getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
+
                 } catch (ActivityNotFoundException e) {
+
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "image capture"), Toast.LENGTH_SHORT)
                             .show();
-                    formController.setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }

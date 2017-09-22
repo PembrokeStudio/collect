@@ -23,7 +23,7 @@ public class AnnotateWidgetTest extends FileWidgetTest<AnnotateWidget> {
     @NonNull
     @Override
     public AnnotateWidget createWidget() {
-        return new AnnotateWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new AnnotateWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

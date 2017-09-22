@@ -42,7 +42,7 @@ public class OSMWidgetTest extends BinaryWidgetTest<OSMWidget, StringData> {
     @NonNull
     @Override
     public OSMWidget createWidget() {
-        return new OSMWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new OSMWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

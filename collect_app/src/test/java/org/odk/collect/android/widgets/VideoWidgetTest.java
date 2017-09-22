@@ -45,7 +45,7 @@ public class VideoWidgetTest extends FileWidgetTest<VideoWidget> {
     @NonNull
     @Override
     public VideoWidget createWidget() {
-        return new VideoWidget(RuntimeEnvironment.application, formEntryPrompt, fileUtil, mediaUtil);
+        return new VideoWidget(RuntimeEnvironment.application, formEntryPrompt, formController, fileUtil, mediaUtil);
     }
 
     @NonNull

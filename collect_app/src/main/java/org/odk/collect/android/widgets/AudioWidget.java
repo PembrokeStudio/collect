@@ -68,26 +68,21 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
     private String instanceFolder;
 
     public AudioWidget(@NonNull Context context,
-                       @NonNull FormEntryPrompt prompt) {
-
-        this(context, prompt, new FileUtil(), new MediaUtil());
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController) {
+        this(context, prompt, formController, new FileUtil(), new MediaUtil());
     }
 
     public AudioWidget(@NonNull Context context,
                        @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController,
                        @NonNull FileUtil fileUtil,
                        @NonNull MediaUtil mediaUtil) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         this.fileUtil = fileUtil;
         this.mediaUtil = mediaUtil;
-
-        final FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.e("Started AudioWidget with null FormController.");
-            return;
-        }
 
         instanceFolder = formController.getInstancePath().getParent();
 
@@ -107,18 +102,19 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                         android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                                 .toString());
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
+
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_CAPTURE);
+
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "audio capture"), Toast.LENGTH_SHORT)
                             .show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -136,17 +132,18 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
-                    formController
-                            .setIndexWaitingForData(getIndex());
+                    waitForData();
+
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_CHOOSER);
+
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose audio"), Toast.LENGTH_SHORT).show();
-                    formController
-                            .setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -164,6 +161,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                 File f = new File(instanceFolder + File.separator
                         + binaryName);
                 i.setDataAndType(Uri.fromFile(f), "audio/*");
+
                 try {
                     getContext().startActivity(i);
                 } catch (ActivityNotFoundException e) {

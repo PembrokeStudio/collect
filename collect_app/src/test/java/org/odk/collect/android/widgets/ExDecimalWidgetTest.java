@@ -20,7 +20,7 @@ public class ExDecimalWidgetTest extends GeneralExStringWidgetTest<ExDecimalWidg
     @NonNull
     @Override
     public ExDecimalWidget createWidget() {
-        return new ExDecimalWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new ExDecimalWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

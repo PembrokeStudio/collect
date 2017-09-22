@@ -8,7 +8,6 @@ import org.javarosa.core.model.data.StringData;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.widgets.Widget;
 
 import java.util.Random;
@@ -28,9 +27,6 @@ public abstract class QuestionWidgetTest<W extends Widget, A extends IAnswerData
 
     @Mock
     public FormIndex formIndex;
-
-    @Mock
-    public FormController formController;
 
     @NonNull
     public abstract W createWidget();

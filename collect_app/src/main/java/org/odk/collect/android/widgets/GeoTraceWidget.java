@@ -61,9 +61,10 @@ public class GeoTraceWidget extends QuestionWidget implements BinaryWidget {
     private TextView answerDisplay;
 
     public GeoTraceWidget(@NonNull Context context,
-                          @NonNull FormEntryPrompt prompt) {
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);

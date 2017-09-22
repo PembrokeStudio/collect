@@ -13,6 +13,6 @@ public class GridWidgetTest extends GeneralSelectOneWidgetTest<GridWidget> {
     @NonNull
     @Override
     public GridWidget createWidget() {
-        return new GridWidget(RuntimeEnvironment.application, formEntryPrompt, 1, false);
+        return new GridWidget(RuntimeEnvironment.application, formEntryPrompt, formController, 1, false);
     }
 }

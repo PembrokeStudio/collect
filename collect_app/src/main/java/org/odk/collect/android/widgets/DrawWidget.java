@@ -67,19 +67,14 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
     private TextView errorTextView;
 
     public DrawWidget(@NonNull Context context,
-                      @NonNull FormEntryPrompt prompt) {
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         errorTextView = new TextView(context);
         errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.selected_invalid_image);
-
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.w("Can't instantiate Widget with null FormController.");
-            return;
-        }
 
         instanceFolder = formController
                 .getInstancePath().getParent();

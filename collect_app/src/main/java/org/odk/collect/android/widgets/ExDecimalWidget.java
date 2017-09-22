@@ -51,9 +51,10 @@ import timber.log.Timber;
 public class ExDecimalWidget extends ExStringWidget {
 
     public ExDecimalWidget(@NonNull Context context,
-                           @NonNull FormEntryPrompt prompt) {
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         answer.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
 

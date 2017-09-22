@@ -36,6 +36,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.fragments.dialogs.NumberPickerDialog;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.ToastUtils;
 
 import java.math.BigDecimal;
@@ -71,8 +72,10 @@ public abstract class RangeWidget extends QuestionWidget implements SeekBar.OnSe
     private TextView answerTextView;
 
     public RangeWidget(@NonNull Context context,
-                       @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         setUpWidgetParameters();
         setUpAppearance();

@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.odk.collect.android.BuildConfig;
+import org.odk.collect.android.logic.FormController;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -27,6 +28,9 @@ public abstract class WidgetTest {
 
     @Mock
     public FormEntryPrompt formEntryPrompt;
+
+    @Mock
+    public FormController formController;
 
     @Mock
     public IFormElement formElement;

@@ -30,6 +30,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AudioPlayListener;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.TextUtils;
 
 import java.util.ArrayList;
@@ -42,17 +43,19 @@ import java.util.List;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 @SuppressLint("ViewConstructor")
+
 public class SelectOneWidget
         extends SelectWidget
         implements OnCheckedChangeListener, AudioPlayListener, MultiChoiceWidget {
 
-    private final List<RadioButton> buttons;
+    private final List<RadioButton> buttons = new ArrayList<>();
     private String selectedValue;
 
     public SelectOneWidget(@NonNull Context context,
-                           @NonNull FormEntryPrompt prompt) {
-        super(context, prompt);
-        buttons = new ArrayList<>();
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         if (prompt.getAnswerValue() != null) {
             selectedValue = ((Selection) prompt.getAnswerValue().getValue()).getValue();

@@ -40,6 +40,7 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -62,13 +63,15 @@ public class LabelWidget extends QuestionWidget {
     View center;
 
     public LabelWidget(@NonNull Context context,
-                       @NonNull FormEntryPrompt prompt) {
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController) {
 
-        super(context, prompt);
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
                 prompt.getAppearanceHint());
+
         if (xpathFuncExpr != null) {
             items = ExternalDataUtil.populateExternalChoices(prompt, xpathFuncExpr);
         } else {

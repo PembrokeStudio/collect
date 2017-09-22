@@ -22,7 +22,7 @@ public class TriggerWidgetTest extends QuestionWidgetTest<TriggerWidget, StringD
     @NonNull
     @Override
     public TriggerWidget createWidget() {
-        return new TriggerWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new TriggerWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull
