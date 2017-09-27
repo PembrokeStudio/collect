@@ -109,7 +109,7 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
 
         // set text formatting
         answer = new EditText(context);
-        answer.setId(newUniqueId());
+        answer.setId(ViewUtil.generateViewId());
         answer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         answer.setLayoutParams(params);
         textBackground = answer.getBackground();

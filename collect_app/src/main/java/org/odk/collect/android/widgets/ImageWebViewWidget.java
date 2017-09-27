@@ -82,7 +82,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         params.setMargins(7, 5, 7, 5);
 
         errorTextView = new TextView(context);
-        errorTextView.setId(newUniqueId());
+        errorTextView.setId(ViewUtil.generateViewId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         captureButton = getSimpleButton(getContext().getString(R.string.capture_image));
@@ -149,7 +149,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             imageDisplay = new WebView(getContext());
-            imageDisplay.setId(newUniqueId());
+            imageDisplay.setId(ViewUtil.generateViewId());
             imageDisplay.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
             imageDisplay.getSettings().setBuiltInZoomControls(true);
             //noinspection deprecation

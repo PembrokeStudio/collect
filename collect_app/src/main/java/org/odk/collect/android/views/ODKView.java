@@ -74,8 +74,6 @@ import static android.widget.LinearLayout.LayoutParams.WRAP_CONTENT;
 @SuppressLint("ViewConstructor")
 public class ODKView extends ScrollView implements OnLongClickListener {
 
-    public static final String FIELD_LIST = "field-list";
-
     @NonNull
     private final FormController formController;
 
@@ -86,12 +84,12 @@ public class ODKView extends ScrollView implements OnLongClickListener {
     private final LinearLayout view;
 
     @NonNull
-    private final LinearLayout.LayoutParams layout;
-
-    @NonNull
     private final ArrayList<QuestionWidget> widgets = new ArrayList<>();
 
-    public ODKView(@NonNull Context context, @NonNull FormController formController, boolean advancingPage) {
+    public ODKView(@NonNull Context context,
+                   @NonNull FormController formController,
+                   boolean advancingPage) {
+
         this(context, formController, advancingPage, new FontUtil(), new WidgetFactory());
     }
 
@@ -111,7 +109,7 @@ public class ODKView extends ScrollView implements OnLongClickListener {
         view.setGravity(Gravity.TOP);
         view.setPadding(0, 7, 0, 0);
 
-        layout = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         layout.setMargins(10, 0, 10, 0);
 
         // display which group you are in as well as the question
@@ -330,6 +328,9 @@ public class ODKView extends ScrollView implements OnLongClickListener {
             int questionFontsize = fontUtil.getQuestionFontSize();
             tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, questionFontsize - 4);
             tv.setPadding(0, 0, 0, 5);
+
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            layout.setMargins(10, 0, 10, 0);
 
             view.addView(tv, layout);
         }

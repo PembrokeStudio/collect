@@ -60,8 +60,9 @@ import timber.log.Timber;
  * @author carlhartung
  */
 public class FormController {
-
-
+    
+    public static final String FIELD_LIST = "field-list";
+    
     public static final boolean STEP_INTO_GROUP = true;
     public static final boolean STEP_OVER_GROUP = false;
 
@@ -399,7 +400,7 @@ public class FormController {
         }
 
         GroupDef gd = (GroupDef) element; // exceptions?
-        return (ODKView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
+        return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 
     private boolean repeatIsFieldList(FormIndex index) {
@@ -410,7 +411,7 @@ public class FormController {
         }
 
         GroupDef gd = (GroupDef) element; // exceptions?
-        return (ODKView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
+        return (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 
     /**
@@ -590,14 +591,14 @@ public class FormController {
                             currentIndex);
                     if (element instanceof GroupDef) {
                         GroupDef gd = (GroupDef) element;
-                        if (ODKView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr())) {
+                        if (FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr())) {
                             // OK this group is a field-list... see what the parent is...
                             FormEntryCaption[] fclist = this.getCaptionHierarchy(currentIndex);
                             if (fclist.length > 1) {
                                 FormEntryCaption fc = fclist[fclist.length - 2];
                                 GroupDef pd = (GroupDef) fc.getFormElement();
                                 if (pd.getChildren().size() == 1
-                                        && ODKView.FIELD_LIST.equalsIgnoreCase(
+                                        && FIELD_LIST.equalsIgnoreCase(
                                                 pd.getAppearanceAttr())) {
                                     formEntryController.jumpToIndex(fc.getIndex());
                                 }
@@ -861,7 +862,7 @@ public class FormController {
                         idxChild);
                 if (nestedElement instanceof GroupDef) {
                     GroupDef nestedGd = (GroupDef) nestedElement;
-                    if (ODKView.FIELD_LIST.equalsIgnoreCase(nestedGd.getAppearanceAttr())) {
+                    if (FIELD_LIST.equalsIgnoreCase(nestedGd.getAppearanceAttr())) {
                         gd = nestedGd;
                         idxChild = formEntryController.getModel().incrementIndex(idxChild, true);
                     }

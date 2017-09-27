@@ -81,7 +81,7 @@ public class ImageWidget extends QuestionWidget implements FileWidget {
         instanceFolder = formController.getInstancePath().getParent();
 
         errorTextView = new TextView(context);
-        errorTextView.setId(newUniqueId());
+        errorTextView.setId(ViewUtil.generateViewId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         captureButton = getSimpleButton(getContext().getString(R.string.capture_image));
@@ -159,7 +159,7 @@ public class ImageWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             imageView = new ImageView(getContext());
-            imageView.setId(newUniqueId());
+            imageView.setId(ViewUtil.generateViewId());
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;

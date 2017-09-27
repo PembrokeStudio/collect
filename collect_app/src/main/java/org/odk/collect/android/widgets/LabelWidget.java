@@ -95,7 +95,7 @@ public class LabelWidget extends QuestionWidget {
                 ImageView imageView = null;
                 TextView missingImage = null;
 
-                final int labelId = newUniqueId();
+                final int labelId = ViewUtil.generateViewId();
 
                 // Now set up the image view
                 String errorMsg = null;
@@ -231,7 +231,7 @@ public class LabelWidget extends QuestionWidget {
         center = new View(getContext());
         RelativeLayout.LayoutParams centerParams = new RelativeLayout.LayoutParams(0, 0);
         centerParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        center.setId(newUniqueId());
+        center.setId(ViewUtil.generateViewId());
         addView(center, centerParams);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(

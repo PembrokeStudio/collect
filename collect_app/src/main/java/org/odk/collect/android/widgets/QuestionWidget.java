@@ -326,14 +326,6 @@ public abstract class QuestionWidget
 
     //endregion
 
-    //region View IDs
-
-    protected int newUniqueId() {
-        return ViewUtil.generateViewId();
-    }
-
-    //endregion
-
     //region View positioning
 
     /**
@@ -417,7 +409,7 @@ public abstract class QuestionWidget
     protected Button getSimpleButton(String text) {
         Button button = new Button(getContext());
 
-        button.setId(newUniqueId());
+        button.setId(ViewUtil.generateViewId());
         button.setText(text);
         button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         button.setPadding(20, 20, 20, 20);
@@ -440,7 +432,7 @@ public abstract class QuestionWidget
     protected TextView getAnswerTextView() {
         TextView textView = new TextView(getContext());
 
-        textView.setId(newUniqueId());
+        textView.setId(ViewUtil.generateViewId());
         textView.setTextColor(ContextCompat.getColor(getContext(), R.color.primaryTextColor));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         textView.setPadding(20, 20, 20, 20);
@@ -452,7 +444,7 @@ public abstract class QuestionWidget
     //region View configuration
 
     private void configureView() {
-        setId(newUniqueId());
+        setId(ViewUtil.generateViewId());
         setGravity(Gravity.TOP);
         setPadding(0, 7, 0, 0);
 
@@ -517,7 +509,7 @@ public abstract class QuestionWidget
         // Create the layout for audio, image, text
         MediaLayout questionMediaLayout = new MediaLayout(getContext(), mediaPlayer);
 
-        questionMediaLayout.setId(newUniqueId()); // assign random id
+        questionMediaLayout.setId(ViewUtil.generateViewId()); // assign random id
         questionMediaLayout.setAVT(prompt.getIndex(), "", questionText, audioURI, imageURI, videoURI,
                 bigImageURI);
         questionMediaLayout.setAudioListener(this);

@@ -27,6 +27,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.utilities.ViewUtil;
 import org.opendatakit.httpclientandroidlib.entity.ContentType;
 
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
         formId = formController.getFormDef().getID();
 
         errorTextView = new TextView(context);
-        errorTextView.setId(newUniqueId());
+        errorTextView.setId(ViewUtil.generateViewId());
         errorTextView.setText(R.string.invalid_osm_data);
 
         // Determine the tags required
@@ -88,7 +89,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
 
         // Setup Launch OpenMapKit Button
         launchOpenMapKitButton = new Button(getContext());
-        launchOpenMapKitButton.setId(newUniqueId());
+        launchOpenMapKitButton.setId(ViewUtil.generateViewId());
 
         // Button Styling
         if (osmFileName != null) {
@@ -122,7 +123,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
         });
 
         osmFileNameHeaderTextView = new TextView(context);
-        osmFileNameHeaderTextView.setId(newUniqueId());
+        osmFileNameHeaderTextView.setId(ViewUtil.generateViewId());
         osmFileNameHeaderTextView.setTextSize(20);
         osmFileNameHeaderTextView.setTypeface(null, Typeface.BOLD);
         osmFileNameHeaderTextView.setPadding(10, 0, 0, 10);
@@ -130,7 +131,7 @@ public class OSMWidget extends QuestionWidget implements BinaryWidget {
 
         // text view showing the resulting OSM file name
         osmFileNameTextView = new TextView(context);
-        osmFileNameTextView.setId(newUniqueId());
+        osmFileNameTextView.setId(ViewUtil.generateViewId());
         osmFileNameTextView.setTextSize(18);
         osmFileNameTextView.setTypeface(null, Typeface.ITALIC);
         if (osmFileName != null) {

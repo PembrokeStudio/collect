@@ -70,7 +70,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         super(context, prompt, formController);
 
         errorTextView = new TextView(context);
-        errorTextView.setId(newUniqueId());
+        errorTextView.setId(ViewUtil.generateViewId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         instanceFolder = formController.getInstancePath().getParent();
@@ -102,7 +102,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has signed
         if (binaryName != null) {
             imageView = new ImageView(getContext());
-            imageView.setId(newUniqueId());
+            imageView.setId(ViewUtil.generateViewId());
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;

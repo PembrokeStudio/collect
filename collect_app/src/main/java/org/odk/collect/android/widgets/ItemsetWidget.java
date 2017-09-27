@@ -286,7 +286,7 @@ public class ItemsetWidget extends QuestionWidget implements
                         rb.setTextSize(getAnswerFontSize());
                         rb.setText(label);
                         rb.setTag(index);
-                        rb.setId(newUniqueId());
+                        rb.setId(ViewUtil.generateViewId());
 
                         buttons.add(rb);
 

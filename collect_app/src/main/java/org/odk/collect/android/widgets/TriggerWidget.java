@@ -29,6 +29,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.utilities.ViewUtil;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -51,7 +52,7 @@ public class TriggerWidget extends QuestionWidget {
 
 
         triggerButton = new CheckBox(getContext());
-        triggerButton.setId(newUniqueId());
+        triggerButton.setId(ViewUtil.generateViewId());
         triggerButton.setText(getContext().getString(R.string.trigger));
         triggerButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         // mActionButton.setPadding(20, 20, 20, 20);
@@ -72,7 +73,7 @@ public class TriggerWidget extends QuestionWidget {
         });
 
         stringAnswer = new TextView(getContext());
-        stringAnswer.setId(newUniqueId());
+        stringAnswer.setId(ViewUtil.generateViewId());
         stringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         stringAnswer.setGravity(Gravity.CENTER);
 
