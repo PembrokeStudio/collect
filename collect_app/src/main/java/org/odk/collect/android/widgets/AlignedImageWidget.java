@@ -140,8 +140,7 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
                 // if this gets modified, the onActivityResult in
                 // FormEntyActivity will also need to be updated.
                 try {
-                    formController.setIndexWaitingForData(
-                            formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.ALIGNED_IMAGE);
                 } catch (ActivityNotFoundException e) {
@@ -149,7 +148,8 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
                             getContext().getString(R.string.activity_not_found,
                                     "aligned image capture"),
                             Toast.LENGTH_SHORT).show();
-                    formController.setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -167,15 +167,15 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
                 i.setType("image/*");
 
                 try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             getContext().getString(R.string.activity_not_found, "choose image"),
                             Toast.LENGTH_SHORT).show();
-                    formController.setIndexWaitingForData(null);
+
+                    cancelWaitingForData();
                 }
 
             }
@@ -316,7 +316,7 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -325,18 +325,6 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager =
                 (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController().getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

@@ -383,6 +383,37 @@ public abstract class QuestionWidget
         return textView;
     }
 
+    @Override
+    public void waitForData() {
+        FormController formController = Collect.getInstance().getFormController();
+        if (formController == null) {
+            return;
+        }
+
+        formController.setIndexWaitingForData(formEntryPrompt.getIndex());
+    }
+
+    @Override
+    public void cancelWaitingForData() {
+        FormController formController = Collect.getInstance().getFormController();
+        if (formController == null) {
+            return;
+        }
+
+        formController.setIndexWaitingForData(null);
+    }
+
+    @Override
+    public boolean isWaitingForData() {
+        FormController formController = Collect.getInstance().getFormController();
+        if (formController == null) {
+            return false;
+        }
+
+        FormIndex indexWaitingForData = formController.getIndexWaitingForData();
+        return formEntryPrompt.getIndex().equals(indexWaitingForData);
+    }
+
     /**
      * It's needed only for external choices. Everything works well and
      * out of the box when we use internal choices instead

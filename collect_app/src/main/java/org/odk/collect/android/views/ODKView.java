@@ -306,14 +306,16 @@ public class ODKView extends ScrollView implements OnLongClickListener {
         boolean set = false;
         for (QuestionWidget q : widgets) {
             if (q instanceof BinaryWidget) {
-                if (((BinaryWidget) q).isWaitingForBinaryData()) {
+                BinaryWidget binaryWidget = (BinaryWidget) q;
+                if (binaryWidget.isWaitingForData()) {
                     try {
-                        ((BinaryWidget) q).setBinaryData(answer);
+                        binaryWidget.setBinaryData(answer);
                     } catch (Exception e) {
                         Timber.e(e);
                         ToastUtils.showLongToast(getContext().getString(R.string.error_attaching_binary_file,
                                         e.getMessage()));
                     }
+
                     set = true;
                     break;
                 }
@@ -336,7 +338,7 @@ public class ODKView extends ScrollView implements OnLongClickListener {
                 FormEntryPrompt prompt = questionWidget.getPrompt();
                 TreeReference treeReference =
                         (TreeReference) prompt.getFormElement().getBind().getReference();
-                
+
                 if (treeReference.getNameLast().equals(key)) {
 
                     switch (prompt.getDataType()) {
@@ -368,8 +370,8 @@ public class ODKView extends ScrollView implements OnLongClickListener {
         int count = 0;
         for (QuestionWidget q : widgets) {
             if (q instanceof BinaryWidget) {
-                if (((BinaryWidget) q).isWaitingForBinaryData()) {
-                    ((BinaryWidget) q).cancelWaitingForBinaryData();
+                if (q.isWaitingForData()) {
+                    q.cancelWaitingForData();
                     ++count;
                 }
             }

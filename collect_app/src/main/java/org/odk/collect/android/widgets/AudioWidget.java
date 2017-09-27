@@ -101,8 +101,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                         android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                                 .toString());
                 try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -111,8 +110,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                             getContext().getString(R.string.activity_not_found,
                                     "audio capture"), Toast.LENGTH_SHORT)
                             .show();
-                    formController
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -130,8 +128,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_CHOOSER);
                 } catch (ActivityNotFoundException e) {
@@ -139,8 +136,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose audio"), Toast.LENGTH_SHORT).show();
-                    formController
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -268,7 +264,7 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
             Timber.e("Inserting Audio file FAILED");
         }
 
-        cancelWaitingForBinaryData();
+        cancelWaitingForData();
     }
 
     private String getSourcePathFromUri(@NonNull Uri uri) {
@@ -287,25 +283,6 @@ public class AudioWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
     }
 
     @Override
