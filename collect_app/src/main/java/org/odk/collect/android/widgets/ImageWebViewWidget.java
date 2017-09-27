@@ -15,14 +15,13 @@
 package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -34,7 +33,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -42,6 +40,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.MediaUtils;
 
 import java.io.File;
@@ -71,17 +70,19 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
 
     private TextView errorTextView;
 
-    public ImageWebViewWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public ImageWebViewWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
 
-        instanceFolder = Collect.getInstance().getFormController()
-                .getInstancePath().getParent();
+        super(context, prompt, formController);
+
+        instanceFolder = formController.getInstancePath().getParent();
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);
 
         errorTextView = new TextView(context);
-        errorTextView.setId(QuestionWidget.newUniqueId());
+        errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         captureButton = getSimpleButton(getContext().getString(R.string.capture_image));
@@ -89,13 +90,12 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "captureButton", "click",
-                                formEntryPrompt.getIndex());
+
+                logAction("captureButton", "click");
                 errorTextView.setVisibility(View.GONE);
                 Intent i = new Intent(
                         android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
                 // We give the camera an absolute filename/path where to put the
                 // picture because of bug:
                 // http://code.google.com/p/android/issues/detail?id=1480
@@ -108,20 +108,8 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                 // FormEntyActivity will also need to be updated.
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(new File(Collect.TMPFILE_PATH)));
-                try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CAPTURE);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(
-                            getContext(),
-                            getContext().getString(R.string.activity_not_found,
-                                    "image capture"), Toast.LENGTH_SHORT)
-                            .show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
-                }
+
+                startActivityForResult(i, FormEntryActivity.IMAGE_CAPTURE, "image capture");
 
             }
         });
@@ -131,28 +119,13 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "chooseButton", "click",
-                                formEntryPrompt.getIndex());
+                logAction("chooseButton", "click");
+
                 errorTextView.setVisibility(View.GONE);
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("image/*");
 
-                try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CHOOSER);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(
-                            getContext(),
-                            getContext().getString(R.string.activity_not_found,
-                                    "choose image"), Toast.LENGTH_SHORT).show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
-                }
-
+                startActivityForResult(i, FormEntryActivity.IMAGE_CHOOSER, "choose image");
             }
         });
 
@@ -176,7 +149,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             imageDisplay = new WebView(getContext());
-            imageDisplay.setId(QuestionWidget.newUniqueId());
+            imageDisplay.setId(newUniqueId());
             imageDisplay.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
             imageDisplay.getSettings().setBuiltInZoomControls(true);
             //noinspection deprecation
@@ -323,7 +296,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -332,18 +305,6 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

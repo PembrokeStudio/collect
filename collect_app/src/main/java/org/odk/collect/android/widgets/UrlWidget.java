@@ -17,6 +17,7 @@ package org.odk.collect.android.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -28,7 +29,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.CustomTabHelper;
 
 /**
@@ -44,18 +45,18 @@ public class UrlWidget extends QuestionWidget {
     private TextView stringAnswer;
     private CustomTabHelper customTabHelper;
 
-    public UrlWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public UrlWidget(@NonNull Context context,
+                     @NonNull FormEntryPrompt prompt,
+                     @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         openUrlButton = getSimpleButton(context.getString(R.string.open_url));
         openUrlButton.setEnabled(!prompt.isReadOnly());
         openUrlButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "openUrl", "click",
-                                formEntryPrompt.getIndex());
+                logAction("openUrl", "click");
 
                 if (!isUrlEmpty(stringAnswer)) {
                     customTabHelper.bindCustomTabsService(getContext(), null);

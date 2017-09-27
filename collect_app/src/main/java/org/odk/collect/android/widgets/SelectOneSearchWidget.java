@@ -16,11 +16,13 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AudioPlayListener;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.List;
 
@@ -34,8 +36,10 @@ import java.util.List;
  */
 @SuppressLint("ViewConstructor")
 public class SelectOneSearchWidget extends SelectOneWidget implements OnCheckedChangeListener, AudioPlayListener {
-    public SelectOneSearchWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SelectOneSearchWidget(@NonNull Context context,
+                                 @NonNull FormEntryPrompt prompt,
+                                 @NonNull FormController formController) {
+        super(context, prompt, formController);
     }
 
     @Override

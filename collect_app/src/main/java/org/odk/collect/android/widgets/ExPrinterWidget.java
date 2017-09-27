@@ -14,10 +14,12 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +29,8 @@ import android.widget.Toast;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.logic.FormController;
 
 
 /**
@@ -113,12 +116,16 @@ import org.odk.collect.android.application.Collect;
  *
  * @author mitchellsundt@gmail.com
  */
+@SuppressLint("ViewConstructor")
 public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
 
     private Button launchIntentButton;
 
-    public ExPrinterWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public ExPrinterWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         String appearance = prompt.getAppearanceHint();
         String[] attrs = appearance.split(":");
@@ -126,9 +133,11 @@ public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
                 ? "org.opendatakit.sensors.ZebraPrinter" : attrs[1];
         final String buttonText;
         final String errorString;
-        String v = formEntryPrompt.getSpecialFormQuestionText("buttonText");
+
+        String v = prompt.getSpecialFormQuestionText("buttonText");
         buttonText = (v != null) ? v : context.getString(R.string.launch_printer);
-        v = formEntryPrompt.getSpecialFormQuestionText("noPrinterErrorString");
+
+        v = prompt.getSpecialFormQuestionText("noPrinterErrorString");
         errorString = (v != null) ? v : context.getString(R.string.no_printer);
 
         launchIntentButton = getSimpleButton(buttonText);
@@ -136,11 +145,10 @@ public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
             @Override
             public void onClick(View v) {
                 try {
-                    Collect.getInstance().getFormController().setIndexWaitingForData(
-                            formEntryPrompt.getIndex());
+                    waitForData();
                     firePrintingActivity(intentName);
                 } catch (ActivityNotFoundException e) {
-                    Collect.getInstance().getFormController().setIndexWaitingForData(null);
+                    cancelWaitingForData();
                     Toast.makeText(getContext(),
                             errorString, Toast.LENGTH_SHORT)
                             .show();
@@ -161,13 +169,12 @@ public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
 
     protected void firePrintingActivity(String intentName) throws ActivityNotFoundException {
 
-        String s = formEntryPrompt.getAnswerText();
+        logAction("launchPrinter", intentName);
 
-        Collect.getInstance().getActivityLogger().logInstanceAction(this, "launchPrinter",
-                intentName, formEntryPrompt.getIndex());
         Intent i = new Intent(intentName);
         getContext().startActivity(i);
 
+        String s = getPrompt().getAnswerText();
         String[] splits;
         if (s != null) {
             splits = s.split("<br>");
@@ -214,34 +221,22 @@ public class ExPrinterWidget extends QuestionWidget implements BinaryWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        return formEntryPrompt.getAnswerValue();
+        return getPrompt().getAnswerValue();
     }
 
 
     /**
-     * Allows answer to be set externally in {@Link FormEntryActivity}.
+     * Allows answer to be set externally in {@link FormEntryActivity}.
      */
     @Override
     public void setBinaryData(Object answer) {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
     public void setFocus(Context context) {
         // focus on launch button
         launchIntentButton.requestFocus();
-    }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController().getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

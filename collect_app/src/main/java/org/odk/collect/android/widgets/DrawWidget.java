@@ -15,14 +15,13 @@
 package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -31,7 +30,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
@@ -40,6 +38,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.activities.DrawActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.MediaUtils;
 
@@ -64,25 +63,24 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
 
     private TextView errorTextView;
 
-    public DrawWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public DrawWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         errorTextView = new TextView(context);
-        errorTextView.setId(QuestionWidget.newUniqueId());
+        errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.selected_invalid_image);
 
-        instanceFolder = Collect.getInstance().getFormController()
-                .getInstancePath().getParent();
+        instanceFolder = formController.getInstancePath().getParent();
 
         drawButton = getSimpleButton(getContext().getString(R.string.draw_image));
         drawButton.setEnabled(!prompt.isReadOnly());
         drawButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "drawButton", "click",
-                                formEntryPrompt.getIndex());
+                logAction("drawButton", "click");
                 launchDrawActivity();
             }
         });
@@ -93,7 +91,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         answerLayout.addView(drawButton);
         answerLayout.addView(errorTextView);
 
-        if (formEntryPrompt.isReadOnly()) {
+        if (isReadOnly()) {
             drawButton.setVisibility(View.GONE);
         }
         errorTextView.setVisibility(View.GONE);
@@ -104,7 +102,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has signed
         if (binaryName != null) {
             imageView = new ImageView(getContext());
-            imageView.setId(QuestionWidget.newUniqueId());
+            imageView.setId(newUniqueId());
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
@@ -127,10 +125,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Collect.getInstance()
-                            .getActivityLogger()
-                            .logInstanceAction(this, "viewImage", "click",
-                                    formEntryPrompt.getIndex());
+                    logAction("viewImage", "click");
                     launchDrawActivity();
                 }
             });
@@ -153,19 +148,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(Collect.TMPFILE_PATH)));
 
-        try {
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(formEntryPrompt.getIndex());
-            ((Activity) getContext()).startActivityForResult(i,
-                    FormEntryActivity.DRAW_IMAGE);
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(
-                    getContext(),
-                    getContext().getString(R.string.activity_not_found,
-                            "draw image"), Toast.LENGTH_SHORT).show();
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(null);
-        }
+        startActivityForResult(i, FormEntryActivity.DRAW_IMAGE, "draw image");
     }
 
     @Override
@@ -235,7 +218,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -244,18 +227,6 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

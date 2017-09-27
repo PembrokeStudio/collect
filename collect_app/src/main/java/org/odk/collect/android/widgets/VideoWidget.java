@@ -15,7 +15,6 @@
 package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
@@ -83,21 +82,23 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
     private String instanceFolder;
     private Uri nexus7Uri;
 
-    public VideoWidget(Context context, FormEntryPrompt prompt) {
-        this(context, prompt, new FileUtil(), new MediaUtil());
+    public VideoWidget(@NonNull Context context,
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController) {
+
+        this(context, prompt, formController, new FileUtil(), new MediaUtil());
     }
 
-    public VideoWidget(Context context, FormEntryPrompt prompt, @NonNull FileUtil fileUtil, @NonNull MediaUtil mediaUtil) {
-        super(context, prompt);
+    public VideoWidget(@NonNull Context context,
+                       @NonNull FormEntryPrompt prompt,
+                       @NonNull FormController formController,
+                       @NonNull FileUtil fileUtil,
+                       @NonNull MediaUtil mediaUtil) {
+
+        super(context, prompt, formController);
 
         this.fileUtil = fileUtil;
         this.mediaUtil = mediaUtil;
-
-        final FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            Timber.e("Started AudioWidget with null FormController.");
-            return;
-        }
 
         instanceFolder = formController.getInstancePath().getParent();
 
@@ -106,10 +107,8 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(VideoWidget.this, "captureButton",
-                                "click", formEntryPrompt.getIndex());
+                logAction("captureButton", "click");
+
                 Intent i = new Intent(
                         android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
@@ -137,20 +136,8 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
                 if (highResolution) {
                     i.putExtra(android.provider.MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 }
-                try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.VIDEO_CAPTURE);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(
-                            getContext(),
-                            getContext().getString(R.string.activity_not_found,
-                                    "capture video"), Toast.LENGTH_SHORT)
-                            .show();
-                    formController
-                            .setIndexWaitingForData(null);
-                }
+
+                startActivityForResult(i, FormEntryActivity.VIDEO_CAPTURE, "capture video");
 
             }
         });
@@ -160,29 +147,15 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(VideoWidget.this, "chooseButton",
-                                "click", formEntryPrompt.getIndex());
+                logAction("chooseButton", "click");
+
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("video/*");
                 // Intent i =
                 // new Intent(Intent.ACTION_PICK,
                 // android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-                try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.VIDEO_CHOOSER);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(
-                            getContext(),
-                            getContext().getString(R.string.activity_not_found,
-                                    "choose video "), Toast.LENGTH_SHORT)
-                            .show();
-                    formController
-                            .setIndexWaitingForData(null);
-                }
+
+                startActivityForResult(i, FormEntryActivity.VIDEO_CHOOSER, "choose video");
 
             }
         });
@@ -191,14 +164,13 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(VideoWidget.this, "playButton",
-                                "click", formEntryPrompt.getIndex());
+                logAction("playButton", "click");
+
                 Intent i = new Intent("android.intent.action.VIEW");
                 File f = new File(instanceFolder + File.separator
                         + binaryName);
                 i.setDataAndType(Uri.fromFile(f), "video/*");
+
                 try {
                     getContext().startActivity(i);
                 } catch (ActivityNotFoundException e) {
@@ -227,7 +199,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         addAnswerView(answerLayout);
 
         // and hide the capture and choose button if read-only
-        if (formEntryPrompt.isReadOnly()) {
+        if (isReadOnly()) {
             captureButton.setVisibility(View.GONE);
             chooseButton.setVisibility(View.GONE);
         }
@@ -354,7 +326,7 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         }
 
         binaryName = newVideo.getName();
-        cancelWaitingForBinaryData();
+        cancelWaitingForData();
 
         // Need to have this ugly code to account for
         // a bug in the Nexus 7 on 4.3 not returning the mediaUri in the data
@@ -383,25 +355,6 @@ public class VideoWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
     }
 
     @Override

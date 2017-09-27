@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
@@ -24,6 +25,7 @@ import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.LocalDateTime;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
@@ -39,18 +41,32 @@ public class DateTimeWidget extends QuestionWidget {
     private DateWidget dateWidget;
     private TimeWidget timeWidget;
 
-    public DateTimeWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+
+    public DateTimeWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
+        this(context, prompt, formController,
+                new DateWidget(context, prompt, formController),
+                new TimeWidget(context, prompt, formController));
+    }
+
+    public DateTimeWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController,
+                          @NonNull DateWidget dateWidget,
+                          @NonNull TimeWidget timeWidget) {
+
+        super(context, prompt, formController);
 
         setGravity(Gravity.START);
 
-        dateWidget = new DateWidget(context, prompt);
-        timeWidget = new TimeWidget(context, prompt);
+        this.dateWidget = dateWidget;
+        this.timeWidget = timeWidget;
 
-        dateWidget.questionMediaLayout.getView_Text().setVisibility(GONE);
+        dateWidget.getQuestionMediaLayout().getView_Text().setVisibility(GONE);
         dateWidget.getHelpTextView().setVisibility(GONE);
 
-        timeWidget.questionMediaLayout.getView_Text().setVisibility(GONE);
+        timeWidget.getQuestionMediaLayout().getView_Text().setVisibility(GONE);
         timeWidget.getHelpTextView().setVisibility(GONE);
 
         LinearLayout linearLayout = new LinearLayout(getContext());

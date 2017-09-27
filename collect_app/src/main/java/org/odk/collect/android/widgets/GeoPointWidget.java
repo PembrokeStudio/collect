@@ -22,13 +22,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ConfigurationInfo;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -53,6 +53,7 @@ import java.text.DecimalFormat;
  */
 @SuppressLint("ViewConstructor")
 public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
+
     public static final String LOCATION = "gp";
     public static final String ACCURACY_THRESHOLD = "accuracyThreshold";
     public static final String READ_ONLY = "readOnly";
@@ -72,8 +73,11 @@ public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
 
     private String stringAnswer;
 
-    public GeoPointWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public GeoPointWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         // Determine the activity threshold to use
         String acc = prompt.getQuestion().getAdditionalAttribute(null, ACCURACY_THRESHOLD);
@@ -114,8 +118,7 @@ public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
             public void onClick(View v) {
                 Collect.getInstance()
                         .getActivityLogger()
-                        .logInstanceAction(this, "recordLocation", "click",
-                                formEntryPrompt.getIndex());
+                        .logInstanceAction(this, "recordLocation", "click", getPromptIndex());
                 Intent i;
                 if (useMapsV2 && useMaps) {
                     if (mapSDK.equals(GOOGLE_MAP_KEY)) {
@@ -147,7 +150,7 @@ public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
 
                 FormController formController = Collect.getInstance().getFormController();
                 if (formController != null) {
-                    formController.setIndexWaitingForData(formEntryPrompt.getIndex());
+                    formController.setIndexWaitingForData(getPromptIndex());
                 }
 
                 ((Activity) getContext()).startActivityForResult(i,
@@ -309,28 +312,7 @@ public class GeoPointWidget extends QuestionWidget implements BinaryWidget {
         }
 
         updateButtonLabelsAndVisibility(true);
-        cancelWaitingForBinaryData();
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return false;
-        }
-
-        FormIndex indexWaitingForData = formController.getIndexWaitingForData();
-
-        return formEntryPrompt.getIndex().equals(
-                indexWaitingForData);
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController != null) {
-            formController.setIndexWaitingForData(null);
-        }
+        cancelWaitingForData();
     }
 
     @Override

@@ -17,7 +17,7 @@ public class ExIntegerWidgetTest extends GeneralExStringWidgetTest<ExIntegerWidg
     @NonNull
     @Override
     public ExIntegerWidget createWidget() {
-        return new ExIntegerWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new ExIntegerWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

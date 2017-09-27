@@ -19,13 +19,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -33,7 +33,6 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.activities.GeoShapeGoogleMapActivity;
 import org.odk.collect.android.activities.GeoShapeOsmMapActivity;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.preferences.PreferenceKeys;
 import org.odk.collect.android.utilities.PlayServicesUtil;
@@ -53,8 +52,11 @@ public class GeoShapeWidget extends QuestionWidget implements BinaryWidget {
     private Button createShapeButton;
     private TextView answerDisplay;
 
-    public GeoShapeWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public GeoShapeWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
+
+        super(context, prompt, formController);
         // assemble the widget...
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -67,11 +69,7 @@ public class GeoShapeWidget extends QuestionWidget implements BinaryWidget {
 
             @Override
             public void onClick(View v) {
-                FormController formController = Collect.getInstance().getFormController();
-                if (formController != null) {
-                    formController.setIndexWaitingForData(formEntryPrompt.getIndex());
-                }
-
+                waitForData();
                 startGeoShapeActivity();
             }
         });
@@ -129,28 +127,7 @@ public class GeoShapeWidget extends QuestionWidget implements BinaryWidget {
         String s = answer.toString();
         answerDisplay.setText(s);
 
-        cancelWaitingForBinaryData();
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController != null) {
-            formController.setIndexWaitingForData(null);
-        }
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return false;
-        }
-
-        FormIndex indexWaitingForData = formController.getIndexWaitingForData();
-
-        return formEntryPrompt.getIndex().equals(
-                indexWaitingForData);
+        cancelWaitingForData();
     }
 
     @Override

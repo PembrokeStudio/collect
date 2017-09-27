@@ -857,7 +857,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
     private QuestionWidget getWidgetWaitingForBinaryData() {
         QuestionWidget questionWidget = null;
         for (QuestionWidget qw :  ((ODKView) currentView).getWidgets()) {
-            if (qw instanceof BinaryWidget && ((BinaryWidget) qw).isWaitingForBinaryData()) {
+            if (qw instanceof BinaryWidget && qw.isWaitingForData()) {
                 questionWidget = qw;
             }
         }
@@ -1303,13 +1303,14 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
             case FormEntryController.EVENT_QUESTION:
             case FormEntryController.EVENT_GROUP:
             case FormEntryController.EVENT_REPEAT:
-                ODKView odkv = null;
+                ODKView odkv;
                 // should only be a group here if the event_group is a field-list
                 try {
                     FormEntryPrompt[] prompts = formController.getQuestionPrompts();
                     FormEntryCaption[] groups = formController
                             .getGroupsForCurrentIndex();
-                    odkv = new ODKView(this, prompts, groups, advancingPage);
+
+                    odkv = new ODKView(this, formController, advancingPage);
                     Timber.i("Created view for group %s %s",
                             (groups.length > 0 ? groups[groups.length - 1].getLongText() : "[top]"),
                             (prompts.length > 0 ? prompts[0].getQuestionText() : "[no question]"));

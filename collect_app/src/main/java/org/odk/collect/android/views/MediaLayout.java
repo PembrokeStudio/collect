@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.views;
 
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -43,7 +44,7 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.listeners.AudioPlayListener;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.ToastUtils;
-import org.odk.collect.android.widgets.QuestionWidget;
+import org.odk.collect.android.utilities.ViewUtil;
 
 import java.io.File;
 
@@ -55,6 +56,7 @@ import timber.log.Timber;
  *
  * @author carlhartung
  */
+@SuppressLint("ViewConstructor")
 public class MediaLayout extends RelativeLayout implements OnClickListener {
 
     private String selectionDesignator;
@@ -69,8 +71,7 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
     private MediaPlayer player;
     private AudioPlayListener audioPlayListener;
     private int playTextColor;
-    private int playBackgroundTextColor;
-    
+
     private Context context;
 
     private CharSequence originalText;
@@ -104,10 +105,6 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
         playTextColor = textColor;
     }
 
-    public void setPlayTextBackgroundColor(int textColor) {
-        playBackgroundTextColor = textColor;
-    }
-
     /*
      * Resets text formatting to whatever is defaulted
      * in the form
@@ -124,7 +121,7 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
             String videoFilename = "";
             try {
                 videoFilename =
-                        ReferenceManager._().DeriveReference(videoURI).getLocalURI();
+                        ReferenceManager.instance().DeriveReference(videoURI).getLocalURI();
             } catch (InvalidReferenceException e) {
                 Timber.e(e, "Invalid reference exception due to %s ", e.getMessage());
             }
@@ -156,7 +153,7 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
         this.index = index;
         viewText = text;
         originalText = text.getText();
-        viewText.setId(QuestionWidget.newUniqueId());
+        viewText.setId(ViewUtil.generateViewId());
         this.videoURI = videoURI;
 
         // Layout configurations for our elements in the relative layout
@@ -181,10 +178,8 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
             audioButton.setPadding(22, 12, 22, 12);
             audioButton.setBackgroundColor(Color.LTGRAY);
             audioButton.setOnClickListener(this);
-            audioButton.setId(QuestionWidget.newUniqueId()); // random ID to be used by the
+            audioButton.setId(ViewUtil.generateViewId()); // random ID to be used by the
             // relative layout.
-        } else {
-            // No audio file specified, so ignore.
         }
 
         // Then set up the video button
@@ -207,17 +202,15 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
                 }
 
             });
-            videoButton.setId(QuestionWidget.newUniqueId());
-        } else {
-            // No video file specified, so ignore.
+            videoButton.setId(ViewUtil.generateViewId());
         }
 
         // Now set up the image view
         String errorMsg = null;
-        final int imageId = QuestionWidget.newUniqueId();
+        final int imageId = ViewUtil.generateViewId();
         if (imageURI != null) {
             try {
-                String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                String imageFilename = ReferenceManager.instance().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
                     DisplayMetrics metrics = context.getResources().getDisplayMetrics();
@@ -233,7 +226,7 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
 
                         if (bigImageURI != null) {
                             imageView.setOnClickListener(new OnClickListener() {
-                                String bigImageFilename = ReferenceManager._()
+                                String bigImageFilename = ReferenceManager.instance()
                                         .DeriveReference(bigImageURI).getLocalURI();
                                 File bigImage = new File(bigImageFilename);
 
@@ -277,8 +270,6 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
             } catch (InvalidReferenceException e) {
                 Timber.e(e, "Invalid image reference due to %s ", e.getMessage());
             }
-        } else {
-            // There's no imageURI listed, so just ignore it.
         }
 
         // e.g., for TextView that flag will be true

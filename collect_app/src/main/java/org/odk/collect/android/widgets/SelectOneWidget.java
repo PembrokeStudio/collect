@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.widget.CompoundButton;
@@ -27,6 +28,7 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AudioPlayListener;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.TextUtils;
 
 import java.util.ArrayList;
@@ -46,8 +48,12 @@ public class SelectOneWidget
     protected List<RadioButton> buttons;
     protected String selectedValue;
 
-    public SelectOneWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SelectOneWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController) {
+
+        super(context, prompt, formController);
+
         buttons = new ArrayList<>();
 
         if (prompt.getAnswerValue() != null) {
@@ -121,11 +127,11 @@ public class SelectOneWidget
         }
 
         RadioButton radioButton = new RadioButton(getContext());
-        radioButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        radioButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         radioButton.setText(choiceDisplayName);
         radioButton.setMovementMethod(LinkMovementMethod.getInstance());
         radioButton.setTag(index);
-        radioButton.setId(QuestionWidget.newUniqueId());
+        radioButton.setId(newUniqueId());
         radioButton.setEnabled(!getPrompt().isReadOnly());
         radioButton.setFocusable(!getPrompt().isReadOnly());
 

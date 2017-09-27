@@ -7,7 +7,7 @@ import android.util.TypedValue;
 import android.widget.TextView;
 
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.FontUtil;
 
 public class NotificationActivity extends AppCompatActivity {
 
@@ -23,8 +23,10 @@ public class NotificationActivity extends AppCompatActivity {
             note = getString(R.string.notification_error);
         }
 
+        FontUtil fontUtil = new FontUtil();
+
         TextView notificationText = (TextView) findViewById(R.id.notification);
-        notificationText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, Collect.getQuestionFontsize());
+        notificationText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontUtil.getQuestionFontSize());
         notificationText.setTypeface(null, Typeface.BOLD);
         notificationText.setPadding(0, 0, 0, 7);
         notificationText.setText(note);

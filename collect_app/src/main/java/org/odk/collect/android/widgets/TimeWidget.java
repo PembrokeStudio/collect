@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -37,6 +38,7 @@ import org.javarosa.core.model.data.TimeData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import org.odk.collect.android.R;
+import org.odk.collect.android.logic.FormController;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -61,8 +63,11 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
 
     private boolean nullAnswer;
 
-    public TimeWidget(Context context, final FormEntryPrompt prompt) {
-        super(context, prompt);
+    public TimeWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         setGravity(Gravity.START);
 
@@ -113,7 +118,7 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
 
     private void createTimeButton() {
         timeButton = getSimpleButton(getContext().getString(R.string.select_time));
-        timeButton.setEnabled(!formEntryPrompt.isReadOnly());
+        timeButton.setEnabled(!getPrompt().isReadOnly());
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,10 +149,10 @@ public class TimeWidget extends QuestionWidget implements TimePickerDialog.OnTim
         timePickerDialog = new CustomTimePickerDialog(getContext(), this, 0, 0);
         timePickerDialog.setCanceledOnTouchOutside(false);
 
-        if (formEntryPrompt.getAnswerValue() == null) {
+        if (getPrompt().getAnswerValue() == null) {
             clearAnswer();
         } else {
-            Date date = ((Date) formEntryPrompt.getAnswerValue().getValue());
+            Date date = ((Date) getPrompt().getAnswerValue().getValue());
 
             DateTime dateTime = new DateTime(date);
             updateTime(dateTime, true);

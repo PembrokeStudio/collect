@@ -17,6 +17,7 @@ package org.odk.collect.android.widgets;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -41,9 +42,9 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -75,8 +76,12 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
 
 
     @SuppressWarnings("unchecked")
-    public ListMultiWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
-        super(context, prompt);
+    public ListMultiWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController,
+                           boolean displayLabel) {
+
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
@@ -87,7 +92,6 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
             items = prompt.getSelectChoices();
         }
         checkBoxes = new ArrayList<>();
-        formEntryPrompt = prompt;
 
         // Layout holds the horizontal list of buttons
         LinearLayout buttonLayout = new LinearLayout(context);
@@ -102,7 +106,7 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
 
                 CheckBox c = new CheckBox(getContext());
                 c.setTag(i);
-                c.setId(QuestionWidget.newUniqueId());
+                c.setId(newUniqueId());
                 c.setFocusable(!prompt.isReadOnly());
                 c.setEnabled(!prompt.isReadOnly());
 
@@ -120,19 +124,15 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (!checkboxInit && formEntryPrompt.isReadOnly()) {
+                        if (!checkboxInit && isReadOnly()) {
+                            String value = items.get((Integer) buttonView.getTag()).getValue();
                             if (buttonView.isChecked()) {
                                 buttonView.setChecked(false);
-                                Collect.getInstance().getActivityLogger().logInstanceAction(this,
-                                        "onItemClick.deselect",
-                                        items.get((Integer) buttonView.getTag()).getValue(),
-                                        formEntryPrompt.getIndex());
+                                logAction("onItemClick.deselect", value);
+
                             } else {
                                 buttonView.setChecked(true);
-                                Collect.getInstance().getActivityLogger().logInstanceAction(this,
-                                        "onItemClick.select",
-                                        items.get((Integer) buttonView.getTag()).getValue(),
-                                        formEntryPrompt.getIndex());
+                                logAction("onItemClick.select", value);
                             }
                         }
                     }
@@ -150,7 +150,7 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
                 ImageView imageView = null;
                 TextView missingImage = null;
 
-                final int labelId = QuestionWidget.newUniqueId();
+                final int labelId = newUniqueId();
 
                 // Now set up the image view
                 String errorMsg = null;
@@ -211,7 +211,7 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
                 label.setText(prompt.getSelectChoiceText(items.get(i)));
-                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+                label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
                 label.setGravity(Gravity.CENTER_HORIZONTAL);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
@@ -329,7 +329,7 @@ public class ListMultiWidget extends QuestionWidget implements MultiChoiceWidget
         center = new View(getContext());
         RelativeLayout.LayoutParams centerParams = new RelativeLayout.LayoutParams(0, 0);
         centerParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        center.setId(QuestionWidget.newUniqueId());
+        center.setId(newUniqueId());
         addView(center, centerParams);
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(

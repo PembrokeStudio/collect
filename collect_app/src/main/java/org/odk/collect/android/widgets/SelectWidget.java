@@ -18,6 +18,7 @@ package org.odk.collect.android.widgets;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -37,6 +38,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.views.MediaLayout;
 
 import java.util.ArrayList;
@@ -50,8 +52,12 @@ public abstract class SelectWidget extends QuestionWidget {
     protected EditText searchStr;
     private int playcounter = 0;
 
-    public SelectWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SelectWidget(@NonNull Context context,
+                        @NonNull FormEntryPrompt prompt,
+                        @NonNull FormController formController) {
+
+        super(context, prompt, formController);
+
         answerLayout = new LinearLayout(context);
         answerLayout.setOrientation(LinearLayout.VERTICAL);
         playList = new ArrayList<>();
@@ -97,7 +103,7 @@ public abstract class SelectWidget extends QuestionWidget {
     public void playAllPromptText() {
         // set up to play the items when the
         // question text is finished
-        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        getMediaPlayer().setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 resetQuestionTextColor();
@@ -113,8 +119,9 @@ public abstract class SelectWidget extends QuestionWidget {
     private void playNextSelectItem() {
         if (isShown()) {
             // if there's more, set up to play the next item
+            MediaPlayer mediaPlayer = getMediaPlayer();
             if (playcounter < playList.size()) {
-                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         resetQuestionTextColor();
@@ -128,8 +135,8 @@ public abstract class SelectWidget extends QuestionWidget {
 
             } else {
                 playcounter = 0;
-                player.setOnCompletionListener(null);
-                player.reset();
+                mediaPlayer.setOnCompletionListener(null);
+                mediaPlayer.reset();
             }
         }
     }
@@ -148,13 +155,13 @@ public abstract class SelectWidget extends QuestionWidget {
         String videoURI = getPrompt().getSpecialFormSelectChoiceText(items.get(index), "video");
         String bigImageURI = getPrompt().getSpecialFormSelectChoiceText(items.get(index), "big-image");
 
-        MediaLayout mediaLayout = new MediaLayout(getContext(), player);
+        MediaLayout mediaLayout = new MediaLayout(getContext(), getMediaPlayer());
         mediaLayout.setAVT(getPrompt().getIndex(), "." + Integer.toString(index), textView, audioURI,
                 imageURI, videoURI, bigImageURI);
 
         mediaLayout.setAudioListener(this);
-        mediaLayout.setPlayTextColor(playColor);
-        mediaLayout.setPlayTextBackgroundColor(playBackgroundColor);
+        mediaLayout.setPlayTextColor(getPlayColor());
+
         playList.add(mediaLayout);
 
         if (index != items.size() - 1) {
@@ -209,8 +216,8 @@ public abstract class SelectWidget extends QuestionWidget {
 
     protected void setUpSearchBox() {
         searchStr = new EditText(getContext());
-        searchStr.setId(QuestionWidget.newUniqueId());
-        searchStr.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        searchStr.setId(newUniqueId());
+        searchStr.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);

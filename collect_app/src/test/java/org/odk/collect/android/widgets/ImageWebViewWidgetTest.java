@@ -31,7 +31,7 @@ public class ImageWebViewWidgetTest extends FileWidgetTest<ImageWebViewWidget> {
     @NonNull
     @Override
     public ImageWebViewWidget createWidget() {
-        return new ImageWebViewWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new ImageWebViewWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

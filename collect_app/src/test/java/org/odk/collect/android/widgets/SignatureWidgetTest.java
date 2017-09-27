@@ -31,7 +31,7 @@ public class SignatureWidgetTest extends FileWidgetTest<SignatureWidget> {
     @NonNull
     @Override
     public SignatureWidget createWidget() {
-        return new SignatureWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new SignatureWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 
     @NonNull

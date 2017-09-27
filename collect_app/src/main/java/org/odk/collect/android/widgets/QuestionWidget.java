@@ -14,7 +14,10 @@
 
 package org.odk.collect.android.widgets;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -22,6 +25,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -34,15 +39,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.database.ActivityLogger;
 import org.odk.collect.android.exception.JavaRosaException;
 import org.odk.collect.android.listeners.AudioPlayListener;
 import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.utilities.FontUtil;
 import org.odk.collect.android.utilities.TextUtils;
+import org.odk.collect.android.utilities.ViewUtil;
 import org.odk.collect.android.views.MediaLayout;
 
 import java.util.ArrayList;
@@ -54,20 +65,407 @@ public abstract class QuestionWidget
         extends RelativeLayout
         implements Widget, AudioPlayListener {
 
-    private static int idGenerator = 1211322;
-    protected final int questionFontsize;
-    protected final int answerFontsize;
-    protected FormEntryPrompt formEntryPrompt;
-    protected MediaLayout questionMediaLayout;
-    protected MediaPlayer player;
-    protected int playColor = Color.BLUE;
-    protected int playBackgroundColor = Color.WHITE;
-    private TextView helpTextView;
+    //region Constants
 
-    public QuestionWidget(Context context, FormEntryPrompt prompt) {
+    private static final int DEFAULT_PLAY_COLOR = Color.BLUE;
+
+    //endregion
+
+    //region Attributes
+
+    @NonNull
+    private final FormEntryPrompt prompt;
+
+    @NonNull
+    private final FormController formController;
+
+    @NonNull
+    private final MediaLayout questionMediaLayout;
+
+    @NonNull
+    private final MediaPlayer mediaPlayer;
+
+    @NonNull
+    private final TextView helpTextView;
+
+    private final int questionFontSize;
+
+    private int playColor = DEFAULT_PLAY_COLOR;
+
+    //endregion
+
+    //region Constructors
+
+    public QuestionWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController) {
+
+        this(context, prompt, formController, new FontUtil());
+    }
+
+    public QuestionWidget(@NonNull Context context,
+                          @NonNull FormEntryPrompt prompt,
+                          @NonNull FormController formController,
+                          @NonNull FontUtil fontUtil) {
         super(context);
 
-        player = new MediaPlayer();
+        this.prompt = prompt;
+        this.formController = formController;
+
+        this.questionFontSize = fontUtil.getQuestionFontSize();
+
+        this.mediaPlayer = createMediaPlayer();
+        this.questionMediaLayout = createQuestionMediaLayout(prompt);
+        this.helpTextView = createHelpText(prompt);
+
+        configureView();
+    }
+
+    //endregion
+
+    //region Accessors
+
+    @NonNull
+    public MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
+
+    @NonNull
+    public MediaLayout getQuestionMediaLayout() {
+        return questionMediaLayout;
+    }
+
+    public int getQuestionFontSize() {
+        return questionFontSize;
+    }
+
+    public int getAnswerFontSize() {
+        return getQuestionFontSize() + 2;
+    }
+
+    public int getPlayColor() {
+        return playColor;
+    }
+
+    @NonNull
+    public FormEntryPrompt getPrompt() {
+        return prompt;
+    }
+
+    @NonNull
+    public FormController getFormController() {
+        return formController;
+    }
+
+    @NonNull
+    public TextView getHelpTextView() {
+        return helpTextView;
+    }
+
+    @NonNull
+    public FormIndex getPromptIndex() {
+        return getPrompt().getIndex();
+    }
+
+    @NonNull
+    public QuestionDef getPromptQuestion() {
+        return getPrompt().getQuestion();
+    }
+
+    @Nullable
+    public IAnswerData getPromptAnswer() {
+        return getPrompt().getAnswerValue();
+    }
+
+    public boolean isReadOnly() {
+        return getPrompt().isReadOnly();
+    }
+    //endregion
+
+    //region Logging
+
+    protected void logAction(@NonNull String context, @NonNull String action) {
+        Collect collect = Collect.getInstance();
+        if (collect == null) {
+            return;
+        }
+
+        ActivityLogger activityLogger = collect.getActivityLogger();
+        if (activityLogger == null) {
+            return;
+        }
+
+        activityLogger.logInstanceAction(this, context, action, getPromptIndex());
+    }
+
+    //endregion
+
+    //region Data
+    protected void startActivityForResult(Intent intent, int requestCode, String activityNotFoundError) {
+
+        try {
+            waitForData();
+
+            Context context = getContext();
+            if (context instanceof Activity) {
+                ((Activity) getContext()).startActivityForResult(intent, requestCode);
+            }
+
+        } catch (ActivityNotFoundException e) {
+            String errorMessage = getContext()
+                    .getString(R.string.activity_not_found, activityNotFoundError);
+
+            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT)
+                    .show();
+
+            cancelWaitingForData();
+        }
+    }
+
+    public void waitForData() {
+        formController.setIndexWaitingForData(getPromptIndex());
+    }
+
+    public boolean isWaitingForData() {
+        return getPromptIndex().equals(formController.getIndexWaitingForData());
+    }
+
+    public void cancelWaitingForData() {
+        formController.setIndexWaitingForData(null);
+    }
+
+    //endregion
+
+    //region Media Player
+
+    public void playVideo() {
+        questionMediaLayout.playVideo();
+    }
+
+    public void playAudio() {
+        playAllPromptText();
+    }
+
+    public void stopAudio() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+        }
+    }
+
+    /**
+     * Prompts with items must override this.
+     */
+    public void playAllPromptText() {
+        questionMediaLayout.playAudio();
+    }
+    //endregion
+
+    //region View interaction
+
+    // http://code.google.com/p/android/issues/detail?id=8488
+    public void recycleDrawables() {
+        List<ImageView> images = new ArrayList<>();
+        // collect all the image views
+        recycleDrawablesRecursive(this, images);
+
+        for (ImageView imageView : images) {
+            imageView.destroyDrawingCache();
+            Drawable d = imageView.getDrawable();
+
+            if (d != null && d instanceof BitmapDrawable) {
+                imageView.setImageDrawable(null);
+                BitmapDrawable bd = (BitmapDrawable) d;
+                Bitmap bmp = bd.getBitmap();
+                if (bmp != null) {
+                    bmp.recycle();
+                }
+            }
+        }
+    }
+
+    public void resetQuestionTextColor() {
+        questionMediaLayout.resetTextFormatting();
+    }
+
+    /**
+     * Override this to implement fling gesture suppression (e.g. for embedded WebView treatments).
+     *
+     * @return true if the fling gesture should be suppressed
+     */
+    public boolean suppressFlingGesture(MotionEvent e1, MotionEvent e2, float velocityX,
+                                        float velocityY) {
+        return false;
+    }
+
+    //endregion
+
+    //region View class overrides
+
+    /**
+     * Every subclassed widget should override this, adding any views they may contain, and calling
+     * super.cancelLongPress()
+     */
+    @Override
+    public void cancelLongPress() {
+        super.cancelLongPress();
+
+        questionMediaLayout.cancelLongPress();
+        helpTextView.cancelLongPress();
+    }
+
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        if (visibility == INVISIBLE || visibility == GONE) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.reset();
+            }
+        }
+    }
+
+    //endregion
+
+    //region View IDs
+
+    protected int newUniqueId() {
+        return ViewUtil.generateViewId();
+    }
+
+    //endregion
+
+    //region View positioning
+
+    /**
+     * Adds a View containing the question text, audio (if applicable), and image (if applicable).
+     *
+     * To satisfy the RelativeLayout constraints, we add the audio first if it exists, then the
+     * TextView to fit the rest of the space, then the image if applicable.
+     *
+     * Defaults to adding questionMediaLayout to the top of the screen.
+     * Overwrite to reposition.
+     */
+    protected void addQuestionMediaLayout(View v) {
+        if (v == null) {
+            Timber.e("cannot add a null view as questionMediaLayout");
+            return;
+        }
+
+        // Defaults for questionMediaLayout:
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+        params.setMargins(10, 0, 10, 0);
+
+        addView(v, params);
+    }
+
+
+    /**
+     * Adds a TextView containing the help text to the default location.
+     * Override to reposition.
+     */
+    protected void addHelpTextView(View v) {
+        if (v == null) {
+            Timber.e("cannot add a null view as helpTextView");
+            return;
+        }
+
+        // default for helptext
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.BELOW, questionMediaLayout.getId());
+        params.setMargins(10, 0, 10, 0);
+        addView(v, params);
+    }
+
+    /**
+     * Default place to put the answer View: below the help text or
+     * question text if there is no help text.
+     *
+     * If you have many elements, use this first and use the standard
+     * addView(view, params) to place the rest of the Views.
+     */
+    protected void addAnswerView(View v) {
+        if (v == null) {
+            Timber.e("cannot add a null view as an answerView");
+            return;
+        }
+
+        // default place to add answer
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+
+        if (helpTextView.getVisibility() == View.VISIBLE) {
+            params.addRule(RelativeLayout.BELOW, helpTextView.getId());
+        } else {
+            params.addRule(RelativeLayout.BELOW, questionMediaLayout.getId());
+        }
+
+        params.setMargins(10, 0, 10, 0);
+        addView(v, params);
+    }
+
+    //endregion
+
+    //region View creation helper methods
+
+    protected Button getSimpleButton(String text) {
+        Button button = new Button(getContext());
+
+        button.setId(newUniqueId());
+        button.setText(text);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
+        button.setPadding(20, 20, 20, 20);
+
+        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
+        params.setMargins(7, 5, 7, 5);
+
+        button.setLayoutParams(params);
+
+        return button;
+    }
+
+    protected TextView getCenteredAnswerTextView() {
+        TextView textView = getAnswerTextView();
+        textView.setGravity(Gravity.CENTER);
+
+        return textView;
+    }
+
+    protected TextView getAnswerTextView() {
+        TextView textView = new TextView(getContext());
+
+        textView.setId(newUniqueId());
+        textView.setTextColor(ContextCompat.getColor(getContext(), R.color.primaryTextColor));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
+        textView.setPadding(20, 20, 20, 20);
+
+        return textView;
+    }
+    //endregion
+
+    //region View configuration
+
+    private void configureView() {
+        setId(newUniqueId());
+        setGravity(Gravity.TOP);
+        setPadding(0, 7, 0, 0);
+
+        addQuestionMediaLayout(questionMediaLayout);
+        addHelpTextView(helpTextView);
+    }
+    //endregion
+
+    //region View creation
+
+    @NonNull
+    private MediaPlayer createMediaPlayer() {
+        MediaPlayer player = new MediaPlayer();
         player.setOnCompletionListener(new OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -86,42 +484,24 @@ public abstract class QuestionWidget
             }
         });
 
-        questionFontsize = Collect.getQuestionFontsize();
-        answerFontsize = questionFontsize + 2;
-
-        formEntryPrompt = prompt;
-
-        setGravity(Gravity.TOP);
-        setPadding(0, 7, 0, 0);
-
-        questionMediaLayout = createQuestionMediaLayout(prompt);
-        helpTextView = createHelpText(prompt);
-
-        addQuestionMediaLayout(questionMediaLayout);
-        addHelpTextView(helpTextView);
+        return player;
     }
 
-    /**
-     * Generate a unique ID to keep Android UI happy when the screen orientation
-     * changes.
-     */
-    public static int newUniqueId() {
-        return ++idGenerator;
-    }
-
+    @NonNull
     private MediaLayout createQuestionMediaLayout(FormEntryPrompt prompt) {
+
         String promptText = prompt.getLongText();
-        // Add the text view. Textview always exists, regardless of whether there's text.
+
+        // Add the text view. TextView always exists, regardless of whether there's text.
         TextView questionText = new TextView(getContext());
-        questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, questionFontsize);
+
+        questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, questionFontSize);
         questionText.setTypeface(null, Typeface.BOLD);
         questionText.setTextColor(ContextCompat.getColor(getContext(), R.color.primaryTextColor));
         questionText.setPadding(0, 0, 0, 7);
-        questionText.setText(promptText == null ? "" : TextUtils.textToHtml(promptText));
+        questionText.setText(promptText != null ? TextUtils.textToHtml(promptText) : "");
         questionText.setMovementMethod(LinkMovementMethod.getInstance());
-
-        // Wrap to the size of the parent view
-        questionText.setHorizontallyScrolling(false);
+        questionText.setHorizontallyScrolling(false); // Wrap to the size of the parent view
 
         if (promptText == null || promptText.length() == 0) {
             questionText.setVisibility(GONE);
@@ -135,12 +515,14 @@ public abstract class QuestionWidget
         String bigImageURI = prompt.getSpecialFormQuestionText("big-image");
 
         // Create the layout for audio, image, text
-        MediaLayout questionMediaLayout = new MediaLayout(getContext(), player);
-        questionMediaLayout.setId(QuestionWidget.newUniqueId()); // assign random id
+        MediaLayout questionMediaLayout = new MediaLayout(getContext(), mediaPlayer);
+
+        questionMediaLayout.setId(newUniqueId()); // assign random id
         questionMediaLayout.setAVT(prompt.getIndex(), "", questionText, audioURI, imageURI, videoURI,
                 bigImageURI);
         questionMediaLayout.setAudioListener(this);
 
+        // Set the media layout's play text color:
         String playColorString = prompt.getFormElement().getAdditionalAttribute(null, "playColor");
         if (playColorString != null) {
             try {
@@ -151,246 +533,37 @@ public abstract class QuestionWidget
         }
         questionMediaLayout.setPlayTextColor(playColor);
 
-        String playBackgroundColorString = prompt.getFormElement().getAdditionalAttribute(null,
-                "playBackgroundColor");
-        if (playBackgroundColorString != null) {
-            try {
-                playBackgroundColor = Color.parseColor(playBackgroundColorString);
-            } catch (IllegalArgumentException e) {
-                Timber.e(e, "Argument %s is incorrect", playBackgroundColorString);
-            }
-        }
-        questionMediaLayout.setPlayTextBackgroundColor(playBackgroundColor);
-
         return questionMediaLayout;
     }
 
-    public TextView getHelpTextView() {
-        return helpTextView;
-    }
-
-    public void playAudio() {
-        playAllPromptText();
-    }
-
-    public void playVideo() {
-        questionMediaLayout.playVideo();
-    }
-
-    public FormEntryPrompt getPrompt() {
-        return formEntryPrompt;
-    }
-
-    // http://code.google.com/p/android/issues/detail?id=8488
-    private void recycleDrawablesRecursive(ViewGroup viewGroup, List<ImageView> images) {
-
-        int childCount = viewGroup.getChildCount();
-        for (int index = 0; index < childCount; index++) {
-            View child = viewGroup.getChildAt(index);
-            if (child instanceof ImageView) {
-                images.add((ImageView) child);
-            } else if (child instanceof ViewGroup) {
-                recycleDrawablesRecursive((ViewGroup) child, images);
-            }
-        }
-        viewGroup.destroyDrawingCache();
-    }
-
-    // http://code.google.com/p/android/issues/detail?id=8488
-    public void recycleDrawables() {
-        List<ImageView> images = new ArrayList<>();
-        // collect all the image views
-        recycleDrawablesRecursive(this, images);
-        for (ImageView imageView : images) {
-            imageView.destroyDrawingCache();
-            Drawable d = imageView.getDrawable();
-            if (d != null && d instanceof BitmapDrawable) {
-                imageView.setImageDrawable(null);
-                BitmapDrawable bd = (BitmapDrawable) d;
-                Bitmap bmp = bd.getBitmap();
-                if (bmp != null) {
-                    bmp.recycle();
-                }
-            }
-        }
-    }
-
-    // Abstract methods
-
-    public abstract void setFocus(Context context);
-
-    public abstract void setOnLongClickListener(OnLongClickListener l);
-
-    /**
-     * Override this to implement fling gesture suppression (e.g. for embedded WebView treatments).
-     *
-     * @return true if the fling gesture should be suppressed
-     */
-    public boolean suppressFlingGesture(MotionEvent e1, MotionEvent e2, float velocityX,
-                                        float velocityY) {
-        return false;
-    }
-
-    /*
-     * Add a Views containing the question text, audio (if applicable), and image (if applicable).
-     * To satisfy the RelativeLayout constraints, we add the audio first if it exists, then the
-     * TextView to fit the rest of the space, then the image if applicable.
-     */
-    /*
-     * Defaults to adding questionlayout to the top of the screen.
-     * Overwrite to reposition.
-     */
-    protected void addQuestionMediaLayout(View v) {
-        if (v == null) {
-            Timber.e("cannot add a null view as questionMediaLayout");
-            return;
-        }
-        // default for questionmedialayout
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-        params.setMargins(10, 0, 10, 0);
-        addView(v, params);
-    }
-
-
-    /**
-     * Add a TextView containing the help text to the default location.
-     * Override to reposition.
-     */
-    protected void addHelpTextView(View v) {
-        if (v == null) {
-            Timber.e("cannot add a null view as helpTextView");
-            return;
-        }
-
-        // default for helptext
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        params.addRule(RelativeLayout.BELOW, questionMediaLayout.getId());
-        params.setMargins(10, 0, 10, 0);
-        addView(v, params);
-    }
-
+    @SuppressWarnings("ResourceType")
+    @NonNull
     private TextView createHelpText(FormEntryPrompt prompt) {
         TextView helpText = new TextView(getContext());
         String s = prompt.getHelpText();
 
         if (s != null && !s.equals("")) {
-            helpText.setId(QuestionWidget.newUniqueId());
-            helpText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, questionFontsize - 3);
-            //noinspection ResourceType
+
+            helpText.setId(ViewUtil.generateViewId());
+            helpText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, questionFontSize - 3);
             helpText.setPadding(0, -5, 0, 7);
-            // wrap to the widget of view
+
             helpText.setHorizontallyScrolling(false);
             helpText.setTypeface(null, Typeface.ITALIC);
             helpText.setText(TextUtils.textToHtml(s));
             helpText.setTextColor(ContextCompat.getColor(getContext(), R.color.primaryTextColor));
             helpText.setMovementMethod(LinkMovementMethod.getInstance());
+
             return helpText;
+
         } else {
             helpText.setVisibility(View.GONE);
             return helpText;
         }
     }
+    //endregion
 
-    /**
-     * Default place to put the answer
-     * (below the help text or question text if there is no help text)
-     * If you have many elements, use this first
-     * and use the standard addView(view, params) to place the rest
-     */
-    protected void addAnswerView(View v) {
-        if (v == null) {
-            Timber.e("cannot add a null view as an answerView");
-            return;
-        }
-        // default place to add answer
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        if (helpTextView.getVisibility() == View.VISIBLE) {
-            params.addRule(RelativeLayout.BELOW, helpTextView.getId());
-        } else {
-            params.addRule(RelativeLayout.BELOW, questionMediaLayout.getId());
-        }
-        params.setMargins(10, 0, 10, 0);
-        addView(v, params);
-    }
-
-    /**
-     * Every subclassed widget should override this, adding any views they may contain, and calling
-     * super.cancelLongPress()
-     */
-    public void cancelLongPress() {
-        super.cancelLongPress();
-        if (questionMediaLayout != null) {
-            questionMediaLayout.cancelLongPress();
-        }
-        if (helpTextView != null) {
-            helpTextView.cancelLongPress();
-        }
-    }
-
-    /*
-     * Prompts with items must override this
-     */
-    public void playAllPromptText() {
-        questionMediaLayout.playAudio();
-    }
-
-    public void resetQuestionTextColor() {
-        questionMediaLayout.resetTextFormatting();
-    }
-
-    @Override
-    protected void onWindowVisibilityChanged(int visibility) {
-        if (visibility == INVISIBLE || visibility == GONE) {
-            if (player.isPlaying()) {
-                player.stop();
-                player.reset();
-            }
-        }
-    }
-
-    public void stopAudio() {
-        if (player.isPlaying()) {
-            player.stop();
-            player.reset();
-        }
-    }
-
-    protected Button getSimpleButton(String text) {
-        Button button = new Button(getContext());
-        button.setId(QuestionWidget.newUniqueId());
-        button.setText(text);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
-        button.setPadding(20, 20, 20, 20);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
-
-        button.setLayoutParams(params);
-        return button;
-    }
-
-    protected TextView getCenteredAnswerTextView() {
-        TextView textView = getAnswerTextView();
-        textView.setGravity(Gravity.CENTER);
-        return textView;
-    }
-
-    protected TextView getAnswerTextView() {
-        TextView textView = new TextView(getContext());
-        textView.setId(QuestionWidget.newUniqueId());
-        textView.setTextColor(ContextCompat.getColor(getContext(), R.color.primaryTextColor));
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
-        textView.setPadding(20, 20, 20, 20);
-        return textView;
-    }
-
+    //region Misc.
     /**
      * It's needed only for external choices. Everything works well and
      * out of the box when we use internal choices instead
@@ -411,9 +584,33 @@ public abstract class QuestionWidget
                     formController.stepToNextScreenEvent();
                 }
                 formController.jumpToIndex(startFormIndex);
+
             } catch (JavaRosaException e) {
                 Timber.e(e);
             }
         }
     }
+
+    // http://code.google.com/p/android/issues/detail?id=8488
+    private void recycleDrawablesRecursive(ViewGroup viewGroup, List<ImageView> images) {
+
+        int childCount = viewGroup.getChildCount();
+        for (int index = 0; index < childCount; index++) {
+            View child = viewGroup.getChildAt(index);
+            if (child instanceof ImageView) {
+                images.add((ImageView) child);
+            } else if (child instanceof ViewGroup) {
+                recycleDrawablesRecursive((ViewGroup) child, images);
+            }
+        }
+
+        viewGroup.destroyDrawingCache();
+    }
+    //endregion
+
+    //region Abstract methods
+    public abstract void setFocus(Context context);
+
+    public abstract void setOnLongClickListener(OnLongClickListener l);
+    //endregion
 }

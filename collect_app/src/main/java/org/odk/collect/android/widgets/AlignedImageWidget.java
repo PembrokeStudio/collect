@@ -15,7 +15,6 @@
 package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -24,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -83,10 +83,11 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
 
     private TextView errorTextView;
 
-    private int[] iarray = new int[6];
 
-    public AlignedImageWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public AlignedImageWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
+        super(context, prompt, formController);
 
         String appearance = prompt.getAppearanceHint();
         String alignments = appearance.substring(appearance.indexOf(':') + 1);
@@ -94,22 +95,21 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         if (splits.length != 6) {
             Timber.w("Only have %d alignment values", splits.length);
         }
+
+        final int[] dimensions = new int[6];
         for (int i = 0; i < 6; ++i) {
             if (splits.length <= i) {
-                iarray[i] = 0;
+                dimensions[i] = 0;
             } else {
-                iarray[i] = Integer.parseInt(splits[i]);
+                dimensions[i] = Integer.parseInt(splits[i]);
             }
         }
 
-        final Collect collect = Collect.getInstance();
-        final FormController formController = collect.getFormController();
-
-        File instancePath = formController.getInstancePath();
+        File instancePath = getFormController().getInstancePath();
         instanceFolder = instancePath.getParent();
 
         errorTextView = new TextView(context);
-        errorTextView.setId(QuestionWidget.newUniqueId());
+        errorTextView.setId(newUniqueId());
         errorTextView.setText(R.string.selected_invalid_image);
 
         captureButton = getSimpleButton(getContext().getString(R.string.capture_image));
@@ -117,15 +117,14 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                collect.getActivityLogger().logInstanceAction(this, "captureButton",
-                        "click", formEntryPrompt.getIndex());
+                logAction("captureButton", "click");
                 errorTextView.setVisibility(View.GONE);
 
                 Intent i = new Intent();
                 i.setComponent(new ComponentName(ODK_CAMERA_INTENT_PACKAGE,
                         ODK_CAMERA_TAKE_PICTURE_INTENT_COMPONENT));
                 i.putExtra(FILE_PATH_EXTRA, Collect.CACHE_PATH);
-                i.putExtra(DIMENSIONS_EXTRA, iarray);
+                i.putExtra(DIMENSIONS_EXTRA, dimensions);
                 i.putExtra(RETAKE_OPTION_EXTRA, false);
 
                 // We give the camera an absolute filename/path where to put the
@@ -138,19 +137,7 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
 
                 // if this gets modified, the onActivityResult in
                 // FormEntyActivity will also need to be updated.
-                try {
-                    formController.setIndexWaitingForData(
-                            formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.ALIGNED_IMAGE);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            getContext().getString(R.string.activity_not_found,
-                                    "aligned image capture"),
-                            Toast.LENGTH_SHORT).show();
-                    formController.setIndexWaitingForData(null);
-                }
-
+                startActivityForResult(i, FormEntryActivity.ALIGNED_IMAGE, "aligned image capture");
             }
         });
 
@@ -159,24 +146,13 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         chooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                collect.getActivityLogger().logInstanceAction(this, "chooseButton",
-                        "click", formEntryPrompt.getIndex());
+                logAction("chooseButton", "click");
                 errorTextView.setVisibility(View.GONE);
+
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("image/*");
 
-                try {
-                    formController
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
-                    ((Activity) getContext()).startActivityForResult(i,
-                            FormEntryActivity.IMAGE_CHOOSER);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            getContext().getString(R.string.activity_not_found, "choose image"),
-                            Toast.LENGTH_SHORT).show();
-                    formController.setIndexWaitingForData(null);
-                }
-
+                startActivityForResult(i, FormEntryActivity.IMAGE_CHOOSER, "choose image");
             }
         });
 
@@ -200,7 +176,8 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         // Only add the imageView if the user has taken a picture
         if (binaryName != null) {
             imageView = new ImageView(getContext());
-            imageView.setId(QuestionWidget.newUniqueId());
+            imageView.setId(newUniqueId());
+
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
@@ -222,8 +199,8 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    collect.getActivityLogger().logInstanceAction(this, "viewButton",
-                            "click", formEntryPrompt.getIndex());
+                    logAction("viewButton", "click");
+
                     Intent i = new Intent("android.intent.action.VIEW");
                     Uri uri = MediaUtils.getImageUriFromMediaProvider(
                             instanceFolder + File.separator + binaryName);
@@ -315,7 +292,7 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -324,18 +301,6 @@ public class AlignedImageWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager =
                 (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController().getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

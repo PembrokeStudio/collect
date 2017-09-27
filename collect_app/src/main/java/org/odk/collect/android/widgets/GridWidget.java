@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -44,10 +45,10 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.AudioButton.AudioHandler;
 import org.odk.collect.android.views.ExpandedHeightGridView;
@@ -102,9 +103,13 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
 
     int resizeWidth;
 
-    public GridWidget(Context context, FormEntryPrompt prompt, int numColumns,
+    public GridWidget(@NonNull Context context,
+                      @NonNull FormEntryPrompt prompt,
+                      @NonNull FormController formController,
+                      int numColumns,
                       final boolean quickAdvance) {
-        super(context, prompt);
+
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
@@ -114,7 +119,6 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
         } else {
             items = prompt.getSelectChoices();
         }
-        formEntryPrompt = prompt;
 
         if (context instanceof AdvanceToNextListener) {
             listener = (AdvanceToNextListener) context;
@@ -160,7 +164,7 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
                     prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_AUDIO);
             if (audioURI != null) {
                 audioHandlers[i] = new AudioHandler(prompt.getIndex(), sc.getValue(), audioURI,
-                        player);
+                        getMediaPlayer());
             } else {
                 audioHandlers[i] = null;
             }
@@ -232,7 +236,7 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
                 choices[i] = prompt.getSelectChoiceText(sc);
 
                 TextView missingImage = new TextView(getContext());
-                missingImage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+                missingImage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
                 missingImage.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                 missingImage.setPadding(IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING);
 
@@ -309,9 +313,9 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
                     imageViews[i].setBackgroundColor(0);
                 }
                 selected[position] = true;
-                Collect.getInstance().getActivityLogger().logInstanceAction(this,
-                        "onItemClick.select",
-                        items.get(position).getValue(), formEntryPrompt.getIndex());
+
+                logAction("onItemClick.select", items.get(position).getValue());
+
                 imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
                         orangeBlueVal));
 
@@ -341,7 +345,7 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
         }
 
         // Use the custom image adapter and initialize the grid view
-        ImageAdapter ia = new ImageAdapter(getContext(), choices);
+        ImageAdapter ia = new ImageAdapter(choices);
         gridview.setAdapter(ia);
         addAnswerView(gridview);
     }
@@ -409,7 +413,7 @@ public class GridWidget extends QuestionWidget implements MultiChoiceWidget {
         private String[] choices;
 
 
-        ImageAdapter(Context c, String[] choices) {
+        ImageAdapter(String[] choices) {
             this.choices = choices;
         }
 

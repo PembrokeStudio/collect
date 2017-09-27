@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -43,9 +44,9 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.external.ExternalDataUtil;
 import org.odk.collect.android.external.ExternalSelectChoice;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.AudioButton.AudioHandler;
 import org.odk.collect.android.views.ExpandedHeightGridView;
@@ -102,8 +103,12 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
     int resizeWidth;
 
     @SuppressWarnings("unchecked")
-    public GridMultiWidget(Context context, FormEntryPrompt prompt, int numColumns) {
-        super(context, prompt);
+    public GridMultiWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController,
+                           int numColumns) {
+
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
@@ -113,7 +118,6 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
         } else {
             items = prompt.getSelectChoices();
         }
-        formEntryPrompt = prompt;
 
         selected = new boolean[items.size()];
         choices = new String[items.size()];
@@ -155,7 +159,7 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
                     prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_AUDIO);
             if (audioURI != null) {
                 audioHandlers[i] = new AudioHandler(prompt.getIndex(), sc.getValue(), audioURI,
-                        player);
+                        getMediaPlayer());
             } else {
                 audioHandlers[i] = null;
             }
@@ -223,7 +227,7 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
                 choices[i] = prompt.getSelectChoiceText(sc);
 
                 TextView missingImage = new TextView(getContext());
-                missingImage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+                missingImage.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
                 missingImage.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
                 missingImage.setPadding(IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING);
 
@@ -293,9 +297,8 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
                     if (audioHandlers[position] != null) {
                         stopAudio();
                     }
-                    Collect.getInstance().getActivityLogger().logInstanceAction(this,
-                            "onItemClick.deselect",
-                            items.get(position).getValue(), formEntryPrompt.getIndex());
+
+                    logAction("onItemClick.deselect", items.get(position).getValue());
 
                 } else {
                     selected[position] = true;
@@ -304,9 +307,9 @@ public class GridMultiWidget extends QuestionWidget implements MultiChoiceWidget
                     }
                     imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
                             orangeBlueVal));
-                    Collect.getInstance().getActivityLogger().logInstanceAction(this,
-                            "onItemClick.select",
-                            items.get(position).getValue(), formEntryPrompt.getIndex());
+
+                    logAction("onItemClick.select", items.get(position).getValue());
+
                     if (audioHandlers[position] != null) {
                         audioHandlers[position].playAudio(getContext());
                     }

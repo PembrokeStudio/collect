@@ -13,6 +13,6 @@ public class ListMultiWidgetTest extends GeneralSelectMultiWidgetTest<ListMultiW
     @NonNull
     @Override
     public ListMultiWidget createWidget() {
-        return new ListMultiWidget(RuntimeEnvironment.application, formEntryPrompt, true);
+        return new ListMultiWidget(RuntimeEnvironment.application, formEntryPrompt, formController, true);
     }
 }

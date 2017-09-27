@@ -14,6 +14,6 @@ public class SelectOneAutoAdvanceWidgetTest
     @NonNull
     @Override
     public SelectOneAutoAdvanceWidget createWidget() {
-        return new SelectOneAutoAdvanceWidget(RuntimeEnvironment.application, formEntryPrompt);
+        return new SelectOneAutoAdvanceWidget(RuntimeEnvironment.application, formEntryPrompt, formController);
     }
 }

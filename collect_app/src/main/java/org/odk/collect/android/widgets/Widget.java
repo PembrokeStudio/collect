@@ -8,6 +8,11 @@ import org.javarosa.core.model.data.IAnswerData;
 public interface Widget {
 
     IAnswerData getAnswer();
-
     void clearAnswer();
+
+    void waitForData();
+
+    void cancelWaitingForData();
+
+    boolean isWaitingForData();
 }

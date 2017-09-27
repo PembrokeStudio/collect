@@ -35,6 +35,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 import timber.log.Timber;
 
@@ -51,20 +52,18 @@ public class StringWidget extends QuestionWidget {
 
     boolean readOnly = false;
 
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        this(context, prompt, readOnlyOverride, true);
-        setupChangeListener();
-    }
+    protected StringWidget(@NonNull Context context,
+                           @NonNull FormEntryPrompt prompt,
+                           @NonNull FormController formController,
+                           boolean readOnlyOverride) {
 
-    protected StringWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride,
-                           boolean derived) {
-        super(context, prompt);
+        super(context, prompt, formController);
 
         answerText = new EditText(context);
-        answerText.setId(QuestionWidget.newUniqueId());
+        answerText.setId(newUniqueId());
         readOnly = prompt.isReadOnly() || readOnlyOverride;
 
-        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
 
@@ -115,6 +114,7 @@ public class StringWidget extends QuestionWidget {
         }
 
         addAnswerView(answerText);
+        setupChangeListener();
     }
 
     protected void setupChangeListener() {

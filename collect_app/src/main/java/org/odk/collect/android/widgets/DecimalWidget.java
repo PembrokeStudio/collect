@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Selection;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import org.javarosa.core.model.data.DecimalData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -38,13 +40,17 @@ import java.util.Locale;
 @SuppressLint("ViewConstructor")
 public class DecimalWidget extends StringWidget {
 
-    public DecimalWidget(Context context, FormEntryPrompt prompt, boolean readOnlyOverride) {
-        super(context, prompt, readOnlyOverride, true);
+    public DecimalWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController,
+                         boolean readOnlyOverride) {
+
+        super(context, prompt, formController, readOnlyOverride);
 
         // formatting
         EditText answerText = getAnswerTextField();
 
-        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        answerText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         answerText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         // needed to make long readonly text scroll
@@ -85,7 +91,7 @@ public class DecimalWidget extends StringWidget {
     }
 
     private Double getDoubleAnswerValue() {
-        IAnswerData dataHolder = formEntryPrompt.getAnswerValue();
+        IAnswerData dataHolder = getPromptAnswer();
         Double d = null;
         if (dataHolder != null) {
             Object dataValue = dataHolder.getValue();

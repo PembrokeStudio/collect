@@ -16,6 +16,7 @@ package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.widget.CheckBox;
@@ -25,6 +26,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.TextUtils;
 
 import java.util.ArrayList;
@@ -42,8 +44,12 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
     private boolean checkboxInit = true;
     private List<Selection> ve;
 
-    public SelectMultiWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SelectMultiWidget(@NonNull Context context,
+                             @NonNull FormEntryPrompt prompt,
+                             @NonNull FormController formController) {
+
+        super(context, prompt, formController);
+
         checkBoxes = new ArrayList<>();
         ve = new ArrayList<>();
         if (getPrompt().getAnswerValue() != null) {
@@ -104,10 +110,10 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         // no checkbox group so id by answer + offset
         CheckBox checkBox = new CheckBox(getContext());
         checkBox.setTag(index);
-        checkBox.setId(QuestionWidget.newUniqueId());
+        checkBox.setId(newUniqueId());
         checkBox.setText(choiceDisplayName);
         checkBox.setMovementMethod(LinkMovementMethod.getInstance());
-        checkBox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, answerFontsize);
+        checkBox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, getAnswerFontSize());
         checkBox.setFocusable(!getPrompt().isReadOnly());
         checkBox.setEnabled(!getPrompt().isReadOnly());
 
@@ -123,7 +129,7 @@ public class SelectMultiWidget extends SelectWidget implements MultiChoiceWidget
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!checkboxInit && formEntryPrompt.isReadOnly()) {
+                if (!checkboxInit && isReadOnly()) {
                     if (buttonView.isChecked()) {
                         buttonView.setChecked(false);
                     } else {

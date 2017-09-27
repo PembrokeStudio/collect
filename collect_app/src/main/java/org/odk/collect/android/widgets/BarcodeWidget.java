@@ -14,8 +14,10 @@
 
 package org.odk.collect.android.widgets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -29,32 +31,32 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.ScannerWithFlashlightActivity;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
  *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
+@SuppressLint("ViewConstructor")
 public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
     private Button getBarcodeButton;
     private TextView stringAnswer;
 
-    public BarcodeWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public BarcodeWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         getBarcodeButton = getSimpleButton(getContext().getString(R.string.get_barcode));
         getBarcodeButton.setEnabled(!prompt.isReadOnly());
         getBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "recordBarcode", "click",
-                                formEntryPrompt.getIndex());
 
-                Collect.getInstance().getFormController()
-                        .setIndexWaitingForData(formEntryPrompt.getIndex());
+                logAction("recordBarcode", "click");
+                waitForData();
 
                 new IntentIntegrator((Activity) getContext())
                         .setCaptureActivity(ScannerWithFlashlightActivity.class)
@@ -90,7 +92,7 @@ public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
     @Override
     public IAnswerData getAnswer() {
         String s = stringAnswer.getText().toString();
-        if (s == null || s.equals("")) {
+        if (s.equals("")) {
             return null;
         } else {
             return new StringData(s);
@@ -98,7 +100,7 @@ public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
     }
 
     /**
-     * Allows answer to be set externally in {@Link FormEntryActivity}.
+     * Allows answer to be set externally in {@link org.odk.collect.android.activities.FormEntryActivity}.
      */
     @Override
     public void setBinaryData(Object answer) {
@@ -107,7 +109,7 @@ public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
             response = response.replaceAll("\\p{C}", "");
         }
         stringAnswer.setText(response);
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -116,18 +118,6 @@ public class BarcodeWidget extends QuestionWidget implements BinaryWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

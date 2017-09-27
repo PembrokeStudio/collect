@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.widget.RelativeLayout;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
+import org.odk.collect.android.logic.FormController;
 
 /**
  * SelectOneWidgets handles select-one fields using radio buttons. Unlike the classic
@@ -44,8 +46,11 @@ public class SelectOneAutoAdvanceWidget extends SelectOneWidget implements OnChe
     @Nullable
     private AdvanceToNextListener listener;
 
-    public SelectOneAutoAdvanceWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SelectOneAutoAdvanceWidget(@NonNull Context context,
+                                      @NonNull FormEntryPrompt prompt,
+                                      @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         if (context instanceof AdvanceToNextListener) {
             listener = (AdvanceToNextListener) context;

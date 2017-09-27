@@ -92,7 +92,7 @@ public class ItemsetWidgetTest extends QuestionWidgetTest<ItemsetWidget, StringD
     @NonNull
     @Override
     public ItemsetWidget createWidget() {
-        return new ItemsetWidget(RuntimeEnvironment.application, formEntryPrompt,
+        return new ItemsetWidget(RuntimeEnvironment.application, formEntryPrompt, formController,
                 false, false, parseTool, adapter, fileUtil);
     }
 

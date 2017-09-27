@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -33,6 +34,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.R;
 import org.odk.collect.android.external.ExternalDataUtil;
+import org.odk.collect.android.logic.FormController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +71,11 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
     TextView selectionText;
 
     @SuppressWarnings("unchecked")
-    public SpinnerMultiWidget(final Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public SpinnerMultiWidget(@NonNull Context context,
+                              @NonNull FormEntryPrompt prompt,
+                              @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         // SurveyCTO-added support for dynamic select content (from .csv files)
         XPathFuncExpr xpathFuncExpr = ExternalDataUtil.getSearchXPathExpression(
@@ -80,8 +85,6 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
         } else {
             items = prompt.getSelectChoices();
         }
-
-        formEntryPrompt = prompt;
 
         selections = new boolean[items.size()];
         answerItems = new CharSequence[items.size()];
@@ -98,7 +101,7 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                alertBuilder.setTitle(formEntryPrompt.getQuestionText()).setPositiveButton(R.string.ok,
+                alertBuilder.setTitle(getPrompt().getQuestionText()).setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 List<String> selectedValues = new ArrayList<>();
@@ -109,7 +112,7 @@ public class SpinnerMultiWidget extends QuestionWidget implements MultiChoiceWid
                                     }
                                 }
 
-                                selectionText.setText(String.format(context.getString(R.string.selected_answer),
+                                selectionText.setText(String.format(getContext().getString(R.string.selected_answer),
                                         TextUtils.join(", ", selectedValues)));
                                 selectionText.setVisibility(View.VISIBLE);
                             }

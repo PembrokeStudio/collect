@@ -18,6 +18,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -30,7 +31,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.R;
 import org.odk.collect.android.activities.BearingActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.logic.FormController;
 
 /**
@@ -43,8 +43,11 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
     private Button getBearingButton;
     private TextView answerDisplay;
 
-    public BearingWidget(Context context, FormEntryPrompt prompt) {
-        super(context, prompt);
+    public BearingWidget(@NonNull Context context,
+                         @NonNull FormEntryPrompt prompt,
+                         @NonNull FormController formController) {
+
+        super(context, prompt, formController);
 
         getBearingButton = getSimpleButton(getContext().getString(R.string.get_bearing));
         getBearingButton.setEnabled(!prompt.isReadOnly());
@@ -65,18 +68,13 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
         getBearingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Collect.getInstance()
-                        .getActivityLogger()
-                        .logInstanceAction(this, "recordBearing", "click",
-                                formEntryPrompt.getIndex());
+
+                logAction("recordBearing", "click");
+
                 Intent i;
                 i = new Intent(getContext(), BearingActivity.class);
 
-                FormController formController = Collect.getInstance().getFormController();
-                if (formController != null) {
-                    formController.setIndexWaitingForData(formEntryPrompt.getIndex());
-                }
-
+                waitForData();
                 ((Activity) getContext()).startActivityForResult(i,
                         FormEntryActivity.BEARING_CAPTURE);
             }
@@ -117,26 +115,7 @@ public class BearingWidget extends QuestionWidget implements BinaryWidget {
     @Override
     public void setBinaryData(Object answer) {
         answerDisplay.setText((String) answer);
-        cancelWaitingForBinaryData();
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController == null) {
-            return;
-        }
-
-        formController.setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
