@@ -67,15 +67,10 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
 
     private String binaryName;
 
-    private String instanceFolder;
-
     private TextView errorTextView;
 
     public AnnotateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-
-        instanceFolder = Collect.getInstance().getFormController()
-                .getInstancePath().getParent();
 
         errorTextView = new TextView(context);
         errorTextView.setId(ViewIds.generateViewId());
@@ -106,8 +101,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(new File(Collect.TMPFILE_PATH)));
                 try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -116,8 +110,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                             getContext().getString(R.string.activity_not_found,
                                     "image capture"), Toast.LENGTH_SHORT)
                             .show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -137,8 +130,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                 i.setType("image/*");
 
                 try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                 } catch (ActivityNotFoundException e) {
@@ -146,8 +138,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose image"), Toast.LENGTH_SHORT).show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -197,7 +188,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
 
-            File f = new File(instanceFolder + File.separator + binaryName);
+            File f = new File(getInstanceFolder() + File.separator + binaryName);
 
             if (f.exists()) {
                 Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f,
@@ -234,15 +225,14 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_ANNOTATE);
         // copy...
         if (binaryName != null) {
-            File f = new File(instanceFolder + File.separator + binaryName);
+            File f = new File(getInstanceFolder() + File.separator + binaryName);
             i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
         }
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(Collect.TMPFILE_PATH)));
 
         try {
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(formEntryPrompt.getIndex());
+            waitForData();
             ((Activity) getContext()).startActivityForResult(i,
                     FormEntryActivity.ANNOTATE_IMAGE);
         } catch (ActivityNotFoundException e) {
@@ -250,8 +240,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
                     getContext(),
                     getContext().getString(R.string.activity_not_found,
                             "annotate image"), Toast.LENGTH_SHORT).show();
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(null);
+            cancelWaitingForData();
         }
     }
 
@@ -262,7 +251,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
         // clean up variables
         binaryName = null;
         // delete from media provider
-        int del = MediaUtils.deleteImageFileFromMediaProvider(instanceFolder
+        int del = MediaUtils.deleteImageFileFromMediaProvider(getInstanceFolder()
                 + File.separator + name);
         Timber.i("Deleted %d rows from media content provider", del);
     }
@@ -326,7 +315,7 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -335,18 +324,6 @@ public class AnnotateWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

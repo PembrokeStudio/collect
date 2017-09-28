@@ -42,7 +42,6 @@ import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.exception.ExternalParamsException;
 import org.odk.collect.android.external.ExternalAppsUtils;
-import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.ViewIds;
 
 import java.util.Map;
@@ -151,12 +150,7 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
                         ExternalAppsUtils.populateParameters(i, exParams,
                                 formEntryPrompt.getIndex().getReference());
 
-                        FormController formController = Collect.getInstance().getFormController();
-                        if (formController == null) {
-                            return;
-                        }
-
-                        formController.setIndexWaitingForData(formEntryPrompt.getIndex());
+                        waitForData();
                         fireActivity(i);
 
                     } catch (ExternalParamsException e) {
@@ -178,7 +172,7 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
                 }
                 launchIntentButton.setEnabled(false);
                 launchIntentButton.setFocusable(false);
-                cancelWaitingForBinaryData();
+                cancelWaitingForData();
 
                 Toast.makeText(getContext(),
                         toastText, Toast.LENGTH_SHORT)
@@ -225,7 +219,7 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
         StringData stringData = ExternalAppsUtils.asStringData(answer);
         this.answer.setText(stringData == null ? null : stringData.getValue().toString());
 
-        cancelWaitingForBinaryData();
+        cancelWaitingForData();
     }
 
     @Override
@@ -255,23 +249,6 @@ public class ExStringWidget extends QuestionWidget implements BinaryWidget {
             } else {
                 inputManager.hideSoftInputFromWindow(answer.getWindowToken(), 0);
             }
-        }
-    }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        return formController != null
-                && formEntryPrompt.getIndex().equals(formController.getIndexWaitingForData());
-
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        FormController formController = Collect.getInstance().getFormController();
-        if (formController != null) {
-            formController.setIndexWaitingForData(null);
         }
     }
 

@@ -58,7 +58,6 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
 
     private Button drawButton;
     private String binaryName;
-    private String instanceFolder;
 
     @Nullable
     private ImageView imageView;
@@ -71,9 +70,6 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         errorTextView = new TextView(context);
         errorTextView.setId(ViewIds.generateViewId());
         errorTextView.setText(R.string.selected_invalid_image);
-
-        instanceFolder = Collect.getInstance().getFormController()
-                .getInstancePath().getParent();
 
         drawButton = getSimpleButton(getContext().getString(R.string.draw_image));
         drawButton.setEnabled(!prompt.isReadOnly());
@@ -110,7 +106,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
 
-            File f = new File(instanceFolder + File.separator + binaryName);
+            File f = new File(getInstanceFolder() + File.separator + binaryName);
 
             if (f.exists()) {
                 Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f,
@@ -148,15 +144,14 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_DRAW);
         // copy...
         if (binaryName != null) {
-            File f = new File(instanceFolder + File.separator + binaryName);
+            File f = new File(getInstanceFolder() + File.separator + binaryName);
             i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
         }
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(Collect.TMPFILE_PATH)));
 
         try {
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(formEntryPrompt.getIndex());
+            waitForData();
             ((Activity) getContext()).startActivityForResult(i,
                     FormEntryActivity.DRAW_IMAGE);
         } catch (ActivityNotFoundException e) {
@@ -164,8 +159,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
                     getContext(),
                     getContext().getString(R.string.activity_not_found,
                             "draw image"), Toast.LENGTH_SHORT).show();
-            Collect.getInstance().getFormController()
-                    .setIndexWaitingForData(null);
+            cancelWaitingForData();
         }
     }
 
@@ -176,7 +170,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         // clean up variables
         binaryName = null;
         // delete from media provider
-        int del = MediaUtils.deleteImageFileFromMediaProvider(instanceFolder
+        int del = MediaUtils.deleteImageFileFromMediaProvider(getInstanceFolder()
                 + File.separator + name);
         Timber.i("Deleted %d rows from media content provider", del);
     }
@@ -236,7 +230,7 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -245,18 +239,6 @@ public class DrawWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override

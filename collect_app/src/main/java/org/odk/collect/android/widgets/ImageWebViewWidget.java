@@ -68,15 +68,10 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
 
     private String binaryName;
 
-    private String instanceFolder;
-
     private TextView errorTextView;
 
     public ImageWebViewWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-
-        instanceFolder = Collect.getInstance().getFormController()
-                .getInstancePath().getParent();
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
         params.setMargins(7, 5, 7, 5);
@@ -110,8 +105,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(new File(Collect.TMPFILE_PATH)));
                 try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -120,8 +114,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                             getContext().getString(R.string.activity_not_found,
                                     "image capture"), Toast.LENGTH_SHORT)
                             .show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -141,8 +134,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                 i.setType("image/*");
 
                 try {
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(formEntryPrompt.getIndex());
+                    waitForData();
                     ((Activity) getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                 } catch (ActivityNotFoundException e) {
@@ -150,8 +142,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
                             getContext(),
                             getContext().getString(R.string.activity_not_found,
                                     "choose image"), Toast.LENGTH_SHORT).show();
-                    Collect.getInstance().getFormController()
-                            .setIndexWaitingForData(null);
+                    cancelWaitingForData();
                 }
 
             }
@@ -189,7 +180,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
             // HTML is used to display the image.
             String html = "<body>" + constructImageElement() + "</body>";
 
-            imageDisplay.loadDataWithBaseURL("file:///" + instanceFolder
+            imageDisplay.loadDataWithBaseURL("file:///" + getInstanceFolder()
                     + File.separator, html, "text/html", "utf-8", "");
             answerLayout.addView(imageDisplay);
         }
@@ -197,7 +188,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
     }
 
     private String constructImageElement() {
-        File f = new File(instanceFolder + File.separator + binaryName);
+        File f = new File(getInstanceFolder() + File.separator + binaryName);
 
         DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
         int screenWidth = metrics.widthPixels;
@@ -258,7 +249,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         binaryName = null;
         // delete from media provider
         int del = MediaUtils.deleteImageFileFromMediaProvider(
-                instanceFolder + File.separator + name);
+                getInstanceFolder() + File.separator + name);
         Timber.i("Deleted %d rows from media content provider", del);
     }
 
@@ -270,7 +261,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         if (imageDisplay != null) {
             // update HTML to not hold image file reference.
             String html = "<body></body>";
-            imageDisplay.loadDataWithBaseURL("file:///" + instanceFolder
+            imageDisplay.loadDataWithBaseURL("file:///" + getInstanceFolder()
                     + File.separator, html, "text/html", "utf-8", "");
 
             imageDisplay.setVisibility(View.INVISIBLE);
@@ -324,7 +315,7 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
             Timber.e("NO IMAGE EXISTS at: %s", newImage.getAbsolutePath());
         }
 
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
+        cancelWaitingForData();
     }
 
     @Override
@@ -333,18 +324,6 @@ public class ImageWebViewWidget extends QuestionWidget implements FileWidget {
         InputMethodManager inputManager = (InputMethodManager) context
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return formEntryPrompt.getIndex().equals(
-                Collect.getInstance().getFormController()
-                        .getIndexWaitingForData());
-    }
-
-    @Override
-    public void cancelWaitingForBinaryData() {
-        Collect.getInstance().getFormController().setIndexWaitingForData(null);
     }
 
     @Override
