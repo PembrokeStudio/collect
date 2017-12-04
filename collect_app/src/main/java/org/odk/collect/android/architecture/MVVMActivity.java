@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import dagger.android.AndroidInjection;
 
 /**
@@ -32,6 +34,9 @@ public abstract class MVVMActivity<VM extends MVVMViewModel>
     @Nullable
     private VM viewModel;
 
+    @Nullable
+    private Unbinder unbinder;
+
     @Inject
     @Nullable
     public ViewModelProvider.Factory viewModelFactory;
@@ -42,6 +47,7 @@ public abstract class MVVMActivity<VM extends MVVMViewModel>
         setContentView(getLayoutId());
 
         AndroidInjection.inject(this);
+        unbinder = ButterKnife.bind(this);
 
         viewModel = fetchViewModel();
         viewModel.create();
@@ -50,6 +56,10 @@ public abstract class MVVMActivity<VM extends MVVMViewModel>
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (unbinder != null) {
+            unbinder.unbind();
+            unbinder = null;
+        }
 
         viewModelFactory = null;
         viewModel = null;

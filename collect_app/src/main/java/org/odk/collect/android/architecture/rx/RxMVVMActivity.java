@@ -8,13 +8,14 @@ import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
 
 import org.odk.collect.android.architecture.MVVMActivity;
+import org.odk.collect.android.architecture.MVVMViewModel;
 
 /**
  * A {@link MVVMActivity} subclass that provides RxLifecycle
  * methods for binding {@link io.reactivex.Observable}'s to
  * the Activity lifecycle.
  */
-public abstract class RxMVVMActivity extends MVVMActivity {
+public abstract class RxMVVMActivity<VM extends MVVMViewModel> extends MVVMActivity<VM> {
     private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
     private final LifecycleProvider<Lifecycle.Event> provider =
