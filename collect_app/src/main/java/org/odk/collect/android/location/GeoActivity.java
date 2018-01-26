@@ -139,10 +139,6 @@ public class GeoActivity
 
         // Bind MapViewModel:
 
-        mapViewModel.loadMap()
-                .compose(bindToLifecycle())
-                .subscribe(Rx::noop, Timber::e);
-
         mapViewModel.observeMarkedLocation()
                 .flatMapCompletable(viewModel::selectLocation)
                 .compose(bindToLifecycle())

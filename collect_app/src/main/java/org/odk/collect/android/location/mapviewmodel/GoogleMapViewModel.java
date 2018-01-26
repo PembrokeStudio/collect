@@ -1,5 +1,6 @@
 package org.odk.collect.android.location.mapviewmodel;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -11,58 +12,39 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.common.base.Optional;
 import com.jakewharton.rxrelay2.BehaviorRelay;
 
-import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.GeoActivity;
-import org.odk.collect.android.location.domain.LoadMap;
 import org.odk.collect.android.spatial.MapHelper;
 import org.odk.collect.android.utilities.Rx;
-
-import javax.inject.Inject;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
-@PerActivity
-public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
+public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClickListener,
+        GoogleMap.OnMarkerDragListener {
 
     @NonNull
-    private final GeoActivity geoActivity;
+    private final Context context;
 
     @NonNull
-    private final LoadMap loadMap;
+    private final GoogleMap googleMap;
+
+    private final boolean isDraggable;
 
     // Internal state:
-    @NonNull
-    private final BehaviorRelay<GoogleMap> mapRelay =
-            BehaviorRelay.create();
-
-    @NonNull
-    private final BehaviorRelay<Boolean> isDraggableRelay =
-            BehaviorRelay.createDefault(false);
-
     @NonNull
     private final BehaviorRelay<Optional<Marker>> markerRelay =
             BehaviorRelay.createDefault(Optional.absent());
 
     // Outputs:
     @NonNull
-    private final Observable<GoogleMap> observeMap =
-            mapRelay.hide();
-
-    @NonNull
-    private final Observable<Boolean> observeDraggable =
-            isDraggableRelay.hide();
-
-    @NonNull
     private final Observable<Optional<Marker>> observeMarker =
             markerRelay.hide();
 
-    @Inject
-    GoogleMapViewModel(@NonNull GeoActivity geoActivity,
-                       @NonNull LoadMap loadMap) {
-
-        this.geoActivity = geoActivity;
-        this.loadMap = loadMap;
+    GoogleMapViewModel(@NonNull Context context,
+                       @NonNull GoogleMap googleMap,
+                       boolean isDraggable) {
+        this.context = context;
+        this.googleMap = googleMap;
+        this.isDraggable = isDraggable;
     }
 
     @NonNull
@@ -86,21 +68,8 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
 
     @NonNull
     @Override
-    public Completable loadMap() {
-        return loadMap.load()
-                .doOnSuccess(googleMap -> {
-                    googleMap.setOnMapLongClickListener(this);
-                    googleMap.setOnMarkerDragListener(this);
-
-                    mapRelay.accept(googleMap);
-                })
-                .flatMapCompletable(__ -> Completable.complete());
-    }
-
-    @NonNull
-    @Override
     public Completable markLocation(@NonNull LatLng latLng) {
-        return observeMap.withLatestFrom(observeMarker, observeDraggable, (map, markerOptional, isDraggable) -> {
+        return observeMarker.firstOrError().map(markerOptional -> {
             Marker marker;
             if (markerOptional.isPresent()) {
                 marker = markerOptional.get();
@@ -109,7 +78,7 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
             } else {
                 MarkerOptions options = new MarkerOptions()
                         .position(latLng);
-                marker = map.addMarker(options);
+                marker = googleMap.addMarker(options);
             }
 
             marker.setDraggable(isDraggable);
@@ -138,20 +107,10 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
     @NonNull
     @Override
     public Completable zoomToLocation(@NonNull LatLng latLng) {
-        return observeMap.firstOrError()
-                .flatMapCompletable(googleMap -> {
-                    CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 16.0f);
-                    googleMap.animateCamera(update);
-
-                    return Completable.complete();
-                });
-    }
-
-    @NonNull
-    @Override
-    public Completable updateIsDraggable(boolean isDraggable) {
         return Completable.defer(() -> {
-            isDraggableRelay.accept(isDraggable);
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latLng, 16.0f);
+            googleMap.animateCamera(update);
+
             return Completable.complete();
         });
     }
@@ -159,8 +118,10 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
     @NonNull
     @Override
     public Completable showLayers() {
-        return observeMap.flatMapCompletable(googleMap -> {
-            new MapHelper(geoActivity, googleMap).showLayersDialog(geoActivity);
+        return Completable.defer(() -> {
+            new MapHelper(context, googleMap)
+                    .showLayersDialog(context);
+
             return Completable.complete();
         });
     }

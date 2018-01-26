@@ -17,10 +17,6 @@ public interface MapViewModel {
     Observable<Object> observeClearedLocation();
 
     // Inputs:
-
-    @NonNull
-    Completable loadMap();
-
     @NonNull
     Completable markLocation(@NonNull LatLng latLng);
 
@@ -29,9 +25,6 @@ public interface MapViewModel {
 
     @NonNull
     Completable zoomToLocation(@NonNull LatLng latLng);
-
-    @NonNull
-    Completable updateIsDraggable(boolean isDraggable);
 
     @NonNull
     Completable showLayers();
