@@ -83,7 +83,7 @@ public abstract class GeoActivityModule {
         double[] location = bundle.getDoubleArray(LOCATION);
         return location != null
                 ? new LatLng(location[0], location[1])
-                : null;
+                : new LatLng(0, 0);
     }
 
     @Provides

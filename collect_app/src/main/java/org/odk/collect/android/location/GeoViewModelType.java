@@ -36,27 +36,9 @@ public interface GeoViewModelType {
     @NonNull
     Observable<Boolean> isClearLocationEnabled();
 
-    @NonNull
-    Observable<Boolean> isDraggable();
-
     // Events:
     @NonNull
-    Observable<LatLng> onLocationAdded();
-
-    @NonNull
-    Observable<Object> onShowGpsAlert();
-
-    @NonNull
-    Observable<ZoomData> onShowZoomDialog();
-
-    @NonNull
-    Observable<Object> onShowLayers();
-
-    @NonNull
     Observable<Object> onLocationCleared();
-
-    @NonNull
-    Observable<LatLng> onInitialLocation();
 
     // Inputs:
     @NonNull

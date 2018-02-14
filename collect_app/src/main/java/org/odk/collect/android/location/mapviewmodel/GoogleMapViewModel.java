@@ -11,9 +11,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.common.base.Optional;
 import com.jakewharton.rxrelay2.BehaviorRelay;
+import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.odk.collect.android.spatial.MapHelper;
-import org.odk.collect.android.utilities.Rx;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -31,10 +31,17 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
 
     // Internal state:
     @NonNull
+    private final PublishRelay<Optional<LatLng>> markLocationRelay =
+            PublishRelay.create();
+
+    @NonNull
+    private final Observable<Optional<LatLng>> markLocation =
+            markLocationRelay.hide();
+
+    @NonNull
     private final BehaviorRelay<Optional<Marker>> markerRelay =
             BehaviorRelay.createDefault(Optional.absent());
 
-    // Outputs:
     @NonNull
     private final Observable<Optional<Marker>> observeMarker =
             markerRelay.hide();
@@ -43,49 +50,55 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
                               @NonNull GoogleMap googleMap,
                               boolean isDraggable) {
         this.context = context;
+
         this.googleMap = googleMap;
+        this.googleMap.setOnMarkerDragListener(this);
+        this.googleMap.setOnMapLongClickListener(this);
+
         this.isDraggable = isDraggable;
     }
 
     @NonNull
     @Override
-    public Observable<LatLng> observeMarkedLocation() {
-        return markerRelay
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(Marker::getPosition);
+    public Observable<Optional<LatLng>> observeMarkedLocation() {
+        return markLocation.withLatestFrom(observeMarker, (latLngOptional, markerOptional) -> {
+
+            if (latLngOptional.isPresent()) {
+                // Adding/updating location:
+                Marker marker;
+                if (markerOptional.isPresent()) {
+                    marker = markerOptional.get();
+                    marker.setPosition(latLngOptional.get());
+
+                } else {
+                    MarkerOptions options = new MarkerOptions()
+                            .position(latLngOptional.get());
+                    marker = googleMap.addMarker(options);
+                }
+
+                marker.setDraggable(isDraggable);
+                markerRelay.accept(Optional.of(marker));
+
+            } else {
+                // Removing location:
+                if (markerOptional.isPresent()) {
+                    Marker marker = markerOptional.get();
+                    marker.remove();
+                }
+
+                markerRelay.accept(Optional.absent());
+            }
+
+            return latLngOptional;
+        });
     }
 
-    @NonNull
-    @Override
-    public Observable<Object> observeClearedLocation() {
-        return markerRelay
-                .map(Optional::isPresent)
-                .filter(Rx::isFalse)
-                .skip(1)
-                .map(Rx::toEvent);
-    }
 
     @NonNull
     @Override
     public Completable markLocation(@NonNull LatLng latLng) {
-        return observeMarker.firstOrError().map(markerOptional -> {
-            Marker marker;
-            if (markerOptional.isPresent()) {
-                marker = markerOptional.get();
-                marker.setPosition(latLng);
-
-            } else {
-                MarkerOptions options = new MarkerOptions()
-                        .position(latLng);
-                marker = googleMap.addMarker(options);
-            }
-
-            marker.setDraggable(isDraggable);
-            return Optional.of(marker);
-
-        }).flatMapCompletable(markerOptional -> {
-            markerRelay.accept(markerOptional);
+        return Completable.defer(() -> {
+            mark(latLng);
             return Completable.complete();
         });
     }
@@ -93,15 +106,18 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
     @NonNull
     @Override
     public Completable clearMarkedLocation() {
-        return observeMarker.firstOrError()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .doOnSuccess(Marker::remove)
-                .map(__ -> Optional.<Marker>absent())
-                .flatMapCompletable(markerOptional -> {
-                    markerRelay.accept(markerOptional);
-                    return Completable.complete();
-                });
+        return Completable.defer(() -> {
+            clear();
+            return Completable.complete();
+        });
+    }
+
+    private void mark(@NonNull LatLng latLng) {
+        markLocationRelay.accept(Optional.of(latLng));
+    }
+
+    private void clear() {
+        markLocationRelay.accept(Optional.absent());
     }
 
     @NonNull
@@ -128,12 +144,14 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        markLocation(latLng);
+        if (isDraggable) {
+            mark(latLng);
+        }
     }
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
-        markerRelay.accept(Optional.of(marker));
+        mark(marker.getPosition());
     }
 
     @Override
