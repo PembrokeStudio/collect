@@ -38,6 +38,9 @@ public class GeoViewModel
 
     // Inputs:
     @NonNull
+    private final Context context;
+
+    @NonNull
     private final WatchPosition watchPosition;
 
     @NonNull
@@ -48,6 +51,9 @@ public class GeoViewModel
 
     @NonNull
     private final ShowGpsDisabledAlert showGpsDisabledAlert;
+
+    @NonNull
+    private final LocationFormatter locationFormatter;
 
     // Outputs:
     @NonNull
@@ -73,25 +79,19 @@ public class GeoViewModel
             selectedLocationRelay.hide();
 
     @NonNull
-    private final BehaviorRelay<Boolean> hasCurrentPosition = BehaviorRelay.createDefault(false);
+    private final BehaviorRelay<Optional<Location>> currentPositionRelay =
+            BehaviorRelay.createDefault(Optional.absent());
 
     @NonNull
-    private final Observable<Boolean> observeHasCurrentPosition = hasCurrentPosition.hide();
+    private final Observable<Optional<Location>> currentPosition =
+            currentPositionRelay.hide();
+
+    @NonNull
+    private final Observable<Boolean> hasCurrentPosition =
+            currentPosition.map(Optional::isPresent);
 
     @NonNull
     private final Observable<Boolean> hasSelectedLocation;
-
-    @NonNull
-    private final Observable<String> observeLocationInfoText;
-
-    @NonNull
-    private final Observable<String> observeLocationStatusText;
-
-    @NonNull
-    private final Observable<Integer> observeLocationInfoVisibility;
-
-    @NonNull
-    private final Observable<Integer> observeLocationStatusVisibility;
 
     @NonNull
     private final PublishRelay<Object> showLocation = PublishRelay.create();
@@ -131,6 +131,7 @@ public class GeoViewModel
 
     private final boolean isDraggable;
     private final boolean isReadOnly;
+    private final boolean hasInitialLocation;
 
     @Inject
     GeoViewModel(@NonNull Context context,
@@ -144,6 +145,7 @@ public class GeoViewModel
                  @Named("isReadOnly") boolean isReadOnly,
                  @Nullable LatLng initialLocation) {
 
+        this.context = context;
         this.watchPosition = watchPosition;
         this.loadMap = loadMap;
         this.zoomDialog = zoomDialog;
@@ -153,30 +155,11 @@ public class GeoViewModel
         this.initialLocation = initialLocation;
         this.isDraggable = isDraggable;
         this.isReadOnly = isReadOnly;
+        this.hasInitialLocation = initialLocation != null;
+
+        this.locationFormatter = locationFormatter;
 
         final boolean hasInitialLocation = initialLocation != null;
-
-        observeLocationInfoText = Observable.just(
-                isDraggable
-                        ? R.string.geopoint_instruction
-                        : R.string.geopoint_no_draggable_instruction)
-                .map(context::getString);
-
-        observeLocationInfoVisibility = hasBeenCleared.map(
-                wasCleared ->
-                        isReadOnly || (hasInitialLocation && !wasCleared)
-        ).map(shouldHide -> shouldHide ? View.GONE : View.VISIBLE);
-
-        observeLocationStatusText = watchPosition.observeLocation()
-                .map(currentLocation -> currentLocation.isPresent()
-                        ? locationFormatter.getStringForLocation(currentLocation.get())
-                        : context.getString(R.string.please_wait_long));
-
-        observeLocationStatusVisibility = hasBeenCleared.map(wasCleared ->
-                isReadOnly || (hasInitialLocation && !wasCleared)
-
-        ).map(shouldHide -> shouldHide ? View.GONE : View.VISIBLE);
-
 
         // Observe Location:
         hasSelectedLocation = observeSelectedLocation
@@ -207,26 +190,26 @@ public class GeoViewModel
                 .filter(zoomData -> !zoomData.isEmpty());
 
         isShowLocationEnabled = Observable.combineLatest(
-                observeHasCurrentPosition,
+                hasCurrentPosition,
                 hasSelectedLocation,
                 Rx::or
         );
 
-        Observable<LatLng> onFirstLocationNotInitial = observeHasCurrentPosition
+        Observable<LatLng> onFirstLocationNotInitial = hasCurrentPosition
+                .doOnNext(__ -> Timber.i("onFirst not initial."))
                 .filter(Rx::isTrue)
                 .distinctUntilChanged()
-                .flatMapSingle(__ -> watchPosition.currentLocation())
+                .flatMap(__ -> currentPosition)
+                .doOnNext(__ -> Timber.i("Checking should mark."))
                 .filter(__ -> !isDraggable && !hasInitialLocation && !isReadOnly)
+                .doOnNext(__ -> Timber.i("Should mark."))
                 .map(Optional::get)
                 .map(this::locationToLatLng);
 
-        Observable<LatLng> onInitialLocation = hasInitialLocation
-                ? Observable.just(initialLocation)
-                : Observable.empty();
 
         @SuppressWarnings("unchecked")
         Observable<LatLng> shouldMarkInitialLocation = Observable.ambArray(
-                onInitialLocation,
+                onInitialLocation(),
                 onFirstLocationNotInitial
         );
 
@@ -239,10 +222,11 @@ public class GeoViewModel
     @Override
     protected void onCreate() {
         super.onCreate();
+
         watchPosition.observeLocation()
-                .map(Optional::isPresent)
+                .filter(Optional::isPresent)
                 .compose(bindToLifecycle())
-                .subscribe(hasCurrentPosition, Timber::e);
+                .subscribe(currentPositionRelay, Timber::e);
 
         loadMap.load()
                 .compose(bindToLifecycle())
@@ -292,25 +276,35 @@ public class GeoViewModel
     @NonNull
     @Override
     public Observable<String> locationInfoText() {
-        return observeLocationInfoText;
+        return Observable.just(isDraggable ? R.string.geopoint_instruction : R.string.geopoint_no_draggable_instruction)
+                .map(context::getString);
     }
 
     @NonNull
     @Override
     public Observable<String> locationStatusText() {
-        return observeLocationStatusText;
+        return watchPosition.observeLocation()
+                .map(currentLocation -> currentLocation.isPresent()
+                        ? locationFormatter.getStringForLocation(currentLocation.get())
+                        : context.getString(R.string.please_wait_long));
     }
 
     @NonNull
     @Override
     public Observable<Integer> locationInfoVisibility() {
-        return observeLocationInfoVisibility;
+        return hasBeenCleared.map(
+                wasCleared ->
+                        isReadOnly || (hasInitialLocation && !wasCleared)
+        ).map(shouldHide -> shouldHide ? View.GONE : View.VISIBLE);
     }
 
     @NonNull
     @Override
     public Observable<Integer> locationStatusVisibility() {
-        return observeLocationStatusVisibility;
+        return hasBeenCleared.map(wasCleared ->
+                isReadOnly || (hasInitialLocation && !wasCleared)
+
+        ).map(shouldHide -> shouldHide ? View.GONE : View.VISIBLE);
     }
 
     @NonNull
@@ -322,7 +316,7 @@ public class GeoViewModel
     @NonNull
     @Override
     public Observable<Boolean> isAddLocationEnabled() {
-        return observeHasCurrentPosition.map(hasCurrentPosition ->
+        return hasCurrentPosition.map(hasCurrentPosition ->
                 !isReadOnly && hasCurrentPosition
         );
     }
@@ -338,7 +332,7 @@ public class GeoViewModel
     public Observable<Boolean> isClearLocationEnabled() {
 
         return hasSelectedLocation.map(hasSelectedLocation ->
-                !isReadOnly && (hasInitialLocation() || hasSelectedLocation)
+                !isReadOnly && (hasInitialLocation || hasSelectedLocation)
         );
     }
 
@@ -445,17 +439,17 @@ public class GeoViewModel
     @Override
     public Completable selectLocation(@NonNull LatLng latLng) {
         return Completable.defer(() -> {
-                    if (isReadOnly) {
-                        if (initialLocation != null && initialLocation.equals(latLng)) {
-                            selectedLocationRelay.accept(Optional.of(latLng));
-                        }
-
-                        return Completable.complete();
-                    }
-
+            if (isReadOnly) {
+                if (initialLocation != null && initialLocation.equals(latLng)) {
                     selectedLocationRelay.accept(Optional.of(latLng));
-                    return Completable.complete();
-                });
+                }
+
+                return Completable.complete();
+            }
+
+            selectedLocationRelay.accept(Optional.of(latLng));
+            return Completable.complete();
+        });
     }
 
     @NonNull
@@ -478,18 +472,12 @@ public class GeoViewModel
     @Override
     public Observable<Object> watchLocation() {
         return Observable.never()
-                .doOnSubscribe(__ -> Timber.i("Watching location."))
                 .doOnSubscribe(__ -> watchPosition.startWatching())
-                .doOnDispose(() -> Timber.i("Stopping location."))
                 .doOnDispose(watchPosition::stopWatching);
     }
 
     @NonNull
     private LatLng locationToLatLng(@NonNull Location location) {
         return new LatLng(location.getLatitude(), location.getLongitude());
-    }
-
-    private boolean hasInitialLocation() {
-        return initialLocation != null;
     }
 }
