@@ -15,6 +15,7 @@ import org.odk.collect.android.R;
 import org.odk.collect.android.architecture.rx.RxViewModel;
 import org.odk.collect.android.location.domain.LoadMap;
 import org.odk.collect.android.location.domain.LocationFormatter;
+import org.odk.collect.android.location.domain.SaveAnswer;
 import org.odk.collect.android.location.domain.ShowGpsDisabledAlert;
 import org.odk.collect.android.location.domain.WatchPosition;
 import org.odk.collect.android.location.domain.ZoomDialog;
@@ -56,7 +57,7 @@ public class GeoViewModel
     private final LocationFormatter locationFormatter;
 
     @NonNull
-    private final Observable<Object> shouldShowGpsAlert;
+    private final SaveAnswer saveAnswer;
 
     // Variables:
 
@@ -75,9 +76,6 @@ public class GeoViewModel
     @NonNull
     private final Observable<Optional<Location>> currentPosition =
             currentPositionRelay.hide();
-
-    @NonNull
-    private final Observable<Boolean> hasSelectedLocation;
 
     @NonNull
     private final PublishRelay<Object> showLocation = PublishRelay.create();
@@ -123,6 +121,7 @@ public class GeoViewModel
                  @NonNull LocationFormatter locationFormatter,
                  @NonNull ZoomDialog zoomDialog,
                  @NonNull ShowGpsDisabledAlert showGpsDisabledAlert,
+                 @NonNull SaveAnswer saveAnswer,
                  @NonNull MapFunction mapFunction,
                  @Named("isDraggable") boolean isDraggable,
                  @Named("isReadOnly") boolean isReadOnly,
@@ -133,6 +132,7 @@ public class GeoViewModel
         this.loadMap = loadMap;
         this.zoomDialog = zoomDialog;
         this.showGpsDisabledAlert = showGpsDisabledAlert;
+        this.saveAnswer = saveAnswer;
         this.mapFunction = mapFunction;
 
         this.initialLocation = initialLocation;
@@ -141,15 +141,6 @@ public class GeoViewModel
         this.hasInitialLocation = initialLocation != null;
 
         this.locationFormatter = locationFormatter;
-
-        // Observe Location:
-        hasSelectedLocation = selectedLocation
-                .map(Optional::isPresent)
-                .distinctUntilChanged();
-
-        shouldShowGpsAlert = watchPosition.observeAvailability()
-                .filter(isAvailable -> !isAvailable)
-                .map(__ -> this);
     }
 
     @Override
@@ -159,7 +150,6 @@ public class GeoViewModel
         watchPosition.observeLocation()
                 .filter(Optional::isPresent)
                 .compose(bindToLifecycle())
-                .doOnNext(__ -> Timber.i("Log"))
                 .subscribe(currentPositionRelay, Timber::e);
 
         loadMap.load()
@@ -173,17 +163,14 @@ public class GeoViewModel
         currentPosition
                 .map(Optional::isPresent)
                 .filter(Rx::isTrue)
-                .doOnNext(aBoolean -> Timber.i("is: %s", aBoolean))
                 .distinctUntilChanged()
-                .doOnNext(aBoolean -> Timber.i("still is: %s", aBoolean))
                 .flatMapSingle(__ -> currentPosition.firstOrError())
                 .filter(__ -> !isDraggable && !hasInitialLocation && !isReadOnly)
-                .doOnNext(__ -> Timber.i("Should mark."))
                 .map(Optional::get)
                 .map(this::locationToLatLng)
                 .subscribe(shouldMarkLocationRelay, Timber::e);
 
-        Observable<Object> shouldZoomOnFirstLocation = hasSelectedLocation
+        Observable<Object> shouldZoomOnFirstLocation = hasSelectedLocation()
                 .filter(Rx::isTrue)
                 .distinctUntilChanged()
                 .map(Rx::toEvent)
@@ -201,19 +188,23 @@ public class GeoViewModel
                 .compose(bindToLifecycle())
                 .subscribe(zoomDialog::show, Timber::e);
 
-
-        shouldShowGpsAlert.compose(bindToLifecycle())
+        watchPosition.observeAvailability()
+                .filter(isAvailable -> !isAvailable)
+                .compose(bindToLifecycle())
                 .subscribe(showGpsDisabledAlert::show, Timber::e);
     }
 
     private void bindMapViewModel(@NonNull MapViewModel mapViewModel) {
         mapViewModel.observeMarkedLocation()
-                .flatMapCompletable(markedLocation -> markedLocation.isPresent()
-                        ? selectLocation(markedLocation.get())
-                        : clearSelectedLocation()
-                )
                 .compose(bindToLifecycle())
-                .subscribe(Rx::noop, Timber::e);
+                .subscribe(markedLocation -> {
+                    if (markedLocation.isPresent()) {
+                        selectLocation(markedLocation.get());
+                    } else {
+                        clearSelectedLocation();
+                    }
+
+                }, Timber::e);
 
         Observable.merge(
                 initialLocation != null
@@ -229,7 +220,7 @@ public class GeoViewModel
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
 
-        onLocationCleared()
+        onClearLocation
                 .flatMapCompletable(__ -> mapViewModel.clearMarkedLocation())
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
@@ -294,7 +285,7 @@ public class GeoViewModel
     public Observable<Boolean> isShowLocationEnabled() {
         return Observable.combineLatest(
                 currentPosition.map(Optional::isPresent),
-                hasSelectedLocation,
+                hasSelectedLocation(),
                 Rx::or
         );
     }
@@ -303,18 +294,10 @@ public class GeoViewModel
     @Override
     public Observable<Boolean> isClearLocationEnabled() {
 
-        return hasSelectedLocation.map(hasSelectedLocation ->
+        return hasSelectedLocation().map(hasSelectedLocation ->
                 !isReadOnly && (hasInitialLocation || hasSelectedLocation)
         );
     }
-
-    @NonNull
-    @Override
-    public Observable<Object> onLocationCleared() {
-        return onClearLocation;
-    }
-
-    // Inputs:
 
     @NonNull
     @Override
@@ -370,35 +353,17 @@ public class GeoViewModel
 
     @NonNull
     @Override
-    public Completable selectLocation(@NonNull LatLng latLng) {
-        return Completable.defer(() -> {
-            if (isReadOnly) {
-                if (initialLocation != null && initialLocation.equals(latLng)) {
-                    selectedLocationRelay.accept(Optional.of(latLng));
-                }
-
-                return Completable.complete();
+    public Completable saveLocation() {
+        return selectedLocation.flatMapCompletable(latLngOptional -> {
+            String answer = "";
+            if (latLngOptional.isPresent()) {
+                LatLng latLng = latLngOptional.get();
+                answer = latLng.latitude + " " + latLng.longitude + " "
+                        + 0 + " " + 0;
             }
 
-            selectedLocationRelay.accept(Optional.of(latLng));
-            return Completable.complete();
+            return saveAnswer.save(answer);
         });
-    }
-
-    @NonNull
-    @Override
-    public Completable clearSelectedLocation() {
-        return Completable.defer(() -> {
-            selectedLocationRelay.accept(Optional.absent());
-            hasBeenCleared.accept(true);
-            return Completable.complete();
-        });
-    }
-
-    @NonNull
-    @Override
-    public Single<String> saveLocation() {
-        return Single.just("");
     }
 
     @NonNull
@@ -407,6 +372,33 @@ public class GeoViewModel
         return Observable.never()
                 .doOnSubscribe(__ -> watchPosition.startWatching())
                 .doOnDispose(watchPosition::stopWatching);
+    }
+
+    Observable<Optional<LatLng>> selectedLocation() {
+        return selectedLocation;
+    }
+
+    Observable<Boolean> hasSelectedLocation() {
+        return selectedLocation()
+                .map(Optional::isPresent)
+                .distinctUntilChanged();
+    }
+
+    private void selectLocation(@NonNull LatLng latLng) {
+        if (isReadOnly) {
+            if (initialLocation != null && initialLocation.equals(latLng)) {
+                selectedLocationRelay.accept(Optional.of(latLng));
+            }
+
+            return;
+        }
+
+        selectedLocationRelay.accept(Optional.of(latLng));
+    }
+
+    private void clearSelectedLocation() {
+        selectedLocationRelay.accept(Optional.absent());
+        hasBeenCleared.accept(true);
     }
 
     @NonNull

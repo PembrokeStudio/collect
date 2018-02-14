@@ -8,10 +8,7 @@ import android.widget.TextView;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.architecture.rx.RxViewModelActivity;
-import org.odk.collect.android.location.domain.SaveAnswer;
 import org.odk.collect.android.utilities.Rx;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -22,10 +19,6 @@ public class GeoActivity
 
     public static final String MAP_TYPE = "map_type";
     public static final String MAP_FUNCTION = "map_function";
-
-    // Use cases:
-    @Inject
-    protected SaveAnswer saveAnswer;
 
     // Outputs:
     @BindView(R.id.location_info)
@@ -142,7 +135,7 @@ public class GeoActivity
     protected void onSaveClick() {
         getViewModel().saveLocation()
                 .compose(bindToLifecycle())
-                .subscribe(saveAnswer::save, Timber::e);
+                .subscribe(Rx::noop, Timber::e);
     }
 
     @Override

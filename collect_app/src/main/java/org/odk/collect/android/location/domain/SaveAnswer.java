@@ -10,6 +10,8 @@ import org.odk.collect.android.location.GeoActivity;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
+
 import static android.app.Activity.RESULT_OK;
 
 @PerActivity
@@ -25,13 +27,17 @@ public class SaveAnswer {
         this.activity = activity;
     }
 
-    public void save(@NonNull String answer) {
-        activityLogger.logInstanceAction(activity, "acceptLocation", "OK");
+    public Completable save(@NonNull String answer) {
+        return Completable.defer(() -> {
+            activityLogger.logInstanceAction(activity, "acceptLocation", "OK");
 
-        Intent i = new Intent();
-        i.putExtra(FormEntryActivity.LOCATION_RESULT, answer);
+            Intent i = new Intent();
+            i.putExtra(FormEntryActivity.LOCATION_RESULT, answer);
 
-        activity.setResult(RESULT_OK, i);
-        activity.finish();
+            activity.setResult(RESULT_OK, i);
+            activity.finish();
+
+            return Completable.complete();
+        });
     }
 }

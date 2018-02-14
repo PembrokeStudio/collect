@@ -4,11 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import org.odk.collect.android.location.model.ZoomData;
-
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 
 public interface GeoViewModelType {
     // UI State
@@ -36,10 +33,6 @@ public interface GeoViewModelType {
     @NonNull
     Observable<Boolean> isClearLocationEnabled();
 
-    // Events:
-    @NonNull
-    Observable<Object> onLocationCleared();
-
     // Inputs:
     @NonNull
     Completable addLocation();
@@ -57,13 +50,7 @@ public interface GeoViewModelType {
     Completable clearLocation();
 
     @NonNull
-    Completable selectLocation(@NonNull LatLng latLng);
-
-    @NonNull
-    Completable clearSelectedLocation();
-
-    @NonNull
-    Single<String> saveLocation();
+    Completable saveLocation();
 
     @NonNull
     Observable<Object> watchLocation();
