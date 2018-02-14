@@ -1,26 +1,37 @@
 package org.odk.collect.android.location.injection;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.common.base.Optional;
 
 import org.odk.collect.android.injection.ActivityModule;
 import org.odk.collect.android.injection.scopes.PerActivity;
 import org.odk.collect.android.location.GeoActivity;
 import org.odk.collect.android.location.client.LocationClient;
 import org.odk.collect.android.location.client.LocationClients;
-import org.odk.collect.android.location.mapviewmodel.GoogleMapViewModel;
-import org.odk.collect.android.location.mapviewmodel.MapViewModel;
+import org.odk.collect.android.location.model.MapFunction;
+import org.odk.collect.android.location.model.MapType;
 
 import java.text.DecimalFormat;
+
+import javax.inject.Named;
 
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.odk.collect.android.widgets.GeoPointWidget.DRAGGABLE_ONLY;
+import static org.odk.collect.android.widgets.GeoPointWidget.LOCATION;
+import static org.odk.collect.android.widgets.GeoPointWidget.READ_ONLY;
+
 @Module(includes = ActivityModule.class)
 public abstract class GeoActivityModule {
-
     @Binds
     abstract FragmentActivity provideFragmentActivity(GeoActivity geoActivity);
 
@@ -38,8 +49,59 @@ public abstract class GeoActivityModule {
 
     @Provides
     @PerActivity
-    static MapViewModel provideMapViewModel(GoogleMapViewModel googleMapViewModel) {
-        return googleMapViewModel;
+    @Named("extras")
+    static Bundle provideExtras(@NonNull GeoActivity geoActivity) {
+        Intent intent = geoActivity.getIntent();
+        if (intent == null) {
+            return Bundle.EMPTY;
+        }
+
+        Bundle extras = intent.getExtras();
+        return extras != null
+                ? extras
+                : Bundle.EMPTY;
+    }
+
+    @Provides
+    @PerActivity
+    @Named("isDraggable")
+    static boolean provideIsDraggable(@NonNull @Named("extras") Bundle bundle) {
+        return bundle.getBoolean(DRAGGABLE_ONLY, false);
+    }
+
+    @Provides
+    @PerActivity
+    @Named("isReadOnly")
+    static boolean isReadOnly(@NonNull @Named("extras") Bundle bundle) {
+        return bundle.getBoolean(READ_ONLY, false);
+    }
+
+    @Provides
+    @PerActivity
+    @Nullable
+    static LatLng initialLocation(@NonNull @Named("extras") Bundle bundle) {
+        double[] location = bundle.getDoubleArray(LOCATION);
+        return location != null
+                ? new LatLng(location[0], location[1])
+                : null;
+    }
+
+    @Provides
+    @PerActivity
+    static MapType provideMapType(@NonNull @Named("extras") Bundle bundle) {
+        MapType mapType = (MapType) bundle.get(GeoActivity.MAP_TYPE);
+        return mapType != null
+                ? mapType
+                : MapType.GOOGLE;
+    }
+
+    @Provides
+    @PerActivity
+    static MapFunction provideMapFunction(@NonNull @Named("extras") Bundle bundle) {
+        MapFunction mapFunction = (MapFunction) bundle.get(GeoActivity.MAP_FUNCTION);
+        return mapFunction != null
+                ? mapFunction
+                : MapFunction.TRACE;
     }
 
     @Provides

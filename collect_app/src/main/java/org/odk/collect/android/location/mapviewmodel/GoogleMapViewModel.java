@@ -39,9 +39,9 @@ public class GoogleMapViewModel implements MapViewModel, GoogleMap.OnMapLongClic
     private final Observable<Optional<Marker>> observeMarker =
             markerRelay.hide();
 
-    GoogleMapViewModel(@NonNull Context context,
-                       @NonNull GoogleMap googleMap,
-                       boolean isDraggable) {
+    public GoogleMapViewModel(@NonNull Context context,
+                              @NonNull GoogleMap googleMap,
+                              boolean isDraggable) {
         this.context = context;
         this.googleMap = googleMap;
         this.isDraggable = isDraggable;
