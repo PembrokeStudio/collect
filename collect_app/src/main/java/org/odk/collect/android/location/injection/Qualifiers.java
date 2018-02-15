@@ -24,4 +24,16 @@ public class Qualifiers {
     public @interface Extras {
 
     }
+
+    @Qualifier
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface InitialLocation {
+
+    }
+
+    @Qualifier
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface HasInitialLocation {
+
+    }
 }

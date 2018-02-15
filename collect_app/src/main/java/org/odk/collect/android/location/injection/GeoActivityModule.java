@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.common.base.Optional;
 
 import org.odk.collect.android.injection.ActivityModule;
 import org.odk.collect.android.injection.scopes.PerActivity;
@@ -16,14 +15,14 @@ import org.odk.collect.android.location.GeoActivity;
 import org.odk.collect.android.location.client.LocationClient;
 import org.odk.collect.android.location.client.LocationClients;
 import org.odk.collect.android.location.injection.Qualifiers.Extras;
+import org.odk.collect.android.location.injection.Qualifiers.HasInitialLocation;
+import org.odk.collect.android.location.injection.Qualifiers.InitialLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.MapType;
 
 import java.text.DecimalFormat;
-
-import javax.inject.Named;
 
 import dagger.Binds;
 import dagger.Module;
@@ -69,7 +68,7 @@ public abstract class GeoActivityModule {
     @PerActivity
     @IsDraggable
     static boolean provideIsDraggable(@Extras @NonNull Bundle bundle) {
-        return bundle.getBoolean(DRAGGABLE_ONLY, false);
+        return bundle.getBoolean(DRAGGABLE_ONLY, true);
     }
 
     @Provides
@@ -81,12 +80,20 @@ public abstract class GeoActivityModule {
 
     @Provides
     @PerActivity
+    @InitialLocation
     @Nullable
     static LatLng initialLocation(@Extras @NonNull Bundle bundle) {
         double[] location = bundle.getDoubleArray(LOCATION);
         return location != null
                 ? new LatLng(location[0], location[1])
-                : null;
+                : new LatLng(0, 0);
+    }
+
+    @Provides
+    @PerActivity
+    @HasInitialLocation
+    static boolean hasInitialLocation(@InitialLocation @Nullable LatLng location) {
+        return location != null;
     }
 
     @Provides
@@ -104,7 +111,7 @@ public abstract class GeoActivityModule {
         MapFunction mapFunction = (MapFunction) bundle.get(GeoActivity.MAP_FUNCTION);
         return mapFunction != null
                 ? mapFunction
-                : MapFunction.TRACE;
+                : MapFunction.POINT;
     }
 
     @Provides

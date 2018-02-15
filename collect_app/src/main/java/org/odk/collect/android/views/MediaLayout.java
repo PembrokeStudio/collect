@@ -349,14 +349,14 @@ public class MediaLayout extends RelativeLayout implements OnClickListener {
             }
             imageParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         } else {
-            // We have a non-blank observe label -- image is below the observe.
+            // We have a non-blank observeText label -- image is below the observeText.
             // In this case, we want the image to be centered...
             if (imageView != null) {
                 imageView.setScaleType(ScaleType.FIT_START);
             }
             //
             // Text upper left; audio upper right; video below audio on right.
-            // image below observe, audio and video buttons; left-aligned with observe.
+            // image below observeText, audio and video buttons; left-aligned with observeText.
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
             if (audioButton != null && videoButton == null) {

@@ -79,7 +79,7 @@ public final class WebUtils {
     private static final String OPEN_ROSA_VERSION = "1.0";
     private static final String DATE_HEADER = "Date";
 
-    private static final String HTTP_CONTENT_TYPE_TEXT_XML = "observe/xml";
+    private static final String HTTP_CONTENT_TYPE_TEXT_XML = "observeText/xml";
     public static final int CONNECTION_TIMEOUT = 30000;
 
     public static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
@@ -325,7 +325,7 @@ public final class WebUtils {
                         + entity.getContentType().getValue()
                         + " returned from: "
                         + u.toString()
-                        + " is not observe/xml.  This is often caused a network proxy.  Do you need "
+                        + " is not observeText/xml.  This is often caused a network proxy.  Do you need "
                         + "to login to your network?";
                 Timber.e(error);
                 return new DocumentFetchResult(error, 0);

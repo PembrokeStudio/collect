@@ -149,7 +149,7 @@ public class ExternalSQLiteOpenHelper extends SQLiteOpenHelper {
                     sortColumnAlreadyPresent = true;
                     sb.append(safeColumnName).append(" real ");
                 } else {
-                    sb.append(safeColumnName).append(" observe collate nocase ");
+                    sb.append(safeColumnName).append(" observeText collate nocase ");
                 }
             }
             if (!sortColumnAlreadyPresent) {

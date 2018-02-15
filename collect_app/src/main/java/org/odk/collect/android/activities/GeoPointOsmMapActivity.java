@@ -252,7 +252,7 @@ public class GeoPointOsmMapActivity extends FragmentActivity implements Location
                 draggable = intent.getBooleanExtra(GeoPointWidget.DRAGGABLE_ONLY, false);
                 intentDraggable = draggable;
                 if (!intentDraggable) {
-                    // Not Draggable, set observe for Map else leave as placement-map observe
+                    // Not Draggable, set observeText for Map else leave as placement-map observeText
                     locationInfo.setText(getString(R.string.geopoint_no_draggable_instruction));
                 }
             }

@@ -93,14 +93,14 @@ public final class ActivityLogger {
             "create table " + DATABASE_TABLE + " ("
                     + ID + " integer primary key autoincrement, "
                     + TIMESTAMP + " integer not null, "
-                    + DEVICEID + " observe not null, "
-                    + CLASS + " observe not null, "
-                    + CONTEXT + " observe not null, "
-                    + ACTION + " observe, "
-                    + INSTANCE_PATH + " observe, "
-                    + QUESTION + " observe, "
-                    + PARAM1 + " observe, "
-                    + PARAM2 + " observe);";
+                    + DEVICEID + " observeText not null, "
+                    + CLASS + " observeText not null, "
+                    + CONTEXT + " observeText not null, "
+                    + ACTION + " observeText, "
+                    + INSTANCE_PATH + " observeText, "
+                    + QUESTION + " observeText, "
+                    + PARAM1 + " observeText, "
+                    + PARAM2 + " observeText);";
 
     private final boolean loggingEnabled;
     private final String deviceId;

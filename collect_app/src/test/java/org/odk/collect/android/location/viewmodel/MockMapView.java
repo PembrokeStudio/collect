@@ -6,7 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.common.base.Optional;
 import com.jakewharton.rxrelay2.BehaviorRelay;
 
-import org.odk.collect.android.location.mapviewmodel.MapViewModel;
+import org.odk.collect.android.location.mapviewmodel.MapView;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -15,14 +15,20 @@ import io.reactivex.Observable;
  * @author James Knight
  */
 
-public class MockMapViewModel implements MapViewModel {
+public class MockMapView implements MapView {
     private BehaviorRelay<Optional<LatLng>> markedLocation =
             BehaviorRelay.createDefault(Optional.absent());
 
     @NonNull
     @Override
-    public Observable<Optional<LatLng>> observeMarkedLocation() {
-        return markedLocation.hide();
+    public Observable<LatLng> observeLongPress() {
+        return null;
+    }
+
+    @NonNull
+    @Override
+    public Observable<LatLng> observeMarkerMoved() {
+        return null;
     }
 
     @NonNull
@@ -32,11 +38,9 @@ public class MockMapViewModel implements MapViewModel {
         return Completable.complete();
     }
 
-    @NonNull
     @Override
-    public Completable clearMarkedLocation() {
-        markedLocation.accept(Optional.absent());
-        return Completable.complete();
+    public Completable clearLocation() {
+        return null;
     }
 
     @NonNull

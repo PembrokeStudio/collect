@@ -3,6 +3,7 @@ package org.odk.collect.android.location;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.common.base.Optional;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -33,6 +34,15 @@ public interface GeoViewModelType {
     @NonNull
     Observable<Boolean> isClearLocationEnabled();
 
+    @NonNull
+    Observable<LatLng> locationSelected();
+
+    @NonNull
+    Observable<Object> locationCleared();
+
+    @NonNull
+    Observable<LatLng> shouldZoomToLocation();
+
     // Inputs:
     @NonNull
     Completable addLocation();
@@ -44,13 +54,16 @@ public interface GeoViewModelType {
     Completable showLocation();
 
     @NonNull
-    Completable showLayers();
-
-    @NonNull
     Completable clearLocation();
 
     @NonNull
     Completable saveLocation();
+
+    @NonNull
+    Completable mapLongPressed(@NonNull LatLng latLng);
+
+    @NonNull
+    Completable markerMoved(@NonNull LatLng latLng);
 
     @NonNull
     Observable<Object> watchLocation();

@@ -31,8 +31,8 @@ public class ItemsetDbAdapter {
 
     private static final String CREATE_ITEMSET_TABLE =
             "create table " + ITEMSET_TABLE + " (_id integer primary key autoincrement, "
-                    + KEY_ITEMSET_HASH + " observe, "
-                    + KEY_PATH + " observe "
+                    + KEY_ITEMSET_HASH + " observeText, "
+                    + KEY_PATH + " observeText "
                     + ");";
 
     /**
@@ -109,7 +109,7 @@ public class ItemsetDbAdapter {
                 sb
                         .append(" , \"")
                         .append(column)
-                        .append("\" observe ");
+                        .append("\" observeText ");
                 // create database with first line
             }
         }
