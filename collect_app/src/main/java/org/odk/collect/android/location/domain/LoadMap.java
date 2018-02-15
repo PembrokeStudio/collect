@@ -8,6 +8,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import org.odk.collect.android.R;
 import org.odk.collect.android.injection.scopes.PerActivity;
 import org.odk.collect.android.location.GeoActivity;
+import org.odk.collect.android.location.injection.Qualifiers;
+import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.location.mapviewmodel.GoogleMapViewModel;
 import org.odk.collect.android.location.mapviewmodel.MapViewModel;
 import org.odk.collect.android.spatial.MapHelper;
@@ -35,7 +37,7 @@ public class LoadMap {
     LoadMap(@NonNull GeoActivity activity,
             @NonNull FragmentManager fragmentManager,
             @NonNull SupportMapFragment mapFragment,
-            @Named("isDraggable") boolean isDraggable) {
+            @IsDraggable boolean isDraggable) {
 
         this.activity = activity;
         this.fragmentManager = fragmentManager;

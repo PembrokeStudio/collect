@@ -111,7 +111,7 @@ public class FormsDatabaseHelper extends SQLiteOpenHelper {
         boolean success = true;
         try {
             // adding BASE64_RSA_PUBLIC_KEY and changing type and name of
-            // integer MODEL_VERSION to text VERSION
+            // integer MODEL_VERSION to observe VERSION
             db.execSQL("DROP TABLE IF EXISTS " + TEMP_FORMS_TABLE_NAME);
             createFormsTable(db, TEMP_FORMS_TABLE_NAME);
             db.execSQL("INSERT INTO "
@@ -238,22 +238,22 @@ public class FormsDatabaseHelper extends SQLiteOpenHelper {
     private void createFormsTable(SQLiteDatabase db, String tableName) {
         db.execSQL("CREATE TABLE " + tableName + " (" + FormsProviderAPI.FormsColumns._ID
                 + " integer primary key, " + FormsProviderAPI.FormsColumns.DISPLAY_NAME
-                + " text not null, " + FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT
-                + " text not null, " + FormsProviderAPI.FormsColumns.DESCRIPTION
-                + " text, "
+                + " observe not null, " + FormsProviderAPI.FormsColumns.DISPLAY_SUBTEXT
+                + " observe not null, " + FormsProviderAPI.FormsColumns.DESCRIPTION
+                + " observe, "
                 + FormsProviderAPI.FormsColumns.JR_FORM_ID
-                + " text not null, "
+                + " observe not null, "
                 + FormsProviderAPI.FormsColumns.JR_VERSION
-                + " text, "
+                + " observe, "
                 + FormsProviderAPI.FormsColumns.MD5_HASH
-                + " text not null, "
+                + " observe not null, "
                 + FormsProviderAPI.FormsColumns.DATE
                 + " integer not null, " // milliseconds
-                + FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH + " text not null, "
-                + FormsProviderAPI.FormsColumns.FORM_FILE_PATH + " text not null, "
-                + FormsProviderAPI.FormsColumns.LANGUAGE + " text, "
-                + FormsProviderAPI.FormsColumns.SUBMISSION_URI + " text, "
-                + FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY + " text, "
-                + FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH + " text not null);");
+                + FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH + " observe not null, "
+                + FormsProviderAPI.FormsColumns.FORM_FILE_PATH + " observe not null, "
+                + FormsProviderAPI.FormsColumns.LANGUAGE + " observe, "
+                + FormsProviderAPI.FormsColumns.SUBMISSION_URI + " observe, "
+                + FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY + " observe, "
+                + FormsProviderAPI.FormsColumns.JRCACHE_FILE_PATH + " observe not null);");
     }
 }

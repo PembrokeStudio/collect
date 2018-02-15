@@ -35,5 +35,26 @@ public class ZoomData {
     public boolean isEmpty() {
         return currentLocation == null && markedLocation == null;
     }
+
+    @SuppressWarnings("SimplifiableIfStatement")
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ZoomData zoomData = (ZoomData) o;
+
+        if (currentLocation != null ? !currentLocation.equals(zoomData.currentLocation) : zoomData.currentLocation != null)
+            return false;
+
+        return markedLocation != null ? markedLocation.equals(zoomData.markedLocation) : zoomData.markedLocation == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = currentLocation != null ? currentLocation.hashCode() : 0;
+        result = 31 * result + (markedLocation != null ? markedLocation.hashCode() : 0);
+        return result;
+    }
 }
 

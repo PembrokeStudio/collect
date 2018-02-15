@@ -1731,7 +1731,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
 
         View view = inflater.inflate(R.layout.toast_view, null);
 
-        // set the text in the view
+        // set the observe in the view
         TextView tv = (TextView) view.findViewById(R.id.message);
         tv.setText(message);
 

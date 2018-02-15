@@ -19,6 +19,9 @@ import org.odk.collect.android.location.domain.SaveAnswer;
 import org.odk.collect.android.location.domain.ShowGpsDisabledAlert;
 import org.odk.collect.android.location.domain.WatchPosition;
 import org.odk.collect.android.location.domain.ZoomDialog;
+import org.odk.collect.android.location.injection.Qualifiers;
+import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
+import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 import org.odk.collect.android.location.mapviewmodel.MapViewModel;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.ZoomData;
@@ -123,8 +126,8 @@ public class GeoViewModel
                  @NonNull ShowGpsDisabledAlert showGpsDisabledAlert,
                  @NonNull SaveAnswer saveAnswer,
                  @NonNull MapFunction mapFunction,
-                 @Named("isDraggable") boolean isDraggable,
-                 @Named("isReadOnly") boolean isReadOnly,
+                 @IsDraggable boolean isDraggable,
+                 @IsReadOnly boolean isReadOnly,
                  @Nullable LatLng initialLocation) {
 
         this.context = context;
@@ -234,17 +237,13 @@ public class GeoViewModel
     @NonNull
     @Override
     public Observable<String> locationInfoText() {
-        return Observable.just(isDraggable ? R.string.geopoint_instruction : R.string.geopoint_no_draggable_instruction)
-                .map(context::getString);
+        return
     }
 
     @NonNull
     @Override
     public Observable<String> locationStatusText() {
-        return watchPosition.observeLocation()
-                .map(currentLocation -> currentLocation.isPresent()
-                        ? locationFormatter.getStringForLocation(currentLocation.get())
-                        : context.getString(R.string.please_wait_long));
+        return
     }
 
     @NonNull

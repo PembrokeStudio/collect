@@ -1,5 +1,6 @@
 package org.odk.collect.android.location;
 
+import android.location.Location;
 import android.support.annotation.Nullable;
 import android.view.View;
 
@@ -7,6 +8,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.common.base.Optional;
 
 import org.junit.Test;
+import org.odk.collect.android.location.model.ZoomData;
+
+import io.reactivex.Completable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -15,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class PointReadOnlyTest extends PointTest {
@@ -33,41 +38,6 @@ public class PointReadOnlyTest extends PointTest {
 
         verify(mapViewModel, times(1)).markLocation(initialLocation);
         verify(mapViewModel, times(1)).zoomToLocation(initialLocation);
-    }
-
-    @Test
-    public void buttonsShouldBeProperlyEnabledAtStart() {
-        geoViewModel.onCreate();
-
-        int pauseVisibility = geoViewModel.locationInfoVisibility()
-                .blockingFirst();
-
-        assertEquals(pauseVisibility, View.GONE);
-
-        int infoVisibility = geoViewModel.locationInfoVisibility()
-                .blockingFirst();
-
-        assertEquals(infoVisibility, View.GONE);
-
-        int statusVisibility = geoViewModel.locationStatusVisibility()
-                .blockingFirst();
-
-        assertEquals(statusVisibility, View.GONE);
-
-        boolean isAddEnabled = geoViewModel.isAddLocationEnabled()
-                .blockingFirst();
-
-        assertFalse(isAddEnabled);
-
-        boolean isShowEnabled = geoViewModel.isShowLocationEnabled()
-                .blockingFirst();
-
-        assertTrue(isShowEnabled);
-
-        boolean isClearEnabled = geoViewModel.isClearLocationEnabled()
-                .blockingFirst();
-
-        assertFalse(isClearEnabled);
     }
 
     @Test
@@ -115,20 +85,22 @@ public class PointReadOnlyTest extends PointTest {
         geoViewModel.showLocation()
                 .subscribe();
 
-        verify(zoomDialog, times(1)).show(any());
-    }
+        verify(zoomDialog, times(1)).show(new ZoomData(null, initialLocation));
 
-    @Test
-    public void showLayersShouldCallShowLayers() {
-        geoViewModel.onCreate();
-        geoViewModel.showLayers()
+        Location location = randomLocation();
+        locationRelay.accept(Optional.of(location));
+
+        geoViewModel.showLocation()
                 .subscribe();
 
-        verify(mapViewModel, times(1)).showLayers();
+        verify(zoomDialog, times(1)).show(new ZoomData(location, initialLocation));
     }
 
     @Test
     public void saveAnswerShouldSaveExistingAnswer() {
+        when(saveAnswer.save(any()))
+                .thenReturn(Completable.complete());
+
         geoViewModel.onCreate();
 
         geoViewModel.saveLocation()
@@ -136,7 +108,8 @@ public class PointReadOnlyTest extends PointTest {
 
         String answer = initialLocation.latitude + " " + initialLocation.longitude + " "
                 + 0 + " " + 0;
-        verify(saveAnswer, times(1)).save(answer);
+        verify(saveAnswer, times(1))
+                .save(answer);
     }
 
     @Nullable

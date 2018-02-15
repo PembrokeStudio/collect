@@ -15,6 +15,9 @@ import org.odk.collect.android.injection.scopes.PerActivity;
 import org.odk.collect.android.location.GeoActivity;
 import org.odk.collect.android.location.client.LocationClient;
 import org.odk.collect.android.location.client.LocationClients;
+import org.odk.collect.android.location.injection.Qualifiers.Extras;
+import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
+import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.MapType;
 
@@ -49,7 +52,7 @@ public abstract class GeoActivityModule {
 
     @Provides
     @PerActivity
-    @Named("extras")
+    @Extras
     static Bundle provideExtras(@NonNull GeoActivity geoActivity) {
         Intent intent = geoActivity.getIntent();
         if (intent == null) {
@@ -64,31 +67,31 @@ public abstract class GeoActivityModule {
 
     @Provides
     @PerActivity
-    @Named("isDraggable")
-    static boolean provideIsDraggable(@NonNull @Named("extras") Bundle bundle) {
+    @IsDraggable
+    static boolean provideIsDraggable(@Extras @NonNull Bundle bundle) {
         return bundle.getBoolean(DRAGGABLE_ONLY, false);
     }
 
     @Provides
     @PerActivity
-    @Named("isReadOnly")
-    static boolean isReadOnly(@NonNull @Named("extras") Bundle bundle) {
+    @IsReadOnly
+    static boolean isReadOnly(@Extras @NonNull Bundle bundle) {
         return bundle.getBoolean(READ_ONLY, false);
     }
 
     @Provides
     @PerActivity
     @Nullable
-    static LatLng initialLocation(@NonNull @Named("extras") Bundle bundle) {
+    static LatLng initialLocation(@Extras @NonNull Bundle bundle) {
         double[] location = bundle.getDoubleArray(LOCATION);
         return location != null
                 ? new LatLng(location[0], location[1])
-                : new LatLng(0, 0);
+                : null;
     }
 
     @Provides
     @PerActivity
-    static MapType provideMapType(@NonNull @Named("extras") Bundle bundle) {
+    static MapType provideMapType(@Extras @NonNull Bundle bundle) {
         MapType mapType = (MapType) bundle.get(GeoActivity.MAP_TYPE);
         return mapType != null
                 ? mapType
@@ -97,7 +100,7 @@ public abstract class GeoActivityModule {
 
     @Provides
     @PerActivity
-    static MapFunction provideMapFunction(@NonNull @Named("extras") Bundle bundle) {
+    static MapFunction provideMapFunction(@Extras @NonNull Bundle bundle) {
         MapFunction mapFunction = (MapFunction) bundle.get(GeoActivity.MAP_FUNCTION);
         return mapFunction != null
                 ? mapFunction
