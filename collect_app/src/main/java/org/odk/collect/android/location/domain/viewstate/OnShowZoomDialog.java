@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.viewstate;
 
 
 import android.support.annotation.NonNull;
@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
+import org.odk.collect.android.location.domain.state.ShowZoomOnInitialLocation;
+import org.odk.collect.android.location.domain.state.CurrentLocation;
 import org.odk.collect.android.location.model.ZoomData;
 
 import javax.inject.Inject;
@@ -15,10 +18,10 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 
 @PerActivity
-public class ShouldShowZoomDialog {
+public class OnShowZoomDialog {
 
     @NonNull
-    private final ShouldZoomOnFirstLocation shouldZoomOnFirstLocation;
+    private final ShowZoomOnInitialLocation showZoomOnInitialLocation;
 
     @NonNull
     private final CurrentLocation currentLocation;
@@ -29,17 +32,17 @@ public class ShouldShowZoomDialog {
     private final PublishRelay<Object> showLocationRelay = PublishRelay.create();
 
     @Inject
-    ShouldShowZoomDialog(@NonNull ShouldZoomOnFirstLocation shouldZoomOnFirstLocation,
-                         @NonNull CurrentLocation currentLocation,
-                         @NonNull SelectedLocation selectedLocation) {
+    OnShowZoomDialog(@NonNull ShowZoomOnInitialLocation showZoomOnInitialLocation,
+                     @NonNull CurrentLocation currentLocation,
+                     @NonNull SelectedLocation selectedLocation) {
 
-        this.shouldZoomOnFirstLocation = shouldZoomOnFirstLocation;
+        this.showZoomOnInitialLocation = showZoomOnInitialLocation;
         this.currentLocation = currentLocation;
         this.selectedLocation = selectedLocation;
     }
 
     public Observable<ZoomData> observe() {
-        return Observable.merge(showLocationRelay.hide(), shouldZoomOnFirstLocation.observe())
+        return Observable.merge(showLocationRelay.hide(), showZoomOnInitialLocation.observe())
                 .flatMapSingle(__ -> Single.zip(
                         currentLocation.get(),
                         selectedLocation.get(),

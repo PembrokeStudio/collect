@@ -67,27 +67,19 @@ public class GoogleMapView implements MapView, GoogleMap.OnMapLongClickListener,
     @NonNull
     @Override
     public Completable markLocation(@Nullable LatLng latLng) {
-        return clearLocation()
-                .andThen(Completable.defer(() -> {
-                    if (latLng != null) {
-                        MarkerOptions markerOptions = new MarkerOptions();
-
-                        markerOptions.position(latLng);
-                        markerOptions.draggable(isDraggable);
-
-                        marker = googleMap.addMarker(markerOptions);
-                    }
-
-                    return Completable.complete();
-                }));
-    }
-
-    @Override
-    public Completable clearLocation() {
         return Completable.defer(() -> {
             if (marker != null) {
                 marker.remove();
                 marker = null;
+            }
+
+            if (latLng != null) {
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                markerOptions.position(latLng);
+                markerOptions.draggable(isDraggable);
+
+                marker = googleMap.addMarker(markerOptions);
             }
 
             return Completable.complete();

@@ -12,7 +12,9 @@ import com.jakewharton.rxrelay2.BehaviorRelay;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.architecture.rx.RxViewModelActivity;
-import org.odk.collect.android.location.domain.LoadMapView;
+import org.odk.collect.android.location.domain.view.LoadMapView;
+import org.odk.collect.android.location.domain.view.GpsDisabledAlert;
+import org.odk.collect.android.location.domain.view.ZoomDialog;
 import org.odk.collect.android.location.mapview.MapView;
 import org.odk.collect.android.utilities.Rx;
 
@@ -29,9 +31,6 @@ public class GeoActivity
 
     public static final String MAP_TYPE = "map_type";
     public static final String MAP_FUNCTION = "map_function";
-
-    @Inject
-    LoadMapView loadMapView;
 
     private BehaviorRelay<MapView> mapViewRelay = BehaviorRelay.create();
     private Observable<MapView> observeMapView = mapViewRelay.hide();
@@ -57,6 +56,15 @@ public class GeoActivity
 
     @BindView(R.id.save_button)
     protected ImageButton saveButton;
+
+    @Inject
+    LoadMapView loadMapView;
+
+    @Inject
+    ZoomDialog zoomDialog;
+
+    @Inject
+    GpsDisabledAlert gpsDisabledAlert;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,23 +112,33 @@ public class GeoActivity
                 .compose(bindToLifecycle())
                 .subscribe(clearButton::setEnabled, Timber::e);
 
-        viewModel.onLocationSelected()
-                .flatMapCompletable(this::markLocation)
+        viewModel.selectedLocation()
+                .flatMapCompletable(latLngOptional ->
+                        markLocation(latLngOptional.orNull())
+                )
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
 
-        viewModel.onLocationCleared()
-                .flatMapCompletable(this::clearLocation)
+        viewModel.onShowZoomDialog()
                 .compose(bindToLifecycle())
-                .subscribe(Rx::noop, Timber::e);
+                .subscribe(zoomDialog::show, Timber::e);
 
-        viewModel.onZoomToLocation()
+        viewModel.onShowGpsDisabledDialog()
+                .compose(bindToLifecycle())
+                .subscribe(gpsDisabledAlert::show, Timber::e);
+
+        viewModel.onZoom()
+                .compose(bindToLifecycle())
                 .flatMapCompletable(this::zoomToLocation)
-                .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
 
         observeMapView.compose(bindToLifecycle())
                 .subscribe(this::bindMapView, Timber::e);
+
+        zoomDialog.zoomToLocation()
+                .flatMapCompletable(this::zoomToLocation)
+                .compose(bindToLifecycle())
+                .subscribe(Rx::noop, Timber::e);
     }
 
     private void bindMapView(@NonNull MapView mapView) {
@@ -136,25 +154,22 @@ public class GeoActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
+        getViewModel().startLocation();
+    }
 
-        getViewModel().enableLocation()
-                .compose(bindToLifecycle())
-                .subscribe(Rx::noop, Timber::e);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getViewModel().stopLocation();
     }
 
     // Outputs:
-    private Completable markLocation(@NonNull LatLng latLng) {
+    private Completable markLocation(@Nullable LatLng latLng) {
         return observeMapView.firstElement()
                 .doOnComplete(this::onMapMissing)
                 .flatMapCompletable(mapView -> mapView.markLocation(latLng));
-    }
-
-    private Completable clearLocation(@SuppressWarnings("unused") Object __) {
-        return observeMapView.firstElement()
-                .doOnComplete(this::onMapMissing)
-                .flatMapCompletable(MapView::clearLocation);
     }
 
     private Completable zoomToLocation(@NonNull LatLng latLng) {

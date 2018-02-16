@@ -17,15 +17,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.odk.collect.android.location.domain.CurrentLocation;
+import org.odk.collect.android.location.domain.state.CurrentLocation;
 import org.odk.collect.android.location.domain.viewstate.InfoText;
-import org.odk.collect.android.location.domain.LoadMapView;
-import org.odk.collect.android.location.domain.LocationFormatter;
+import org.odk.collect.android.location.domain.view.LoadMapView;
+import org.odk.collect.android.location.domain.utility.LocationFormatter;
 import org.odk.collect.android.location.domain.actions.SaveAnswer;
-import org.odk.collect.android.location.domain.SelectedLocation;
-import org.odk.collect.android.location.domain.ShowGpsDisabledAlert;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
+import org.odk.collect.android.location.domain.view.GpsDisabledAlert;
 import org.odk.collect.android.location.domain.viewstate.StatusText;
-import org.odk.collect.android.location.domain.ZoomDialog;
+import org.odk.collect.android.location.domain.view.ZoomDialog;
 import org.odk.collect.android.location.mapview.MapView;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.ZoomData;
@@ -77,7 +77,7 @@ public abstract class GeoViewModelTest {
     protected ZoomDialog zoomDialog;
 
     @Mock
-    protected ShowGpsDisabledAlert showGpsDisabledAlert;
+    protected GpsDisabledAlert gpsDisabledAlert;
 
     @Mock
     protected InfoText infoText;
@@ -108,7 +108,7 @@ public abstract class GeoViewModelTest {
 //                selectedLocation,
 //                currentLocation,
 //                zoomDialog,
-//                showGpsDisabledAlert,
+//                gpsDisabledAlert,
 //                shouldShowGpsDisabledAlert, shouldShowZoomDialog, shouldShowLayers, clearLocation, saveAnswer,
 //                infoText,
 //                statusText,
@@ -211,15 +211,15 @@ public abstract class GeoViewModelTest {
     public void shouldShowGpsDisabledAlertWhenLocationIsUnavailable() {
         geoViewModel.onCreate();
 
-        verify(showGpsDisabledAlert, never())
+        verify(gpsDisabledAlert, never())
                 .show(any());
 
         availabilityRelay.accept(true);
-        verify(showGpsDisabledAlert, never())
+        verify(gpsDisabledAlert, never())
                 .show(any());
 
         availabilityRelay.accept(false);
-        verify(showGpsDisabledAlert, times(1))
+        verify(gpsDisabledAlert, times(1))
                 .show(any());
     }
 

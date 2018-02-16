@@ -428,7 +428,7 @@ public class GoogleDriveActivity extends AppCompatActivity implements
             }
         } else {
             adapter.setEnabled(true);
-            // file clicked, download the file, mark checkbox.
+            // file clicked, download the file, observe checkbox.
             CheckBox cb = (CheckBox) view.findViewById(R.id.checkbox);
             cb.setChecked(!cb.isChecked());
 

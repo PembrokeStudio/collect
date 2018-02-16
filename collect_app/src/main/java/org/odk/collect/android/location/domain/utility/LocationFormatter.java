@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.utility;
 
 import android.content.Context;
 import android.location.Location;

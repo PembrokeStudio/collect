@@ -1,5 +1,7 @@
 package org.odk.collect.android.utilities;
 
+import timber.log.Timber;
+
 /**
  * @author James Knight
  */
@@ -48,4 +50,8 @@ public class Rx {
     }
 
     public static void noop(Object... vars) {}
+
+    public static void log(Object o) {
+        Timber.i("%s", o);
+    }
 }

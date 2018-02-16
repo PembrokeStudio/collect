@@ -3,7 +3,7 @@ package org.odk.collect.android.location.domain.viewstate;
 import android.support.annotation.NonNull;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.domain.CurrentLocation;
+import org.odk.collect.android.location.domain.state.CurrentLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 
 import javax.inject.Inject;

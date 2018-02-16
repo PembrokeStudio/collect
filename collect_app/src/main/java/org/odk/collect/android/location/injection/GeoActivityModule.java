@@ -68,7 +68,8 @@ public abstract class GeoActivityModule {
     @Provides
     @PerActivity
     @IsDraggable
-    static boolean provideIsDraggable(@Extras @NonNull Bundle bundle, @IsReadOnly boolean isReadOnly) {
+    static boolean provideIsDraggable(@Extras @NonNull Bundle bundle,
+                                      @IsReadOnly boolean isReadOnly) {
         return bundle.getBoolean(DRAGGABLE_ONLY, false) && !isReadOnly;
     }
 
@@ -87,7 +88,7 @@ public abstract class GeoActivityModule {
         double[] location = bundle.getDoubleArray(LOCATION);
         return location != null
                 ? new LatLng(location[0], location[1])
-                : new LatLng(0, 0);
+                : new LatLng(0,0);
     }
 
     @Provides

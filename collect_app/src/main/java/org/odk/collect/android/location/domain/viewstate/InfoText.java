@@ -7,7 +7,7 @@ import android.view.View;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.domain.SelectedLocation;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
 import org.odk.collect.android.location.injection.Qualifiers.HasInitialLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;

@@ -233,7 +233,7 @@ public final class WebUtils {
     }
 
     /**
-     * Utility to ensure that the entity stream of a response is drained of
+     * LocationConverter to ensure that the entity stream of a response is drained of
      * bytes.
      * Apparently some servers require that we manually read all data from the
      * stream to allow its re-use.  Please add more details or bug ID here if

@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.view;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,12 +9,11 @@ import android.support.v7.app.AlertDialog;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.GeoActivity;
 
 import javax.inject.Inject;
 
 @PerActivity
-public class ShowGpsDisabledAlert {
+public class GpsDisabledAlert {
 
     @Nullable
     private AlertDialog alertDialog;
@@ -23,7 +22,7 @@ public class ShowGpsDisabledAlert {
     private final Activity activity;
 
     @Inject
-    ShowGpsDisabledAlert(@NonNull GeoActivity activity) {
+    GpsDisabledAlert(@NonNull Activity activity) {
         this.activity = activity;
     }
 

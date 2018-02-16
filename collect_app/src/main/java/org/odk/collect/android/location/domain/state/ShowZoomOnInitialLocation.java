@@ -1,9 +1,8 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.state;
 
 import android.support.annotation.NonNull;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.injection.Qualifiers;
 import org.odk.collect.android.location.injection.Qualifiers.HasInitialLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.utilities.Rx;
@@ -13,7 +12,7 @@ import javax.inject.Inject;
 import io.reactivex.Observable;
 
 @PerActivity
-public class ShouldZoomOnFirstLocation {
+public class ShowZoomOnInitialLocation {
 
     @NonNull
     private final SelectedLocation selectedLocation;
@@ -22,7 +21,7 @@ public class ShouldZoomOnFirstLocation {
     private final boolean isDraggable;
 
     @Inject
-    ShouldZoomOnFirstLocation(@NonNull SelectedLocation selectedLocation,
+    ShowZoomOnInitialLocation(@NonNull SelectedLocation selectedLocation,
                               @HasInitialLocation boolean hasInitialLocation,
                               @IsDraggable boolean isDraggable) {
         this.selectedLocation = selectedLocation;
@@ -31,12 +30,13 @@ public class ShouldZoomOnFirstLocation {
     }
 
     public Observable<Object> observe() {
+        if (hasInitialLocation || isDraggable) {
+            return Observable.empty();
+        }
+
         return selectedLocation.observePresence()
                 .filter(Rx::isTrue)
                 .distinctUntilChanged()
-                .map(Rx::toEvent)
-                .map(__ -> hasInitialLocation || isDraggable)
-                .filter(Rx::isFalse)
                 .map(Rx::toEvent);
     }
 }

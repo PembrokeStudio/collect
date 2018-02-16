@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.common.base.Optional;
 
+import org.odk.collect.android.location.model.ZoomData;
+
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 
@@ -35,13 +37,16 @@ public interface GeoViewModelType {
     Observable<Boolean> isClearLocationEnabled();
 
     @NonNull
-    Observable<LatLng> onLocationSelected();
+    Observable<Optional<LatLng>> selectedLocation();
 
     @NonNull
-    Observable<Object> onLocationCleared();
+    Observable<ZoomData> onShowZoomDialog();
 
     @NonNull
-    Observable<LatLng> onZoomToLocation();
+    Observable<Object> onShowGpsDisabledDialog();
+
+    @NonNull
+    Observable<LatLng> onZoom();
 
     // Inputs:
     @NonNull
@@ -66,6 +71,6 @@ public interface GeoViewModelType {
     Completable markerMoved(@NonNull LatLng latLng);
 
     // Location Services:
-    @NonNull
-    Observable<Object> enableLocation();
+    void startLocation();
+    void stopLocation();
 }

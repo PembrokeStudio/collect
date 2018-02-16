@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.database.ActivityLogger;
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.domain.SelectedLocation;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
 
 import javax.inject.Inject;
 

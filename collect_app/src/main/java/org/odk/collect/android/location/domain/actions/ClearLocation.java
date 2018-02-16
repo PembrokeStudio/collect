@@ -4,7 +4,7 @@ package org.odk.collect.android.location.domain.actions;
 import android.support.annotation.NonNull;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.domain.SelectedLocation;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ public class ClearLocation {
     @NonNull
     public Completable clear() {
         return !isReadOnly
-                ? selectedLocation.clear()
+                ? selectedLocation.select(null)
                 : Completable.complete();
     }
 }

@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

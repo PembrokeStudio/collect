@@ -1,45 +1,52 @@
 package org.odk.collect.android.location;
 
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.common.base.Optional;
 
 import org.odk.collect.android.architecture.rx.RxViewModel;
-import org.odk.collect.android.location.domain.CurrentLocation;
 import org.odk.collect.android.location.domain.actions.AddLocation;
 import org.odk.collect.android.location.domain.actions.ClearLocation;
+import org.odk.collect.android.location.domain.actions.SaveAnswer;
+import org.odk.collect.android.location.domain.state.CurrentLocation;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
 import org.odk.collect.android.location.domain.viewstate.InfoText;
 import org.odk.collect.android.location.domain.viewstate.IsAddEnabled;
 import org.odk.collect.android.location.domain.viewstate.IsClearEnabled;
 import org.odk.collect.android.location.domain.viewstate.IsShowEnabled;
-import org.odk.collect.android.location.domain.actions.SaveAnswer;
-import org.odk.collect.android.location.domain.SelectedLocation;
-import org.odk.collect.android.location.domain.ShouldMarkLocationOnStart;
-import org.odk.collect.android.location.domain.ShouldShowGpsDisabledAlert;
-import org.odk.collect.android.location.domain.ShouldShowZoomDialog;
-import org.odk.collect.android.location.domain.ShouldZoom;
-import org.odk.collect.android.location.domain.ShowGpsDisabledAlert;
+import org.odk.collect.android.location.domain.viewstate.OnShowZoomDialog;
+import org.odk.collect.android.location.domain.viewstate.OnZoom;
+import org.odk.collect.android.location.domain.viewstate.PauseVisibility;
 import org.odk.collect.android.location.domain.viewstate.StatusText;
-import org.odk.collect.android.location.domain.ZoomDialog;
-import org.odk.collect.android.utilities.Rx;
+import org.odk.collect.android.location.model.ZoomData;
 
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;
-import timber.log.Timber;
 
 
 public class GeoViewModel
         extends RxViewModel
         implements GeoViewModelType {
 
+    // Internal State:
+    @NonNull
+    private final CurrentLocation currentLocation;
+
+    @NonNull
+    private final SelectedLocation selectedLocation;
+
+    // View outputs:
     @NonNull
     private final InfoText infoText;
 
     @NonNull
     private final StatusText statusText;
+
+    @NonNull
+    private final PauseVisibility pauseVisibility;
 
     @NonNull
     private final IsAddEnabled isAddEnabled;
@@ -51,6 +58,13 @@ public class GeoViewModel
     private final IsClearEnabled isClearEnabled;
 
     @NonNull
+    private final OnZoom onZoom;
+
+    @NonNull
+    private final OnShowZoomDialog onShowZoomDialog;
+
+    // View inputs:
+    @NonNull
     private final AddLocation addLocation;
 
     @NonNull
@@ -59,85 +73,34 @@ public class GeoViewModel
     @NonNull
     private final SaveAnswer saveAnswer;
 
-    @NonNull
-    private final ShouldZoom shouldZoom;
-
-    @NonNull
-    private final ZoomDialog zoomDialog;
-
-    @NonNull
-    private final ShowGpsDisabledAlert showGpsDisabledAlert;
-
-    @NonNull
-    private final ShouldShowGpsDisabledAlert shouldShowGpsDisabledAlert;
-
-    @NonNull
-    private final CurrentLocation currentLocation;
-
-    @NonNull
-    private final SelectedLocation selectedLocation;
-
-
-    @NonNull
-    private final ShouldShowZoomDialog shouldShowZoomDialog;
-
-
-    @NonNull
-    private final ShouldMarkLocationOnStart shouldMarkLocationOnStartOnStart;
-
-
     @Inject
     GeoViewModel(@NonNull InfoText infoText,
                  @NonNull StatusText statusText,
+                 @NonNull PauseVisibility pauseVisibility,
                  @NonNull IsAddEnabled isAddEnabled,
                  @NonNull IsShowEnabled isShowEnabled,
                  @NonNull IsClearEnabled isClearEnabled,
                  @NonNull AddLocation addLocation,
                  @NonNull ClearLocation clearLocation,
                  @NonNull SaveAnswer saveAnswer,
-                 @NonNull ShouldZoom shouldZoom,
-                 @NonNull ZoomDialog zoomDialog,
-                 @NonNull ShowGpsDisabledAlert showGpsDisabledAlert,
-                 @NonNull ShouldShowGpsDisabledAlert shouldShowGpsDisabledAlert,
+                 @NonNull OnZoom onZoom,
                  @NonNull CurrentLocation currentLocation,
                  @NonNull SelectedLocation selectedLocation,
-                 @NonNull ShouldShowZoomDialog shouldShowZoomDialog,
-                 @NonNull ShouldMarkLocationOnStart shouldMarkLocationOnStartOnStart) {
+                 @NonNull OnShowZoomDialog onShowZoomDialog) {
 
         this.infoText = infoText;
         this.statusText = statusText;
+        this.pauseVisibility = pauseVisibility;
         this.isAddEnabled = isAddEnabled;
         this.isShowEnabled = isShowEnabled;
         this.isClearEnabled = isClearEnabled;
         this.addLocation = addLocation;
         this.clearLocation = clearLocation;
         this.saveAnswer = saveAnswer;
-        this.shouldZoom = shouldZoom;
-        this.zoomDialog = zoomDialog;
-        this.showGpsDisabledAlert = showGpsDisabledAlert;
-        this.shouldShowGpsDisabledAlert = shouldShowGpsDisabledAlert;
+        this.onZoom = onZoom;
         this.currentLocation = currentLocation;
         this.selectedLocation = selectedLocation;
-        this.shouldShowZoomDialog = shouldShowZoomDialog;
-        this.shouldMarkLocationOnStartOnStart = shouldMarkLocationOnStartOnStart;
-    }
-
-    @Override
-    protected void onCreate() {
-        super.onCreate();
-
-        shouldShowZoomDialog.observe()
-                .compose(bindToLifecycle())
-                .subscribe(zoomDialog::show, Timber::e);
-
-        shouldShowGpsDisabledAlert.observe()
-                .compose(bindToLifecycle())
-                .subscribe(showGpsDisabledAlert::show, Timber::e);
-
-        shouldMarkLocationOnStartOnStart.observe()
-                .compose(bindToLifecycle())
-                .flatMapCompletable(this::selectLocation)
-                .subscribe(Rx::noop, Timber::e);
+        this.onShowZoomDialog = onShowZoomDialog;
     }
 
     // UI state:
@@ -168,7 +131,7 @@ public class GeoViewModel
     @NonNull
     @Override
     public Observable<Integer> pauseButtonVisibility() {
-        return Observable.just(View.GONE);
+        return pauseVisibility.observe();
     }
 
     @NonNull
@@ -191,20 +154,26 @@ public class GeoViewModel
 
     @NonNull
     @Override
-    public Observable<LatLng> onLocationSelected() {
-        return selectedLocation.onSelected();
+    public Observable<Optional<LatLng>> selectedLocation() {
+        return selectedLocation.observe();
     }
 
     @NonNull
     @Override
-    public Observable<LatLng> onZoomToLocation() {
-        return shouldZoom.observe();
+    public Observable<ZoomData> onShowZoomDialog() {
+        return onShowZoomDialog.observe();
     }
 
     @NonNull
     @Override
-    public Observable<Object> onLocationCleared() {
-        return selectedLocation.cleared();
+    public Observable<Object> onShowGpsDisabledDialog() {
+        return currentLocation.onError();
+    }
+
+    @NonNull
+    @Override
+    public Observable<LatLng> onZoom() {
+        return onZoom.observe();
     }
 
     @NonNull
@@ -222,7 +191,7 @@ public class GeoViewModel
     @NonNull
     @Override
     public Completable showLocation() {
-        return shouldShowZoomDialog.show();
+        return onShowZoomDialog.show();
     }
 
     @NonNull
@@ -249,13 +218,13 @@ public class GeoViewModel
         return selectedLocation.select(latLng);
     }
 
-    @NonNull
     @Override
-    public Observable<Object> enableLocation() {
-        return currentLocation.enable();
+    public void startLocation() {
+        currentLocation.startLocation();
     }
 
-    private Completable selectLocation(@NonNull LatLng latLng) {
-        return selectedLocation.select(latLng);
+    @Override
+    public void stopLocation() {
+        currentLocation.stopLocation();
     }
 }

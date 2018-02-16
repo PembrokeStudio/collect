@@ -2,10 +2,12 @@ package org.odk.collect.android.location.domain.actions;
 
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Optional;
+
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.domain.CurrentLocation;
-import org.odk.collect.android.location.domain.SelectedLocation;
-import org.odk.collect.android.location.Utility;
+import org.odk.collect.android.location.domain.state.CurrentLocation;
+import org.odk.collect.android.location.domain.state.SelectedLocation;
+import org.odk.collect.android.location.domain.utility.LocationConverter;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 
 import javax.inject.Inject;
@@ -38,15 +40,15 @@ public class AddLocation {
     }
 
     public Completable add() {
-        return !isReadOnly
-                ? createAdd()
-                : Completable.complete();
-    }
+        if (isReadOnly) {
+            return Completable.complete();
+        }
 
-    private Completable createAdd() {
         return currentLocation.observe()
-                .map(Utility::locationToLatLng)
-                .doOnNext(selectedLocation::select)
-                .flatMapCompletable(__ -> Completable.complete());
+                .firstOrError()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(LocationConverter::locationToLatLng)
+                .flatMapCompletable(selectedLocation::select);
     }
 }

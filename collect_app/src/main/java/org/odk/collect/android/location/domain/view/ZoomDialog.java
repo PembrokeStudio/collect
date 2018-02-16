@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

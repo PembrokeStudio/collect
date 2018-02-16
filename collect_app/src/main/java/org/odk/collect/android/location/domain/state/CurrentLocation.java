@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.state;
 
 
 import android.location.Location;
@@ -11,6 +11,8 @@ import com.jakewharton.rxrelay2.PublishRelay;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
 import org.odk.collect.android.location.client.LocationClient;
+import org.odk.collect.android.location.domain.utility.IsLocationValid;
+import org.odk.collect.android.utilities.Rx;
 
 import javax.inject.Inject;
 
@@ -61,15 +63,16 @@ public class CurrentLocation implements LocationClient.LocationClientListener {
 
     public Observable<Boolean> observePresence() {
         return locationRelay.hide()
+                .doOnNext(Rx::log)
                 .map(Optional::isPresent)
+                .doOnNext(Rx::log)
                 .distinctUntilChanged();
     }
 
-    public Observable<Object> enable() {
-        return Observable.empty()
-                .doOnSubscribe(__ -> locationClient.start())
-                .doOnDispose(locationClient::stop);
+    public Observable<Object> onError() {
+        return locationErrors.hide();
     }
+
 
     private void receivedLocation(@Nullable Location location) {
         if (location == null) {
@@ -88,6 +91,13 @@ public class CurrentLocation implements LocationClient.LocationClientListener {
         locationRelay.accept(Optional.of(location));
     }
 
+    public void startLocation() {
+        locationClient.start();
+    }
+
+    public void stopLocation() {
+        locationClient.stop();
+    }
 
     @Override
     public void onClientStart() {
