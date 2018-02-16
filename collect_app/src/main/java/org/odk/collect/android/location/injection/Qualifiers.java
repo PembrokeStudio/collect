@@ -36,4 +36,10 @@ public class Qualifiers {
     public @interface HasInitialLocation {
 
     }
+
+    @Qualifier
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface ValidWithinMillis {
+
+    }
 }

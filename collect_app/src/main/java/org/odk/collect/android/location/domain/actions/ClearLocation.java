@@ -1,9 +1,10 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.actions;
 
 
 import android.support.annotation.NonNull;
 
 import org.odk.collect.android.injection.scopes.PerActivity;
+import org.odk.collect.android.location.domain.SelectedLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
 
 import javax.inject.Inject;
@@ -18,8 +19,8 @@ public class ClearLocation {
     private final boolean isReadOnly;
 
     @Inject
-    public ClearLocation(@NonNull SelectedLocation selectedLocation,
-                         @IsReadOnly boolean isReadOnly) {
+    ClearLocation(@NonNull SelectedLocation selectedLocation,
+                  @IsReadOnly boolean isReadOnly) {
         this.selectedLocation = selectedLocation;
         this.isReadOnly = isReadOnly;
     }

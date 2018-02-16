@@ -1,4 +1,4 @@
-package org.odk.collect.android.location.domain;
+package org.odk.collect.android.location.domain.actions;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.database.ActivityLogger;
 import org.odk.collect.android.injection.scopes.PerActivity;
+import org.odk.collect.android.location.domain.SelectedLocation;
 
 import javax.inject.Inject;
 

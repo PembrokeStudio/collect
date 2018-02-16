@@ -9,15 +9,15 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 
 public interface GeoViewModelType {
-    // UI State
+    // Outputs:
     @NonNull
     Observable<String> locationInfoText();
 
     @NonNull
-    Observable<String> locationStatusText();
+    Observable<Integer> locationInfoVisibility();
 
     @NonNull
-    Observable<Integer> locationInfoVisibility();
+    Observable<String> locationStatusText();
 
     @NonNull
     Observable<Integer> locationStatusVisibility();
@@ -35,13 +35,13 @@ public interface GeoViewModelType {
     Observable<Boolean> isClearLocationEnabled();
 
     @NonNull
-    Observable<LatLng> locationSelected();
+    Observable<LatLng> onLocationSelected();
 
     @NonNull
-    Observable<Object> locationCleared();
+    Observable<Object> onLocationCleared();
 
     @NonNull
-    Observable<LatLng> shouldZoomToLocation();
+    Observable<LatLng> onZoomToLocation();
 
     // Inputs:
     @NonNull
@@ -65,6 +65,7 @@ public interface GeoViewModelType {
     @NonNull
     Completable markerMoved(@NonNull LatLng latLng);
 
+    // Location Services:
     @NonNull
-    Observable<Object> watchLocation();
+    Observable<Object> enableLocation();
 }

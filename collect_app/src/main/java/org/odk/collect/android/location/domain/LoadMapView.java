@@ -2,22 +2,19 @@ package org.odk.collect.android.location.domain;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 
 import com.google.android.gms.maps.SupportMapFragment;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.GeoActivity;
 import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
-import org.odk.collect.android.location.mapviewmodel.GoogleMapView;
-import org.odk.collect.android.location.mapviewmodel.MapView;
+import org.odk.collect.android.location.mapview.GoogleMapView;
+import org.odk.collect.android.location.mapview.MapView;
 import org.odk.collect.android.spatial.MapHelper;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 @PerActivity

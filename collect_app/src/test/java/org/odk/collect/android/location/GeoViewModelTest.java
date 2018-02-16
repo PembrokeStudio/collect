@@ -17,23 +17,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.odk.collect.android.location.domain.CurrentPosition;
-import org.odk.collect.android.location.domain.InfoText;
+import org.odk.collect.android.location.domain.CurrentLocation;
+import org.odk.collect.android.location.domain.viewstate.InfoText;
 import org.odk.collect.android.location.domain.LoadMapView;
 import org.odk.collect.android.location.domain.LocationFormatter;
-import org.odk.collect.android.location.domain.SaveAnswer;
+import org.odk.collect.android.location.domain.actions.SaveAnswer;
 import org.odk.collect.android.location.domain.SelectedLocation;
 import org.odk.collect.android.location.domain.ShowGpsDisabledAlert;
-import org.odk.collect.android.location.domain.StatusText;
-import org.odk.collect.android.location.domain.WatchPosition;
+import org.odk.collect.android.location.domain.viewstate.StatusText;
 import org.odk.collect.android.location.domain.ZoomDialog;
-import org.odk.collect.android.location.mapviewmodel.MapView;
+import org.odk.collect.android.location.mapview.MapView;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.ZoomData;
 import org.odk.collect.android.location.viewmodel.MockMapView;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 
 import static org.junit.Assert.assertEquals;
@@ -61,13 +59,13 @@ public abstract class GeoViewModelTest {
     protected abstract boolean isReadOnly();
 
     @Mock
-    protected WatchPosition watchPosition;
+    protected WatchLocation watchLocation;
 
     @Mock
     protected SelectedLocation selectedLocation;
 
     @Mock
-    protected CurrentPosition currentPosition;
+    protected CurrentLocation currentLocation;
 
     @Mock
     private LoadMapView loadMapView;
@@ -105,10 +103,10 @@ public abstract class GeoViewModelTest {
     @Before
     public void setupViewModel() {
 //        geoViewModel = spy(new GeoViewModel(
-//                watchPosition,
+//                enableLocation,
 //                loadMapView,
 //                selectedLocation,
-//                currentPosition,
+//                currentLocation,
 //                zoomDialog,
 //                showGpsDisabledAlert,
 //                shouldShowGpsDisabledAlert, shouldShowZoomDialog, shouldShowLayers, clearLocation, saveAnswer,
@@ -119,11 +117,11 @@ public abstract class GeoViewModelTest {
 //                initialLocation()
 //        ));
 
-        when(watchPosition.observeLocation())
+        when(watchLocation.observeLocation())
                 .thenReturn(locationRelay.hide());
 
 
-        when(watchPosition.observeAvailability())
+        when(watchLocation.observeAvailability())
                 .thenReturn(availabilityRelay);
 
         when(zoomDialog.zoomToLocation())
@@ -229,15 +227,15 @@ public abstract class GeoViewModelTest {
     public void shouldCallWatchLocation() {
         geoViewModel.onCreate();
 
-        verify(watchPosition, never()).startWatching();
+        verify(watchLocation, never()).startWatching();
 
-        Disposable disposable = geoViewModel.watchLocation().subscribe();
-        verify(watchPosition, times(1)).startWatching();
-        verify(watchPosition, never()).stopWatching();
+        Disposable disposable = geoViewModel.enableLocation().subscribe();
+        verify(watchLocation, times(1)).startWatching();
+        verify(watchLocation, never()).stopWatching();
 
         disposable.dispose();
-        verify(watchPosition, times(1)).startWatching();
-        verify(watchPosition, times(1)).stopWatching();
+        verify(watchLocation, times(1)).startWatching();
+        verify(watchLocation, times(1)).stopWatching();
     }
 
     @Test

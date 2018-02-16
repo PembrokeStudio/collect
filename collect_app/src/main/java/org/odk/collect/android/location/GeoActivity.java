@@ -13,7 +13,7 @@ import com.jakewharton.rxrelay2.BehaviorRelay;
 import org.odk.collect.android.R;
 import org.odk.collect.android.architecture.rx.RxViewModelActivity;
 import org.odk.collect.android.location.domain.LoadMapView;
-import org.odk.collect.android.location.mapviewmodel.MapView;
+import org.odk.collect.android.location.mapview.MapView;
 import org.odk.collect.android.utilities.Rx;
 
 import javax.inject.Inject;
@@ -104,17 +104,17 @@ public class GeoActivity
                 .compose(bindToLifecycle())
                 .subscribe(clearButton::setEnabled, Timber::e);
 
-        viewModel.locationSelected()
+        viewModel.onLocationSelected()
                 .flatMapCompletable(this::markLocation)
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
 
-        viewModel.locationCleared()
+        viewModel.onLocationCleared()
                 .flatMapCompletable(this::clearLocation)
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
 
-        viewModel.shouldZoomToLocation()
+        viewModel.onZoomToLocation()
                 .flatMapCompletable(this::zoomToLocation)
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
@@ -139,7 +139,7 @@ public class GeoActivity
     protected void onResume() {
         super.onResume();
 
-        getViewModel().watchLocation()
+        getViewModel().enableLocation()
                 .compose(bindToLifecycle())
                 .subscribe(Rx::noop, Timber::e);
     }

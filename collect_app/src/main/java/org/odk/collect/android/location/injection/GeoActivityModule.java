@@ -19,6 +19,7 @@ import org.odk.collect.android.location.injection.Qualifiers.HasInitialLocation;
 import org.odk.collect.android.location.injection.Qualifiers.InitialLocation;
 import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
+import org.odk.collect.android.location.injection.Qualifiers.ValidWithinMillis;
 import org.odk.collect.android.location.model.MapFunction;
 import org.odk.collect.android.location.model.MapType;
 
@@ -67,8 +68,8 @@ public abstract class GeoActivityModule {
     @Provides
     @PerActivity
     @IsDraggable
-    static boolean provideIsDraggable(@Extras @NonNull Bundle bundle) {
-        return bundle.getBoolean(DRAGGABLE_ONLY, true);
+    static boolean provideIsDraggable(@Extras @NonNull Bundle bundle, @IsReadOnly boolean isReadOnly) {
+        return bundle.getBoolean(DRAGGABLE_ONLY, false) && !isReadOnly;
     }
 
     @Provides
@@ -112,6 +113,13 @@ public abstract class GeoActivityModule {
         return mapFunction != null
                 ? mapFunction
                 : MapFunction.POINT;
+    }
+
+    @Provides
+    @PerActivity
+    @ValidWithinMillis
+    static double provideValidWithinMillis() {
+        return 5000;
     }
 
     @Provides

@@ -300,7 +300,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
         String instancePath = null;
         boolean newForm = true;
         autoSaved = false;
-        // only check the buttons if it's enabled in preferences
+        // only check the buttons if it's enable in preferences
         String navigation = (String) GeneralSharedPreferences.getInstance().get(PreferenceKeys.KEY_NAVIGATION);
         if (navigation.contains(PreferenceKeys.NAVIGATION_BUTTONS)) {
             showNavigationButtons = true;
@@ -2851,7 +2851,7 @@ public class FormEntryActivity extends AppCompatActivity implements AnimationLis
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                            float velocityY) {
-        // only check the swipe if it's enabled in preferences
+        // only check the swipe if it's enable in preferences
         String navigation = (String) GeneralSharedPreferences.getInstance()
                 .get(PreferenceKeys.KEY_NAVIGATION);
 

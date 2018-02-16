@@ -1,5 +1,4 @@
-package org.odk.collect.android.location.domain;
-
+package org.odk.collect.android.location.domain.viewstate;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -7,51 +6,54 @@ import android.view.View;
 
 import org.odk.collect.android.R;
 import org.odk.collect.android.injection.scopes.PerActivity;
+import org.odk.collect.android.location.domain.CurrentLocation;
+import org.odk.collect.android.location.domain.LocationFormatter;
+import org.odk.collect.android.location.domain.SelectedLocation;
 import org.odk.collect.android.location.injection.Qualifiers.HasInitialLocation;
-import org.odk.collect.android.location.injection.Qualifiers.IsDraggable;
 import org.odk.collect.android.location.injection.Qualifiers.IsReadOnly;
-import org.odk.collect.android.location.model.MapFunction;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
 
 @PerActivity
-public class InfoText {
+public class StatusText {
     @NonNull
     private final Context context;
 
     @NonNull
-    private final MapFunction mapFunction;
+    private final CurrentLocation currentLocation;
 
     @NonNull
     private final SelectedLocation selectedLocation;
 
-    private final boolean isDraggable;
+    @NonNull
+    private final LocationFormatter locationFormatter;
+
     private final boolean isReadOnly;
     private final boolean hasInitialLocation;
 
     @Inject
-    public InfoText(@NonNull Context context,
-                    @NonNull MapFunction mapFunction,
-                    @NonNull SelectedLocation selectedLocation,
-                    @IsDraggable boolean isDraggable,
-                    @IsReadOnly boolean isReadOnly,
-                    @HasInitialLocation boolean hasInitialLocation) {
+    public StatusText(@NonNull Context context,
+                      @NonNull CurrentLocation currentLocation, @NonNull SelectedLocation selectedLocation,
+                      @NonNull LocationFormatter locationFormatter,
+                      @IsReadOnly boolean isReadOnly,
+                      @HasInitialLocation boolean hasInitialLocation) {
         this.context = context;
-        this.mapFunction = mapFunction;
+        this.currentLocation = currentLocation;
         this.selectedLocation = selectedLocation;
-        this.isDraggable = isDraggable;
+        this.locationFormatter = locationFormatter;
+
         this.isReadOnly = isReadOnly;
         this.hasInitialLocation = hasInitialLocation;
     }
 
     public Observable<String> observeText() {
-        return Observable.just(isDraggable
-                ? R.string.geopoint_instruction
-                : R.string.geopoint_no_draggable_instruction
-
-        ).map(context::getString);
+        return currentLocation.observe()
+                .map(locationOptional -> locationOptional.isPresent()
+                        ? locationFormatter.getStringForLocation(locationOptional.get())
+                        : context.getString(R.string.please_wait_long)
+                );
     }
 
     public Observable<Integer> observeVisibility() {

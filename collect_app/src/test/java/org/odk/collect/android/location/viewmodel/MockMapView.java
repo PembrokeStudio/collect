@@ -6,7 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.common.base.Optional;
 import com.jakewharton.rxrelay2.BehaviorRelay;
 
-import org.odk.collect.android.location.mapviewmodel.MapView;
+import org.odk.collect.android.location.mapview.MapView;
 
 import io.reactivex.Completable;
 import io.reactivex.Observable;

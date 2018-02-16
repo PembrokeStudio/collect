@@ -13,15 +13,15 @@ import io.reactivex.Observable;
 public class ShouldShowGpsDisabledAlert {
 
     @NonNull
-    private final WatchPosition watchPosition;
+    private final WatchLocation watchLocation;
 
     @Inject
-    ShouldShowGpsDisabledAlert(@NonNull WatchPosition watchPosition) {
-        this.watchPosition = watchPosition;
+    ShouldShowGpsDisabledAlert(@NonNull WatchLocation watchLocation) {
+        this.watchLocation = watchLocation;
     }
 
     public Observable<Object> observe() {
-        return watchPosition.observeAvailability()
+        return watchLocation.observeAvailability()
                 .filter(isAvailable -> !isAvailable)
                 .map(Rx::toEvent);
     }

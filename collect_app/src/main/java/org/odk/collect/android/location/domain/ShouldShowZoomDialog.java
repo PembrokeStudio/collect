@@ -21,7 +21,7 @@ public class ShouldShowZoomDialog {
     private final ShouldZoomOnFirstLocation shouldZoomOnFirstLocation;
 
     @NonNull
-    private final CurrentPosition currentPosition;
+    private final CurrentLocation currentLocation;
 
     @NonNull
     private final SelectedLocation selectedLocation;
@@ -30,18 +30,18 @@ public class ShouldShowZoomDialog {
 
     @Inject
     ShouldShowZoomDialog(@NonNull ShouldZoomOnFirstLocation shouldZoomOnFirstLocation,
-                         @NonNull CurrentPosition currentPosition,
+                         @NonNull CurrentLocation currentLocation,
                          @NonNull SelectedLocation selectedLocation) {
 
         this.shouldZoomOnFirstLocation = shouldZoomOnFirstLocation;
-        this.currentPosition = currentPosition;
+        this.currentLocation = currentLocation;
         this.selectedLocation = selectedLocation;
     }
 
     public Observable<ZoomData> observe() {
         return Observable.merge(showLocationRelay.hide(), shouldZoomOnFirstLocation.observe())
                 .flatMapSingle(__ -> Single.zip(
-                        currentPosition.get(),
+                        currentLocation.get(),
                         selectedLocation.get(),
                         (current, selected) -> new ZoomData(current.orNull(), selected.orNull())
                 ))

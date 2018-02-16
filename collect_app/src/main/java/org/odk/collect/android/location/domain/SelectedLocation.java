@@ -81,6 +81,12 @@ public class SelectedLocation {
         return selectedLocation;
     }
 
+    public Observable<LatLng> onSelected() {
+        return selectedLocation
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
     public Observable<Object> cleared() {
         return cleared;
     }

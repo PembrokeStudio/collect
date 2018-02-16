@@ -2,7 +2,6 @@ package org.odk.collect.android.location.domain;
 
 
 import org.odk.collect.android.injection.scopes.PerActivity;
-import org.odk.collect.android.location.mapviewmodel.MapView;
 
 import javax.inject.Inject;
 
