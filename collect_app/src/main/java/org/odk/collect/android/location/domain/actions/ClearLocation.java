@@ -11,6 +11,9 @@ import javax.inject.Inject;
 
 import io.reactivex.Completable;
 
+/**
+ * Clears the selected location, unless 'isReadOnly' is set true.
+ */
 @PerActivity
 public class ClearLocation {
 

@@ -15,9 +15,9 @@ import javax.inject.Inject;
 import io.reactivex.Completable;
 
 /**
- * @author James Knight
+ * Monitors the user's current location and selects it when requested,
+ * assuming the 'isReadOnly' flag is not set.
  */
-
 @PerActivity
 public class AddLocation {
 
@@ -40,12 +40,13 @@ public class AddLocation {
     }
 
     public Completable add() {
+        // If isReadOnly, return an empty action:
         if (isReadOnly) {
             return Completable.complete();
         }
 
         return currentLocation.observe()
-                .firstOrError()
+                .firstOrError() // observe() starts with an absent Optional.
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(LocationConverter::locationToLatLng)
